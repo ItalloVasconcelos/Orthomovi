@@ -1,6 +1,7 @@
 
 import React from "react";
-import RegistrationForm from "@/components/RegistrationForm";
+import { PhotoWizard } from "@/components/PhotoWizard";
+import { usePhotoWizard } from "@/hooks/use-photo-wizard";
 
 const Index = () => {
   return (
@@ -13,9 +14,9 @@ const Index = () => {
         </div>
       </header>
       
-      <main className="flex-grow flex items-center justify-center px-4 py-10">
+      <main className="flex-grow flex items-center justify-center px-4 py-6">
         <div className="w-full max-w-md">
-          <RegistrationForm />
+          <PhotoWizard />
         </div>
       </main>
       
