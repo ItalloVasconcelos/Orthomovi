@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Search, Eye } from "lucide-react";
+import { Search, Eye, X } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ClientSubmissionCard } from "@/components/ClientSubmissionCard";
 
 // Mock data for demonstration
@@ -101,6 +109,34 @@ const clientSubmissions = [
       d: 5.8,
     },
   },
+  {
+    id: "6",
+    name: "Carlos Mendes",
+    email: "carlos.mendes@gmail.com",
+    submissionDate: "16/04/2023",
+    calculatedSize: "21.5",
+    status: "Pendente",
+    measurements: {
+      a: 7.9,
+      b: 11.8,
+      c: 18.2,
+      d: 5.3,
+    },
+  },
+  {
+    id: "7",
+    name: "Julia Rodrigues",
+    email: "julia.rodrigues@hotmail.com",
+    submissionDate: "15/04/2023",
+    calculatedSize: "24.5",
+    status: "Concluído",
+    measurements: {
+      a: 9.5,
+      b: 13.4,
+      c: 20.3,
+      d: 6.2,
+    },
+  },
 ];
 
 type Status = "Pendente" | "Em análise" | "Concluído";
@@ -111,11 +147,12 @@ const AdminPanel = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedClient, setSelectedClient] = useState<typeof clientSubmissions[0] | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [clientData, setClientData] = useState(clientSubmissions);
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   // Filter clients based on search query and status filter
-  const filteredClients = clientSubmissions.filter((client) => {
+  const filteredClients = clientData.filter((client) => {
     const matchesSearch =
       searchQuery === "" ||
       client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -132,10 +169,21 @@ const AdminPanel = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const totalResults = filteredClients.length;
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(startIndex + itemsPerPage - 1, totalResults);
 
   const handleViewDetails = (client: typeof clientSubmissions[0]) => {
     setSelectedClient(client);
     setIsDetailsModalOpen(true);
+  };
+
+  const handleStatusChange = (clientId: string, newStatus: string) => {
+    setClientData((prevClients) =>
+      prevClients.map((client) =>
+        client.id === clientId ? { ...client, status: newStatus } : client
+      )
+    );
   };
 
   const getStatusClass = (status: string) => {
@@ -175,16 +223,20 @@ const AdminPanel = () => {
             />
           </div>
 
-          <select
+          <Select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as Status | "")}
-            className="px-4 py-2 border rounded-md w-full md:w-48"
+            onValueChange={(value) => setStatusFilter(value as Status | "")}
           >
-            <option value="">Todos os status</option>
-            <option value="Pendente">Pendente</option>
-            <option value="Em análise">Em análise</option>
-            <option value="Concluído">Concluído</option>
-          </select>
+            <SelectTrigger className="w-full md:w-48">
+              <SelectValue placeholder="Todos os status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Todos os status</SelectItem>
+              <SelectItem value="Pendente">Pendente</SelectItem>
+              <SelectItem value="Em análise">Em análise</SelectItem>
+              <SelectItem value="Concluído">Concluído</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Desktop Table View */}
@@ -208,13 +260,19 @@ const AdminPanel = () => {
                   <TableCell>{client.submissionDate}</TableCell>
                   <TableCell className="font-bold">{client.calculatedSize}</TableCell>
                   <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(
-                        client.status
-                      )}`}
+                    <Select
+                      defaultValue={client.status}
+                      onValueChange={(value) => handleStatusChange(client.id, value)}
                     >
-                      {client.status}
-                    </span>
+                      <SelectTrigger className={`h-8 w-32 px-2 ${getStatusClass(client.status)}`}>
+                        <SelectValue placeholder={client.status} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pendente">Pendente</SelectItem>
+                        <SelectItem value="Em análise">Em análise</SelectItem>
+                        <SelectItem value="Concluído">Concluído</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
                     <Button
@@ -241,69 +299,108 @@ const AdminPanel = () => {
               client={client} 
               onViewDetails={() => handleViewDetails(client)} 
               statusClass={getStatusClass(client.status)}
+              onStatusChange={(newStatus) => handleStatusChange(client.id, newStatus)}
             />
           ))}
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <Pagination className="mt-6">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage((prev) => Math.max(prev - 1, 1));
-                  }}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }).map((_, index) => (
-                <PaginationItem key={index}>
-                  <PaginationLink
+        <div className="mt-6 flex flex-col gap-2">
+          <p className="text-sm text-gray-500 text-center">
+            Mostrando {startIndex}–{endIndex} de {totalResults} resultados
+          </p>
+          
+          {totalPages > 0 && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
-                      setCurrentPage(index + 1);
+                      setCurrentPage((prev) => Math.max(prev - 1, 1));
                     }}
-                    isActive={currentPage === index + 1}
+                    aria-disabled={currentPage === 1}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                   >
-                    {index + 1}
-                  </PaginationLink>
+                    Anterior
+                  </PaginationPrevious>
                 </PaginationItem>
-              ))}
 
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+                {Array.from({ length: Math.min(totalPages, 5) }).map((_, index) => {
+                  // Show at most 5 numbered pages, centering around the current page
+                  let pageNum = index + 1;
+                  if (totalPages > 5) {
+                    if (currentPage > 3) {
+                      pageNum = currentPage - 3 + index;
+                      if (pageNum > totalPages - 5) {
+                        pageNum = totalPages - 5 + index + 1;
+                      }
+                    }
+                  }
+                  
+                  if (pageNum <= totalPages) {
+                    return (
+                      <PaginationItem key={index}>
+                        <PaginationLink
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setCurrentPage(pageNum);
+                          }}
+                          isActive={currentPage === pageNum}
+                        >
+                          {pageNum}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  }
+                  return null;
+                })}
+
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                    }}
+                    aria-disabled={currentPage === totalPages}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                  >
+                    Próxima
+                  </PaginationNext>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </div>
       </main>
 
-      {/* Details Modal */}
+      {/* Details Modal with improved layout */}
       <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogClose className="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100">
+            <X className="h-4 w-4" />
+            <span className="sr-only">Fechar</span>
+          </DialogClose>
+          
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="pr-6">
               Detalhes da Medição de{" "}
               {selectedClient ? selectedClient.name : ""}
             </DialogTitle>
+            {selectedClient && (
+              <p className="text-sm text-gray-500 mt-1">{selectedClient.email}</p>
+            )}
           </DialogHeader>
           
           {selectedClient && (
             <div className="space-y-6">
               <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-sm text-gray-500">Nº Calculado</div>
-                  <div className="text-3xl font-bold text-ortho-orange">
+                <div className="text-center py-3">
+                  <div className="text-sm text-gray-500 mb-1">Nº Calculado</div>
+                  <div className="text-4xl font-bold text-ortho-orange">
                     {selectedClient.calculatedSize}
                   </div>
                 </div>
@@ -336,6 +433,23 @@ const AdminPanel = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+                
+                <div className="border-t pt-4">
+                  <div className="text-sm font-medium mb-2">Status atual</div>
+                  <Select
+                    defaultValue={selectedClient.status}
+                    onValueChange={(value) => handleStatusChange(selectedClient.id, value)}
+                  >
+                    <SelectTrigger className={`w-full ${getStatusClass(selectedClient.status)}`}>
+                      <SelectValue placeholder={selectedClient.status} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pendente">Pendente</SelectItem>
+                      <SelectItem value="Em análise">Em análise</SelectItem>
+                      <SelectItem value="Concluído">Concluído</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
