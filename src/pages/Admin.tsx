@@ -27,7 +27,7 @@ const AdminPanel = () => {
       client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       client.email.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = statusFilter === "" || client.status === statusFilter;
+    const matchesStatus = statusFilter === "" || statusFilter === "all" || client.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });

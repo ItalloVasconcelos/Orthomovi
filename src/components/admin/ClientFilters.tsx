@@ -46,7 +46,7 @@ export const ClientFilters: React.FC<ClientFiltersProps> = ({
           <SelectValue placeholder="Todos os status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">Todos os status</SelectItem>
+          <SelectItem value="all">Todos os status</SelectItem>
           <SelectItem value="Pendente">Pendente</SelectItem>
           <SelectItem value="Em análise">Em análise</SelectItem>
           <SelectItem value="Concluído">Concluído</SelectItem>

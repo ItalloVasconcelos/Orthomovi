@@ -85,7 +85,8 @@ export const ClientPagination: React.FC<ClientPaginationProps> = ({
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                  // Fix: directly pass a number instead of a function
+                  setCurrentPage(Math.min(currentPage + 1, totalPages));
                 }}
                 aria-disabled={currentPage === totalPages}
                 className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
