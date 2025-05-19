@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Eye, EyeOff, Check } from "lucide-react";
 
@@ -217,9 +218,9 @@ const RegistrationForm: React.FC = () => {
               <div className="text-sm">
                 <label htmlFor="termsAccepted" className="text-gray-700">
                   Li e aceito os{" "}
-                  <a href="#" className="text-ortho-orange hover:underline">
+                  <Link to="/terms" className="text-ortho-orange hover:underline">
                     termos de uso
-                  </a>
+                  </Link>
                 </label>
                 {errors.termsAccepted && (
                   <p className="error-message">{errors.termsAccepted}</p>
@@ -242,9 +243,9 @@ const RegistrationForm: React.FC = () => {
           
           <p className="mt-6 text-center text-gray-600">
             Já tem conta?{" "}
-            <a href="#" className="text-blue-600 hover:underline">
+            <Link to="/login" className="text-ortho-orange hover:underline">
               Faça login
-            </a>
+            </Link>
           </p>
         </div>
       </div>

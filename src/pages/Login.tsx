@@ -5,6 +5,14 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage
+} from "@/components/ui/breadcrumb";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -29,21 +37,17 @@ const Login = () => {
     
     setIsLoading(true);
     
-    // Simulação de login (será substituído pela autenticação real)
     try {
       // Simulação de delay de rede
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Simulação de login bem-sucedido
-      // Em um cenário real, aqui haveria a chamada para a API de autenticação
-      
       toast({
         title: "Login bem-sucedido",
-        description: "Redirecionando para o painel administrativo.",
+        description: "Redirecionando para o painel do cliente.",
       });
       
       setTimeout(() => {
-        navigate("/admin");
+        navigate("/cliente");
       }, 1000);
       
     } catch (error) {
@@ -65,11 +69,28 @@ const Login = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/20">
       <header className="py-6 px-4">
         <div className="container mx-auto">
-          <div className="flex justify-center">
-            <h1 className="text-3xl font-bold text-ortho-orange">Orthomovi</h1>
+          <div className="flex justify-between items-center">
+            <Link to="/" className="text-3xl font-bold text-ortho-orange">Orthomovi</Link>
+            <Link to="/produto">
+              <Button variant="ghost">Conheça o produto</Button>
+            </Link>
           </div>
         </div>
       </header>
+      
+      <div className="container mx-auto py-4 px-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Início</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Login</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
       
       <main className="flex-grow flex items-center justify-center px-4 py-6">
         <div className="w-full max-w-md">
@@ -145,9 +166,14 @@ const Login = () => {
         </div>
       </main>
       
-      <footer className="py-4 text-center text-sm text-gray-500">
-        <div className="container mx-auto">
+      <footer className="py-6 bg-white border-t">
+        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
           <p>© 2025 Orthomovi Órteses Pediátricas. Todos os direitos reservados.</p>
+          <div className="flex justify-center mt-2 space-x-4">
+            <Link to="/terms" className="hover:text-ortho-orange">Termos de Uso</Link>
+            <Link to="/privacy" className="hover:text-ortho-orange">Política de Privacidade</Link>
+            <Link to="/contact" className="hover:text-ortho-orange">Contato</Link>
+          </div>
         </div>
       </footer>
     </div>
