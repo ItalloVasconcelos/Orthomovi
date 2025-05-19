@@ -1,15 +1,20 @@
 
 import React from "react";
+import { Link } from "react-router-dom";
 import { PhotoWizard } from "@/components/PhotoWizard";
 import { usePhotoWizard } from "@/hooks/use-photo-wizard";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/20">
       <header className="py-6 px-4">
         <div className="container mx-auto">
-          <div className="flex justify-center">
+          <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold text-ortho-orange">Orthomovi</h1>
+            <Link to="/login">
+              <Button variant="outline">Login</Button>
+            </Link>
           </div>
         </div>
       </header>
