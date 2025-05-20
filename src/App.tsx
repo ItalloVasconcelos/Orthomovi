@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -11,6 +11,11 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ProductPresentation from "./pages/ProductPresentation";
 import ClientDashboard from "./pages/ClientDashboard";
 import AdminPanel from "./pages/Admin";
+import AdminUsersPage from "./pages/admin/Users";
+import AdminConfigPage from "./pages/admin/Config";
+import OrderHistory from "./pages/OrderHistory";
+import Reports from "./pages/Reports";
+import AccountSettings from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -29,13 +34,19 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Navigate to="/produto" />} />
+          <Route path="/home" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Register />} />
           <Route path="/esqueceu-senha" element={<ForgotPassword />} />
           <Route path="/produto" element={<ProductPresentation />} />
           <Route path="/cliente" element={<ClientDashboard />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/config" element={<AdminConfigPage />} />
+          <Route path="/orders-history" element={<OrderHistory />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
