@@ -13,6 +13,7 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage
 } from "@/components/ui/breadcrumb";
+import { UserDropdown } from "@/components/UserDropdown";
 
 const Login = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
@@ -43,11 +44,11 @@ const Login = () => {
       
       toast({
         title: "Login bem-sucedido",
-        description: "Redirecionando para o painel do cliente.",
+        description: "Redirecionando para a página inicial.",
       });
       
       setTimeout(() => {
-        navigate("/cliente");
+        navigate("/home");
       }, 1000);
       
     } catch (error) {
@@ -71,9 +72,12 @@ const Login = () => {
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
             <Link to="/" className="text-3xl font-bold text-ortho-orange">Orthomovi</Link>
-            <Link to="/produto">
-              <Button variant="ghost">Conheça o produto</Button>
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link to="/produto">
+                <Button variant="ghost">Conheça o produto</Button>
+              </Link>
+              <UserDropdown />
+            </div>
           </div>
         </div>
       </header>
@@ -111,7 +115,7 @@ const Login = () => {
                       placeholder="Celular ou Email"
                       value={emailOrPhone}
                       onChange={(e) => setEmailOrPhone(e.target.value)}
-                      className="pl-10 ortho-input"
+                      className="pl-10 ortho-input h-12"
                       autoComplete="username"
                     />
                   </div>
@@ -123,7 +127,7 @@ const Login = () => {
                       placeholder="Senha"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 ortho-input"
+                      className="pl-10 ortho-input h-12"
                       autoComplete="current-password"
                     />
                     <button
@@ -143,7 +147,7 @@ const Login = () => {
                   
                   <Button 
                     type="submit"
-                    className="ortho-button w-full flex justify-center items-center"
+                    className="ortho-button w-full flex justify-center items-center h-12"
                     disabled={isLoading}
                   >
                     {isLoading ? (

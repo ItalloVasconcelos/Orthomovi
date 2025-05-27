@@ -6,8 +6,7 @@ import {
   Settings, 
   User, 
   LogOut,
-  Save,
-  RefreshCw
+  Save
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,26 +23,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { UserDropdown } from "@/components/UserDropdown";
 
 const AdminConfigPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  
-  const handleLogout = () => {
-    toast({
-      title: "Encerrando sessão",
-      description: "Você será redirecionado para a página inicial.",
-    });
-    // In a real app, would clear session data here
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1500);
-  };
 
   const handleSaveSettings = () => {
     setIsLoading(true);
     
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       toast({
@@ -59,15 +47,7 @@ const AdminConfigPage = () => {
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
             <Link to="/" className="text-2xl font-bold text-ortho-orange">Orthomovi</Link>
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sair
-              </Button>
-              <div className="w-8 h-8 rounded-full bg-ortho-orange flex items-center justify-center text-white">
-                <User className="w-5 h-5" />
-              </div>
-            </div>
+            <UserDropdown />
           </div>
         </div>
       </header>
@@ -134,19 +114,19 @@ const AdminConfigPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="company-name">Nome da Empresa</Label>
-                      <Input id="company-name" defaultValue="Orthomovi Órteses Pediátricas" />
+                      <Input id="company-name" defaultValue="Orthomovi Órteses Pediátricas" className="h-12" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-email">Email de Contato</Label>
-                      <Input id="company-email" defaultValue="contato@orthomovi.com.br" />
+                      <Input id="company-email" defaultValue="contato@orthomovi.com.br" className="h-12" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-phone">Telefone de Contato</Label>
-                      <Input id="company-phone" defaultValue="(11) 99999-9999" />
+                      <Input id="company-phone" defaultValue="(11) 99999-9999" className="h-12" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-cnpj">CNPJ</Label>
-                      <Input id="company-cnpj" defaultValue="12.345.678/0001-90" />
+                      <Input id="company-cnpj" defaultValue="12.345.678/0001-90" className="h-12" />
                     </div>
                   </div>
                 </div>
@@ -171,14 +151,6 @@ const AdminConfigPage = () => {
                       </div>
                       <Switch id="enable-notifications" defaultChecked />
                     </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="maintenance-mode" className="block mb-1">Modo de Manutenção</Label>
-                        <span className="text-sm text-gray-500">Ativa o modo de manutenção, tornando o site inacessível para usuários comuns</span>
-                      </div>
-                      <Switch id="maintenance-mode" />
-                    </div>
                   </div>
                 </div>
                 
@@ -189,26 +161,11 @@ const AdminConfigPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="precision-level">Nível de Precisão (mm)</Label>
-                      <Input id="precision-level" type="number" defaultValue="1.5" />
+                      <Input id="precision-level" type="number" defaultValue="1.5" className="h-12" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="calibration-interval">Intervalo de Calibração (dias)</Label>
-                      <Input id="calibration-interval" type="number" defaultValue="30" />
-                    </div>
-                  </div>
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="text-base font-medium mb-3">Backup do Sistema</h3>
-                  <div className="flex items-center space-x-4">
-                    <Button variant="outline" className="flex items-center">
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Realizar Backup Agora
-                    </Button>
-                    <div className="text-sm text-gray-500">
-                      Último backup: 19/05/2025 às 08:30
+                      <Input id="calibration-interval" type="number" defaultValue="30" className="h-12" />
                     </div>
                   </div>
                 </div>
@@ -216,7 +173,7 @@ const AdminConfigPage = () => {
               <CardFooter className="flex justify-end space-x-4 pt-4 border-t">
                 <Button variant="outline">Cancelar</Button>
                 <Button 
-                  className="bg-ortho-orange hover:bg-ortho-orange-dark"
+                  className="bg-ortho-orange hover:bg-ortho-orange-dark h-12 px-6"
                   onClick={handleSaveSettings}
                   disabled={isLoading}
                 >

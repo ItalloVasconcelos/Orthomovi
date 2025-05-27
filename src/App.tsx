@@ -9,13 +9,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ProductPresentation from "./pages/ProductPresentation";
-import ClientDashboard from "./pages/ClientDashboard";
 import AdminPanel from "./pages/Admin";
 import AdminUsersPage from "./pages/admin/Users";
 import AdminConfigPage from "./pages/admin/Config";
-import OrderHistory from "./pages/OrderHistory";
-import Reports from "./pages/Reports";
-import AccountSettings from "./pages/AccountSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -40,13 +36,9 @@ const App = () => (
           <Route path="/cadastro" element={<Register />} />
           <Route path="/esqueceu-senha" element={<ForgotPassword />} />
           <Route path="/produto" element={<ProductPresentation />} />
-          <Route path="/cliente" element={<ClientDashboard />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/config" element={<AdminConfigPage />} />
-          <Route path="/orders-history" element={<OrderHistory />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

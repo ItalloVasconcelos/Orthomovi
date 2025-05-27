@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { UserDropdown } from "@/components/UserDropdown";
 
 // Mock data for orders
 const mockOrders = [
@@ -35,35 +37,35 @@ const mockOrders = [
     patientName: "João Silva", 
     date: "2025-01-15", 
     status: "pending", 
-    type: "AFO Bilateral"
+    calculatedNumber: "24"
   },
   { 
     id: "ORD-002", 
     patientName: "Maria Oliveira", 
     date: "2025-01-14", 
     status: "processing", 
-    type: "AFO Unilateral"
+    calculatedNumber: "26"
   },
   { 
     id: "ORD-003", 
     patientName: "Pedro Santos", 
     date: "2025-01-13", 
     status: "completed", 
-    type: "SMO Bilateral"
+    calculatedNumber: "22"
   },
   { 
     id: "ORD-004", 
     patientName: "Ana Costa", 
     date: "2025-01-12", 
     status: "cancelled", 
-    type: "AFO Bilateral"
+    calculatedNumber: "25"
   },
   { 
     id: "ORD-005", 
     patientName: "Lucas Ferreira", 
     date: "2025-01-11", 
     status: "pending", 
-    type: "SMO Unilateral"
+    calculatedNumber: "23"
   },
 ];
 
@@ -77,7 +79,6 @@ const AdminPanel = () => {
       title: "Encerrando sessão",
       description: "Você será redirecionado para a página inicial.",
     });
-    // In a real app, would clear session data here
     setTimeout(() => {
       window.location.href = '/';
     }, 1500);
@@ -136,15 +137,7 @@ const AdminPanel = () => {
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
             <Link to="/" className="text-2xl font-bold text-ortho-orange">Orthomovi</Link>
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sair
-              </Button>
-              <div className="w-8 h-8 rounded-full bg-ortho-orange flex items-center justify-center text-white">
-                <User className="w-5 h-5" />
-              </div>
-            </div>
+            <UserDropdown />
           </div>
         </div>
       </header>
@@ -186,7 +179,7 @@ const AdminPanel = () => {
                     <Users className="mr-2 text-gray-500" size={18} />
                     <span>Usuários</span>
                   </Link>
-                  <Link to="/admin/settings" className="flex items-center px-4 py-3 hover:bg-gray-50">
+                  <Link to="/admin/config" className="flex items-center px-4 py-3 hover:bg-gray-50">
                     <Settings className="mr-2 text-gray-500" size={18} />
                     <span>Configurações</span>
                   </Link>
@@ -239,7 +232,7 @@ const AdminPanel = () => {
                           Paciente
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tipo
+                          Número
                         </th>
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Data
@@ -262,8 +255,8 @@ const AdminPanel = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {order.patientName}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {order.type}
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-ortho-orange">
+                              {order.calculatedNumber}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {new Date(order.date).toLocaleDateString('pt-BR')}
@@ -272,9 +265,9 @@ const AdminPanel = () => {
                               {getStatusBadge(order.status)}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <Link to={`/admin/orders/${order.id}`} className="text-ortho-orange hover:text-ortho-orange-dark">
+                              <Button variant="outline" size="sm">
                                 Ver detalhes
-                              </Link>
+                              </Button>
                             </td>
                           </tr>
                         ))
