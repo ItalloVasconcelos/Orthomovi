@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/breadcrumb";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ const Login = () => {
     e.preventDefault();
     
     // Validação básica
-    if (!email || !password) {
+    if (!emailOrPhone || !password) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha todos os campos.",
@@ -107,12 +107,12 @@ const Login = () => {
                   <div className="relative">
                     <Mail className="input-icon" size={18} />
                     <Input
-                      type="email"
-                      placeholder="E-mail"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      type="text"
+                      placeholder="Celular ou Email"
+                      value={emailOrPhone}
+                      onChange={(e) => setEmailOrPhone(e.target.value)}
                       className="pl-10 ortho-input"
-                      autoComplete="email"
+                      autoComplete="username"
                     />
                   </div>
                   

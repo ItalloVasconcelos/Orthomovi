@@ -2,11 +2,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Eye, EyeOff, Check } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Phone } from "lucide-react";
 
 interface FormData {
   fullName: string;
   email: string;
+  phone: string;
   password: string;
   confirmPassword: string;
   termsAccepted: boolean;
@@ -15,6 +16,7 @@ interface FormData {
 interface FormErrors {
   fullName?: string;
   email?: string;
+  phone?: string;
   password?: string;
   confirmPassword?: string;
   termsAccepted?: string;
@@ -25,6 +27,7 @@ const RegistrationForm: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     termsAccepted: false,
@@ -62,6 +65,12 @@ const RegistrationForm: React.FC = () => {
       newErrors.email = "E-mail é obrigatório";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "E-mail inválido";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Telefone é obrigatório";
+    } else if (!/^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(formData.phone) && !/^\d{10,11}$/.test(formData.phone.replace(/\D/g, ''))) {
+      newErrors.phone = "Telefone inválido";
     }
     
     if (!formData.password) {
@@ -102,6 +111,7 @@ const RegistrationForm: React.FC = () => {
         setFormData({
           fullName: "",
           email: "",
+          phone: "",
           password: "",
           confirmPassword: "",
           termsAccepted: false,
@@ -157,6 +167,21 @@ const RegistrationForm: React.FC = () => {
                 }`}
               />
               {errors.email && <p className="error-message">{errors.email}</p>}
+            </div>
+
+            <div className="relative">
+              <Phone className="input-icon" size={18} />
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Telefone (11) 99999-9999"
+                className={`w-full ortho-input ${
+                  errors.phone ? "border-red-500" : ""
+                }`}
+              />
+              {errors.phone && <p className="error-message">{errors.phone}</p>}
             </div>
             
             <div className="relative">

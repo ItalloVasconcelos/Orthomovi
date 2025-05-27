@@ -43,35 +43,35 @@ const mockOrders = [
     patientName: "João Silva (5 anos)", 
     date: "2025-05-15", 
     status: "completed", 
-    type: "AFO Bilateral"
+    calculatedNumber: "24"
   },
   { 
     id: "ORD-002", 
     patientName: "Maria Oliveira (7 anos)", 
     date: "2025-05-01", 
     status: "processing", 
-    type: "AFO Unilateral"
+    calculatedNumber: "26"
   },
   { 
     id: "ORD-003", 
     patientName: "Pedro Santos (3 anos)", 
     date: "2025-04-20", 
     status: "completed", 
-    type: "SMO Bilateral"
+    calculatedNumber: "22"
   },
   { 
     id: "ORD-004", 
     patientName: "Ana Costa (6 anos)", 
     date: "2025-04-10", 
     status: "cancelled", 
-    type: "AFO Bilateral"
+    calculatedNumber: "25"
   },
   { 
     id: "ORD-005", 
     patientName: "Lucas Ferreira (4 anos)", 
     date: "2025-03-28", 
     status: "completed", 
-    type: "SMO Unilateral"
+    calculatedNumber: "23"
   },
 ];
 
@@ -79,7 +79,7 @@ const OrderHistory = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [numberFilter, setNumberFilter] = useState("all");
   
   const handleLogout = () => {
     toast({
@@ -96,8 +96,8 @@ const OrderHistory = () => {
     const matchesSearch = order.patientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          order.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || order.status === statusFilter;
-    const matchesType = typeFilter === "all" || order.type.toLowerCase().includes(typeFilter.toLowerCase());
-    return matchesSearch && matchesStatus && matchesType;
+    const matchesNumber = numberFilter === "all" || order.calculatedNumber === numberFilter;
+    return matchesSearch && matchesStatus && matchesNumber;
   });
   
   const getStatusBadge = (status: string) => {
@@ -219,12 +219,15 @@ const OrderHistory = () => {
                   <Filter className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                   <select 
                     className="pl-8 h-9 rounded-md border border-input bg-background text-sm w-full"
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
+                    value={numberFilter}
+                    onChange={(e) => setNumberFilter(e.target.value)}
                   >
-                    <option value="all">Todos os tipos</option>
-                    <option value="afo">AFO</option>
-                    <option value="smo">SMO</option>
+                    <option value="all">Todos os números</option>
+                    <option value="22">22</option>
+                    <option value="23">23</option>
+                    <option value="24">24</option>
+                    <option value="25">25</option>
+                    <option value="26">26</option>
                   </select>
                   <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                 </div>
@@ -238,7 +241,7 @@ const OrderHistory = () => {
                   <TableRow>
                     <TableHead>ID</TableHead>
                     <TableHead>Paciente</TableHead>
-                    <TableHead>Tipo</TableHead>
+                    <TableHead>Número</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
@@ -250,7 +253,7 @@ const OrderHistory = () => {
                       <TableRow key={order.id} className="hover:bg-gray-50">
                         <TableCell className="font-medium">{order.id}</TableCell>
                         <TableCell>{order.patientName}</TableCell>
-                        <TableCell>{order.type}</TableCell>
+                        <TableCell className="font-bold text-ortho-orange">{order.calculatedNumber}</TableCell>
                         <TableCell>{new Date(order.date).toLocaleDateString('pt-BR')}</TableCell>
                         <TableCell>{getStatusBadge(order.status)}</TableCell>
                         <TableCell className="text-right">

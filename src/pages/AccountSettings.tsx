@@ -7,11 +7,11 @@ import {
   Settings,
   Save,
   Camera,
-  Bell,
-  Lock,
-  UserCircle,
-  CreditCard,
-  ShieldCheck
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,15 +24,64 @@ import {
   BreadcrumbPage
 } from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const AccountSettings = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "João Silva",
+    email: "joao.silva@email.com",
+    phone: "(11) 99999-9999",
+    address: "Rua das Flores, 123",
+    city: "São Paulo",
+    state: "SP",
+    zipCode: "01234-567",
+    birthDate: "1985-05-15",
+  });
+  
+  const [notifications, setNotifications] = useState({
+    emailUpdates: true,
+    smsUpdates: false,
+    orderNotifications: true,
+    marketingEmails: false,
+  });
+
+  // Mock data for order history
+  const orderHistory = [
+    { 
+      id: "ORD-001", 
+      patientName: "Maria Silva (3 anos)", 
+      date: "2025-05-15", 
+      status: "completed", 
+      calculatedNumber: "24"
+    },
+    { 
+      id: "ORD-002", 
+      patientName: "Pedro Silva (5 anos)", 
+      date: "2025-04-20", 
+      status: "completed", 
+      calculatedNumber: "26"
+    },
+    { 
+      id: "ORD-003", 
+      patientName: "Ana Silva (7 anos)", 
+      date: "2025-03-10", 
+      status: "completed", 
+      calculatedNumber: "28"
+    },
+  ];
   
   const handleLogout = () => {
     toast({
@@ -45,21 +94,58 @@ const AccountSettings = () => {
     }, 1500);
   };
 
-  const handleSaveSettings = () => {
+  const handleSaveProfile = () => {
     setIsLoading(true);
     
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       toast({
-        title: "Configurações salvas",
-        description: "As configurações da sua conta foram atualizadas com sucesso.",
+        title: "Perfil atualizado",
+        description: "Suas informações foram salvas com sucesso.",
       });
     }, 1000);
   };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleNotificationChange = (field: string, value: boolean) => {
+    setNotifications(prev => ({ ...prev, [field]: value }));
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch(status) {
+      case "completed":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            Concluído
+          </span>
+        );
+      case "processing":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            Em Processamento
+          </span>
+        );
+      case "pending":
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+            Pendente
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {status}
+          </span>
+        );
+    }
+  };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/20">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/10">
       <header className="py-4 px-4 bg-white shadow-sm">
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
@@ -101,340 +187,143 @@ const AccountSettings = () => {
             <Settings className="inline-block mr-2 text-ortho-orange" />
             Configurações da Conta
           </h1>
-          <p className="text-gray-600">Gerencie suas preferências e informações pessoais</p>
+          <p className="text-gray-600">Gerencie suas informações pessoais e preferências</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Profile Summary */}
-          <div className="md:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Profile Information */}
+          <div className="lg:col-span-2">
             <Card className="shadow-md">
-              <CardContent className="pt-6 text-center">
-                <div className="relative w-24 h-24 mx-auto mb-4">
-                  <div className="w-24 h-24 rounded-full bg-ortho-blue/20 flex items-center justify-center">
-                    <User className="w-12 h-12 text-ortho-orange" />
+              <CardHeader className="bg-ortho-blue/20">
+                <CardTitle className="text-lg">Informações Pessoais</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-6">
+                {/* Profile Picture */}
+                <div className="flex items-center space-x-4">
+                  <div className="w-20 h-20 rounded-full bg-ortho-orange flex items-center justify-center text-white text-2xl font-bold">
+                    {formData.fullName.charAt(0)}
                   </div>
-                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full border flex items-center justify-center">
-                    <Camera className="w-4 h-4" />
-                  </button>
+                  <div>
+                    <Button variant="outline" size="sm" className="mr-2">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Alterar Foto
+                    </Button>
+                    <p className="text-sm text-gray-500 mt-1">JPG, GIF ou PNG. Máximo 1MB.</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold">João Silva</h3>
-                <p className="text-sm text-gray-600">joao.silva@example.com</p>
-                <p className="text-xs text-gray-500 mt-1">Membro desde: Março 2025</p>
                 
-                <div className="mt-6 text-left">
-                  <h4 className="text-sm font-medium mb-2">Menu Rápido</h4>
-                  <div className="flex flex-col space-y-1">
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      <UserCircle className="w-4 h-4 mr-2" />
-                      Perfil
-                    </Button>
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      <Bell className="w-4 h-4 mr-2" />
-                      Notificações
-                    </Button>
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      <Lock className="w-4 h-4 mr-2" />
-                      Segurança
-                    </Button>
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Pagamento
-                    </Button>
+                <Separator />
+                
+                {/* Personal Information Form */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Nome Completo</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                      <Input 
+                        id="fullName" 
+                        value={formData.fullName}
+                        onChange={(e) => handleInputChange('fullName', e.target.value)}
+                        className="pl-10" 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                      <Input 
+                        id="email" 
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        className="pl-10" 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Telefone</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                      <Input 
+                        id="phone" 
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className="pl-10" 
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="birthDate">Data de Nascimento</Label>
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                      <Input 
+                        id="birthDate" 
+                        type="date"
+                        value={formData.birthDate}
+                        onChange={(e) => handleInputChange('birthDate', e.target.value)}
+                        className="pl-10" 
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                {/* Address Information */}
+                <div>
+                  <h3 className="text-base font-medium mb-3">Endereço</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2 space-y-2">
+                      <Label htmlFor="address">Endereço</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                        <Input 
+                          id="address" 
+                          value={formData.address}
+                          onChange={(e) => handleInputChange('address', e.target.value)}
+                          className="pl-10" 
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="city">Cidade</Label>
+                      <Input 
+                        id="city" 
+                        value={formData.city}
+                        onChange={(e) => handleInputChange('city', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="state">Estado</Label>
+                      <Input 
+                        id="state" 
+                        value={formData.state}
+                        onChange={(e) => handleInputChange('state', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="zipCode">CEP</Label>
+                      <Input 
+                        id="zipCode" 
+                        value={formData.zipCode}
+                        onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          </div>
-          
-          {/* Settings Tabs */}
-          <div className="md:col-span-3">
-            <Card className="shadow-md">
-              <CardHeader className="bg-ortho-blue/20 pb-2">
-                <Tabs defaultValue="profile" className="w-full">
-                  <TabsList className="grid grid-cols-4">
-                    <TabsTrigger value="profile">Perfil</TabsTrigger>
-                    <TabsTrigger value="notifications">Notificações</TabsTrigger>
-                    <TabsTrigger value="security">Segurança</TabsTrigger>
-                    <TabsTrigger value="payment">Pagamento</TabsTrigger>
-                  </TabsList>
-                
-                  <TabsContent value="profile" className="mt-6">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Informações Pessoais</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="display-name">Nome Completo</Label>
-                            <Input id="display-name" defaultValue="João Silva" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" defaultValue="joao.silva@example.com" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="phone">Telefone</Label>
-                            <Input id="phone" defaultValue="(11) 99999-9999" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="birth-date">Data de Nascimento</Label>
-                            <Input id="birth-date" type="date" defaultValue="1980-01-01" />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Endereço</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="street">Logradouro</Label>
-                            <Input id="street" defaultValue="Avenida Paulista, 1000" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="complement">Complemento</Label>
-                            <Input id="complement" defaultValue="Apto 123" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="city">Cidade</Label>
-                            <Input id="city" defaultValue="São Paulo" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="state">Estado</Label>
-                            <Input id="state" defaultValue="SP" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="postal-code">CEP</Label>
-                            <Input id="postal-code" defaultValue="01310-000" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="notifications" className="mt-6">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Preferências de Notificação</h3>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="email-notifications" className="block mb-1">Notificações por Email</Label>
-                              <span className="text-sm text-gray-500">Receba atualizações sobre seus pedidos por email</span>
-                            </div>
-                            <Switch id="email-notifications" defaultChecked />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="sms-notifications" className="block mb-1">Notificações por SMS</Label>
-                              <span className="text-sm text-gray-500">Receba atualizações sobre seus pedidos por SMS</span>
-                            </div>
-                            <Switch id="sms-notifications" />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="app-notifications" className="block mb-1">Notificações no Aplicativo</Label>
-                              <span className="text-sm text-gray-500">Receba atualizações no aplicativo</span>
-                            </div>
-                            <Switch id="app-notifications" defaultChecked />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Tipos de Notificação</h3>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="order-updates" className="block mb-1">Atualizações de Pedidos</Label>
-                              <span className="text-sm text-gray-500">Receba atualizações quando o status do seu pedido mudar</span>
-                            </div>
-                            <Switch id="order-updates" defaultChecked />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="measurement-reminders" className="block mb-1">Lembretes de Medição</Label>
-                              <span className="text-sm text-gray-500">Receba lembretes para realizar novas medições</span>
-                            </div>
-                            <Switch id="measurement-reminders" defaultChecked />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="promotional-emails" className="block mb-1">Emails Promocionais</Label>
-                              <span className="text-sm text-gray-500">Receba emails sobre novidades e promoções</span>
-                            </div>
-                            <Switch id="promotional-emails" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="security" className="mt-6">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Alterar Senha</h3>
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="current-password">Senha Atual</Label>
-                            <Input id="current-password" type="password" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="new-password">Nova Senha</Label>
-                            <Input id="new-password" type="password" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
-                            <Input id="confirm-password" type="password" />
-                          </div>
-                          <Button className="bg-ortho-orange hover:bg-ortho-orange-dark">
-                            Atualizar Senha
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Segurança da Conta</h3>
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="two-factor-auth" className="block mb-1">Autenticação de Dois Fatores</Label>
-                              <span className="text-sm text-gray-500">Adicione uma camada extra de segurança à sua conta</span>
-                            </div>
-                            <Switch id="two-factor-auth" />
-                          </div>
-                          
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <Label htmlFor="login-alerts" className="block mb-1">Alertas de Login</Label>
-                              <span className="text-sm text-gray-500">Receba alertas quando sua conta for acessada de um novo dispositivo</span>
-                            </div>
-                            <Switch id="login-alerts" defaultChecked />
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Sessões Ativas</h3>
-                        <div className="space-y-4">
-                          <div className="border rounded-md p-4">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-medium">Chrome em Windows</p>
-                                <p className="text-sm text-gray-600">São Paulo, Brasil • Ativo agora</p>
-                              </div>
-                              <ShieldCheck className="text-green-500" />
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1">Este é o seu dispositivo atual</p>
-                          </div>
-                          <div className="border rounded-md p-4">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-medium">Safari em iPhone</p>
-                                <p className="text-sm text-gray-600">São Paulo, Brasil • Último acesso: há 2 dias</p>
-                              </div>
-                              <Button variant="ghost" size="sm" className="text-red-500">
-                                Encerrar
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="payment" className="mt-6">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Métodos de Pagamento</h3>
-                        <div className="space-y-4">
-                          <div className="border rounded-md p-4">
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center">
-                                <CreditCard className="text-ortho-orange mr-3" />
-                                <div>
-                                  <p className="font-medium">Cartão de Crédito</p>
-                                  <p className="text-sm text-gray-600">**** **** **** 1234 • Visa • Expira: 12/2027</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Button variant="outline" size="sm">
-                                  Editar
-                                </Button>
-                                <Button variant="outline" size="sm" className="text-red-500">
-                                  Remover
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                          <Button className="bg-ortho-orange hover:bg-ortho-orange-dark">
-                            Adicionar Novo Método de Pagamento
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div>
-                        <h3 className="text-base font-medium mb-3">Histórico de Faturamento</h3>
-                        <div className="space-y-4">
-                          <div className="border rounded-md p-4">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-medium">Fatura #INV-2025-001</p>
-                                <p className="text-sm text-gray-600">AFO Bilateral • R$ 799,00 • 15/05/2025</p>
-                              </div>
-                              <Button variant="outline" size="sm">
-                                <Download className="w-4 h-4 mr-2" />
-                                PDF
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="border rounded-md p-4">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-medium">Fatura #INV-2025-002</p>
-                                <p className="text-sm text-gray-600">SMO Unilateral • R$ 549,00 • 10/04/2025</p>
-                              </div>
-                              <Button variant="outline" size="sm">
-                                <Download className="w-4 h-4 mr-2" />
-                                PDF
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="border rounded-md p-4">
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p className="font-medium">Fatura #INV-2025-003</p>
-                                <p className="text-sm text-gray-600">AFO Unilateral • R$ 599,00 • 05/03/2025</p>
-                              </div>
-                              <Button variant="outline" size="sm">
-                                <Download className="w-4 h-4 mr-2" />
-                                PDF
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardHeader>
-              <CardFooter className="flex justify-end space-x-4 pt-6 mt-6 border-t">
+              <CardFooter className="flex justify-end space-x-4 pt-4 border-t">
                 <Button variant="outline">Cancelar</Button>
                 <Button 
                   className="bg-ortho-orange hover:bg-ortho-orange-dark"
-                  onClick={handleSaveSettings}
+                  onClick={handleSaveProfile}
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -452,7 +341,129 @@ const AccountSettings = () => {
               </CardFooter>
             </Card>
           </div>
+          
+          {/* Notifications Settings */}
+          <div className="space-y-6">
+            <Card className="shadow-md">
+              <CardHeader className="bg-ortho-blue/20">
+                <CardTitle className="text-lg">Notificações</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="email-updates">Atualizações por Email</Label>
+                    <p className="text-sm text-gray-500">Receba atualizações sobre seus pedidos</p>
+                  </div>
+                  <Switch 
+                    id="email-updates"
+                    checked={notifications.emailUpdates}
+                    onCheckedChange={(checked) => handleNotificationChange('emailUpdates', checked)}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="sms-updates">SMS</Label>
+                    <p className="text-sm text-gray-500">Receba SMS sobre status dos pedidos</p>
+                  </div>
+                  <Switch 
+                    id="sms-updates"
+                    checked={notifications.smsUpdates}
+                    onCheckedChange={(checked) => handleNotificationChange('smsUpdates', checked)}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="order-notifications">Notificações de Pedidos</Label>
+                    <p className="text-sm text-gray-500">Seja notificado sobre novos pedidos</p>
+                  </div>
+                  <Switch 
+                    id="order-notifications"
+                    checked={notifications.orderNotifications}
+                    onCheckedChange={(checked) => handleNotificationChange('orderNotifications', checked)}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="marketing-emails">Emails de Marketing</Label>
+                    <p className="text-sm text-gray-500">Receba novidades e promoções</p>
+                  </div>
+                  <Switch 
+                    id="marketing-emails"
+                    checked={notifications.marketingEmails}
+                    onCheckedChange={(checked) => handleNotificationChange('marketingEmails', checked)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Quick Stats */}
+            <Card className="shadow-md">
+              <CardHeader className="bg-ortho-blue/20">
+                <CardTitle className="text-lg">Estatísticas Rápidas</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total de Pedidos</span>
+                    <span className="font-semibold">{orderHistory.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Pedidos Concluídos</span>
+                    <span className="font-semibold text-green-600">
+                      {orderHistory.filter(order => order.status === 'completed').length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Membro desde</span>
+                    <span className="font-semibold">Jan 2025</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
+        
+        {/* Recent Orders */}
+        <Card className="shadow-md mt-6">
+          <CardHeader className="bg-ortho-blue/20">
+            <CardTitle className="text-lg">Pedidos Recentes</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Paciente</TableHead>
+                    <TableHead>Número</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {orderHistory.map((order) => (
+                    <TableRow key={order.id} className="hover:bg-gray-50">
+                      <TableCell className="font-medium">{order.id}</TableCell>
+                      <TableCell>{order.patientName}</TableCell>
+                      <TableCell className="font-bold text-ortho-orange">{order.calculatedNumber}</TableCell>
+                      <TableCell>{new Date(order.date).toLocaleDateString('pt-BR')}</TableCell>
+                      <TableCell>{getStatusBadge(order.status)}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" className="text-green-600">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </main>
       
       <footer className="py-6 bg-white border-t">

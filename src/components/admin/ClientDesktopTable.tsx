@@ -54,7 +54,7 @@ export const ClientDesktopTable: React.FC<ClientDesktopTableProps> = ({
             <TableHead>Nome do Cliente</TableHead>
             <TableHead>E-mail</TableHead>
             <TableHead>Data de Envio</TableHead>
-            <TableHead>Nº Calculado</TableHead>
+            <TableHead>Número</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
@@ -65,7 +65,7 @@ export const ClientDesktopTable: React.FC<ClientDesktopTableProps> = ({
               <TableCell className="font-medium">{client.name}</TableCell>
               <TableCell>{client.email}</TableCell>
               <TableCell>{client.submissionDate}</TableCell>
-              <TableCell className="font-bold">{client.calculatedSize}</TableCell>
+              <TableCell className="font-bold text-ortho-orange">{client.calculatedSize}</TableCell>
               <TableCell>
                 <Select
                   defaultValue={client.status}
