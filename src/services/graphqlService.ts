@@ -1,4 +1,4 @@
-const API_URL = 'http://201.46.120.216:8080/v1/graphql';
+const API_URL = 'https://orthomovi-hasura.4bcy4g.easypanel.host/v1/graphql';
 
 const headers = {
   'content-type': 'application/json',
