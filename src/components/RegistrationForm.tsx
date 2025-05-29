@@ -1,8 +1,8 @@
-
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Eye, EyeOff, Phone } from "lucide-react";
+import { graphqlService } from "@/services/graphqlService";
 
 interface FormData {
   fullName: string;
@@ -24,6 +24,7 @@ interface FormErrors {
 
 const RegistrationForm: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
@@ -93,19 +94,27 @@ const RegistrationForm: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateForm()) {
       setIsSubmitting(true);
       
-      // Simulando o envio para uma API
-      setTimeout(() => {
-        setIsSubmitting(false);
+      try {
+        const user = await graphqlService.registerUser({
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+        });
+
         toast({
           title: "Conta criada com sucesso!",
-          description: "Bem-vindo ao nosso sistema de órteses pediátricas.",
+          description: `Bem-vindo ao nosso sistema, ${user.fullName}!`,
         });
+        
+        // Salvar dados do usuário no localStorage
+        localStorage.setItem('user', JSON.stringify(user));
         
         // Reset form after successful submission
         setFormData({
@@ -116,7 +125,22 @@ const RegistrationForm: React.FC = () => {
           confirmPassword: "",
           termsAccepted: false,
         });
-      }, 1500);
+
+        // Redirecionar para home após 1.5 segundos
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Erro no cadastro:', error);
+        toast({
+          title: "Erro no cadastro",
+          description: "Ocorreu um erro ao criar sua conta. Verifique os dados e tente novamente.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
   

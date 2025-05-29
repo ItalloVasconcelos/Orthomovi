@@ -1,0 +1,117 @@
+
+const API_URL = 'http://201.46.120.216:8080/v1/graphql';
+
+const headers = {
+  'content-type': 'application/json',
+  'x-hasura-admin-secret': 'mysecretkey',
+};
+
+export interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  password?: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  fullName: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
+// Query para buscar usuário no login
+const GET_USER_QUERY = `
+  query GetUser($email: String!, $password: String!) {
+    users(where: {email: {_eq: $email}, password: {_eq: $password}}) {
+      id
+      fullName: full_name
+      email
+      phone
+    }
+  }
+`;
+
+// Mutation para criar novo usuário
+const CREATE_USER_MUTATION = `
+  mutation CreateUser($fullName: String!, $email: String!, $phone: String!, $password: String!) {
+    insert_users_one(object: {
+      full_name: $fullName,
+      email: $email,
+      phone: $phone,
+      password: $password
+    }) {
+      id
+      fullName: full_name
+      email
+      phone
+    }
+  }
+`;
+
+export const graphqlService = {
+  // Função para fazer login (GET user)
+  async loginUser(credentials: LoginCredentials): Promise<User | null> {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: GET_USER_QUERY,
+          variables: {
+            email: credentials.email,
+            password: credentials.password,
+          },
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.errors) {
+        throw new Error(result.errors[0].message);
+      }
+
+      const users = result.data?.users;
+      return users && users.length > 0 ? users[0] : null;
+    } catch (error) {
+      console.error('Erro no login:', error);
+      throw error;
+    }
+  },
+
+  // Função para registrar usuário (POST user)
+  async registerUser(userData: RegisterData): Promise<User> {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: CREATE_USER_MUTATION,
+          variables: {
+            fullName: userData.fullName,
+            email: userData.email,
+            phone: userData.phone,
+            password: userData.password,
+          },
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.errors) {
+        throw new Error(result.errors[0].message);
+      }
+
+      return result.data?.insert_users_one;
+    } catch (error) {
+      console.error('Erro no cadastro:', error);
+      throw error;
+    }
+  },
+};

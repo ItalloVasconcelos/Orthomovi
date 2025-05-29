@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -14,6 +13,7 @@ import {
   BreadcrumbPage
 } from "@/components/ui/breadcrumb";
 import { UserDropdown } from "@/components/UserDropdown";
+import { graphqlService } from "@/services/graphqlService";
 
 const Login = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
@@ -39,22 +39,36 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Simulação de delay de rede
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast({
-        title: "Login bem-sucedido",
-        description: "Redirecionando para a página inicial.",
+      const user = await graphqlService.loginUser({
+        email: emailOrPhone,
+        password: password,
       });
       
-      setTimeout(() => {
-        navigate("/home");
-      }, 1000);
+      if (user) {
+        // Salvar dados do usuário no localStorage
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        toast({
+          title: "Login bem-sucedido",
+          description: `Bem-vindo, ${user.fullName}!`,
+        });
+        
+        setTimeout(() => {
+          navigate("/home");
+        }, 1000);
+      } else {
+        toast({
+          title: "Erro no login",
+          description: "Email ou senha incorretos.",
+          variant: "destructive",
+        });
+      }
       
     } catch (error) {
+      console.error('Erro no login:', error);
       toast({
         title: "Erro no login",
-        description: "Ocorreu um erro ao tentar fazer login. Tente novamente.",
+        description: "Ocorreu um erro ao tentar fazer login. Verifique sua conexão e tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -112,7 +126,7 @@ const Login = () => {
                     <Mail className="input-icon" size={18} />
                     <Input
                       type="text"
-                      placeholder="Celular ou Email"
+                      placeholder="Email"
                       value={emailOrPhone}
                       onChange={(e) => setEmailOrPhone(e.target.value)}
                       className="pl-10 ortho-input h-12"
