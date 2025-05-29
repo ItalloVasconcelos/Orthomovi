@@ -102,7 +102,7 @@ const RegistrationForm: React.FC = () => {
       
       try {
         const user = await graphqlService.registerUser({
-          fullName: formData.fullName,
+          name: formData.fullName,
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
@@ -110,7 +110,7 @@ const RegistrationForm: React.FC = () => {
 
         toast({
           title: "Conta criada com sucesso!",
-          description: `Bem-vindo ao nosso sistema, ${user.fullName}!`,
+          description: `Bem-vindo ao nosso sistema, ${user.name}!`,
         });
         
         // Salvar dados do usuário no localStorage
