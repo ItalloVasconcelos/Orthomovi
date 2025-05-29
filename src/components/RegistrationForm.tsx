@@ -110,11 +110,8 @@ const RegistrationForm: React.FC = () => {
 
         toast({
           title: "Conta criada com sucesso!",
-          description: `Bem-vindo ao nosso sistema, ${user.name}!`,
+          description: `Bem-vindo ao nosso sistema, ${user.name}! Você será redirecionado para a página de login.`,
         });
-        
-        // Salvar dados do usuário no localStorage
-        localStorage.setItem('user', JSON.stringify(user));
         
         // Reset form after successful submission
         setFormData({
@@ -126,16 +123,17 @@ const RegistrationForm: React.FC = () => {
           termsAccepted: false,
         });
 
-        // Redirecionar para home após 1.5 segundos
+        // Redirecionar para login após 2 segundos
         setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+          navigate("/login");
+        }, 2000);
         
       } catch (error) {
         console.error('Erro no cadastro:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro inesperado.';
         toast({
           title: "Erro no cadastro",
-          description: "Ocorreu um erro ao criar sua conta. Verifique os dados e tente novamente.",
+          description: errorMessage,
           variant: "destructive",
         });
       } finally {

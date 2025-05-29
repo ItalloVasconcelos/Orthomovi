@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -50,12 +51,13 @@ const Login = () => {
         
         toast({
           title: "Login bem-sucedido",
-          description: `Bem-vindo, ${user.name}!`,
+          description: `Bem-vindo, ${user.name}! Redirecionando para a página inicial...`,
         });
         
+        // Redirecionar para /home após 1.5 segundos
         setTimeout(() => {
           navigate("/home");
-        }, 1000);
+        }, 1500);
       } else {
         toast({
           title: "Erro no login",
@@ -66,9 +68,10 @@ const Login = () => {
       
     } catch (error) {
       console.error('Erro no login:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro inesperado.';
       toast({
         title: "Erro no login",
-        description: "Ocorreu um erro ao tentar fazer login. Verifique sua conexão e tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

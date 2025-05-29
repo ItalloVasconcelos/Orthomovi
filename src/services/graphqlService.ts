@@ -1,3 +1,4 @@
+
 const API_URL = 'https://201.46.120.216:8080/v1/graphql';
 
 const headers = {
@@ -54,13 +55,33 @@ const CREATE_USER_MUTATION = `
   }
 `;
 
+const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 10000) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Timeout: O servidor não respondeu dentro do tempo esperado. Verifique sua conexão ou tente novamente.');
+    }
+    throw error;
+  }
+};
+
 export const graphqlService = {
   // Função para fazer login (GET user)
   async loginUser(credentials: LoginCredentials): Promise<User | null> {
     try {
       console.log('Tentando fazer login com:', credentials);
       
-      const response = await fetch(API_URL, {
+      const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -70,7 +91,11 @@ export const graphqlService = {
             password: credentials.password,
           },
         }),
-      });
+      }, 15000); // 15 segundos de timeout
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+      }
 
       const result = await response.json();
       console.log('Resposta da API:', result);
@@ -85,6 +110,9 @@ export const graphqlService = {
       return users && users.length > 0 ? users[0] : null;
     } catch (error) {
       console.error('Erro no login:', error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+      }
       throw error;
     }
   },
@@ -94,7 +122,7 @@ export const graphqlService = {
     try {
       console.log('Tentando registrar usuário:', userData);
       
-      const response = await fetch(API_URL, {
+      const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -106,7 +134,11 @@ export const graphqlService = {
             password: userData.password,
           },
         }),
-      });
+      }, 15000); // 15 segundos de timeout
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+      }
 
       const result = await response.json();
       console.log('Resposta do registro:', result);
@@ -119,6 +151,9 @@ export const graphqlService = {
       return result.data?.insert_users_one;
     } catch (error) {
       console.error('Erro no cadastro:', error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+      }
       throw error;
     }
   },
