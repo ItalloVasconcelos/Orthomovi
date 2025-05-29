@@ -50,7 +50,7 @@ const Login = () => {
         
         toast({
           title: "Login bem-sucedido",
-          description: `Bem-vindo, ${user.fullName}!`,
+          description: `Bem-vindo, ${user.name}!`,
         });
         
         setTimeout(() => {

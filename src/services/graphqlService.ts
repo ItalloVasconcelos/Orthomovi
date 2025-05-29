@@ -8,7 +8,7 @@ const headers = {
 
 export interface User {
   id: string;
-  fullName: string;
+  name: string;
   email: string;
   phone?: string;
   password?: string;
@@ -20,7 +20,7 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  fullName: string;
+  name: string;
   email: string;
   phone: string;
   password: string;
@@ -31,7 +31,7 @@ const GET_USER_QUERY = `
   query GetUser($email: String!, $password: String!) {
     users(where: {email: {_eq: $email}, password: {_eq: $password}}) {
       id
-      fullName: full_name
+      name
       email
       phone
     }
@@ -40,15 +40,15 @@ const GET_USER_QUERY = `
 
 // Mutation para criar novo usuário
 const CREATE_USER_MUTATION = `
-  mutation CreateUser($fullName: String!, $email: String!, $phone: String!, $password: String!) {
+  mutation CreateUser($name: String!, $email: String!, $phone: String!, $password: String!) {
     insert_users_one(object: {
-      full_name: $fullName,
+      name: $name,
       email: $email,
       phone: $phone,
       password: $password
     }) {
       id
-      fullName: full_name
+      name
       email
       phone
     }
@@ -59,6 +59,8 @@ export const graphqlService = {
   // Função para fazer login (GET user)
   async loginUser(credentials: LoginCredentials): Promise<User | null> {
     try {
+      console.log('Tentando fazer login com:', credentials);
+      
       const response = await fetch(API_URL, {
         method: 'POST',
         headers,
@@ -72,12 +74,15 @@ export const graphqlService = {
       });
 
       const result = await response.json();
+      console.log('Resposta da API:', result);
       
       if (result.errors) {
+        console.error('Erros da API:', result.errors);
         throw new Error(result.errors[0].message);
       }
 
       const users = result.data?.users;
+      console.log('Usuários encontrados:', users);
       return users && users.length > 0 ? users[0] : null;
     } catch (error) {
       console.error('Erro no login:', error);
@@ -88,13 +93,15 @@ export const graphqlService = {
   // Função para registrar usuário (POST user)
   async registerUser(userData: RegisterData): Promise<User> {
     try {
+      console.log('Tentando registrar usuário:', userData);
+      
       const response = await fetch(API_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify({
           query: CREATE_USER_MUTATION,
           variables: {
-            fullName: userData.fullName,
+            name: userData.name,
             email: userData.email,
             phone: userData.phone,
             password: userData.password,
@@ -103,8 +110,10 @@ export const graphqlService = {
       });
 
       const result = await response.json();
+      console.log('Resposta do registro:', result);
       
       if (result.errors) {
+        console.error('Erros no registro:', result.errors);
         throw new Error(result.errors[0].message);
       }
 
