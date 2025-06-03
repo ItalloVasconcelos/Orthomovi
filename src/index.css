@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 24 100% 50%;
+    --primary: 213 94% 68%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
@@ -33,9 +33,9 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 24 100% 50%;
+    --ring: 213 94% 68%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -48,7 +48,11 @@
   }
   
   body {
-    @apply font-poppins bg-white;
+    @apply font-sans bg-brand-bg text-brand-text;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
   }
 }
 
@@ -58,7 +62,7 @@
   }
   
   .ortho-input {
-    @apply pl-10 rounded-lg border-gray-200 focus:border-ortho-orange focus:ring focus:ring-ortho-orange/20 transition-all duration-200;
+    @apply pl-10 rounded-lg border-gray-200 focus:border-brand-primary focus:ring focus:ring-brand-primary/20 transition-all duration-200;
   }
   
   .error-message {
@@ -66,6 +70,14 @@
   }
   
   .ortho-button {
-    @apply bg-ortho-orange hover:bg-ortho-orange-dark text-white font-medium py-3 px-6 rounded-full transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply bg-brand-accent hover:bg-brand-accent/90 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-primary {
+    @apply bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200;
   }
 }

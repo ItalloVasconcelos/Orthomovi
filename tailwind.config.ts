@@ -63,11 +63,19 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for the pediatric orthotic platform
-				'ortho-orange': '#FF6A00',
-				'ortho-orange-dark': '#E65E00',
-				'ortho-blue': '#D5E6F4',
-				'ortho-blue-dark': '#A7C8E8'
+				// Novas cores baseadas na referência
+				'brand-primary': '#1E40AF', // Azul principal
+				'brand-secondary': '#3B82F6', // Azul secundário
+				'brand-accent': '#F59E0B', // Laranja/amarelo para CTAs
+				'brand-text': '#1F2937', // Texto principal escuro
+				'brand-text-light': '#6B7280', // Texto secundário
+				'brand-bg': '#F8FAFC', // Fundo claro
+				'brand-white': '#FFFFFF',
+				// Manter cores ortho existentes para compatibilidade
+				'ortho-orange': '#F59E0B',
+				'ortho-orange-dark': '#D97706',
+				'ortho-blue': '#EFF6FF',
+				'ortho-blue-dark': '#DBEAFE'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -108,6 +116,8 @@ export default {
 				'fade-in': 'fade-in 0.5s ease-out'
 			},
 			fontFamily: {
+				sans: ['Inter', 'system-ui', 'sans-serif'],
+				heading: ['Poppins', 'system-ui', 'sans-serif'],
 				poppins: ['Poppins', 'sans-serif']
 			}
 		}
