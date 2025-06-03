@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { User, Settings, Home, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,24 +12,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { AccountSettingsModal } from "./AccountSettingsModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const UserDropdown = () => {
   const { toast } = useToast();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showAccountModal, setShowAccountModal] = useState(false);
 
   const handleLogout = () => {
+    logout();
     toast({
-      title: "Encerrando sessão",
-      description: "Você será redirecionado para a página inicial.",
+      title: "Sessão encerrada",
+      description: "Você foi desconectado com sucesso.",
     });
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1500);
+    navigate('/');
   };
 
   const handleNovoPedido = () => {
-    window.location.href = '/home';
+    navigate('/home');
   };
+
+  if (!user) return null;
 
   return (
     <>
@@ -39,6 +43,7 @@ export const UserDropdown = () => {
             <div className="w-8 h-8 rounded-full bg-ortho-orange flex items-center justify-center text-white">
               <User className="w-5 h-5" />
             </div>
+            <span className="hidden sm:block">{user.name}</span>
             <ChevronDown className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>

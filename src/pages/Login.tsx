@@ -13,8 +13,9 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage
 } from "@/components/ui/breadcrumb";
-import { UserDropdown } from "@/components/UserDropdown";
+import { Footer } from "@/components/Footer";
 import { graphqlService } from "@/services/graphqlService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
@@ -23,6 +24,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,12 +48,12 @@ const Login = () => {
       });
       
       if (user) {
-        // Salvar dados do usuário no localStorage
-        localStorage.setItem('user', JSON.stringify(user));
+        // Usar o contexto de autenticação
+        login(user);
         
         toast({
           title: "Login bem-sucedido",
-          description: `Bem-vindo, ${user.name}! Redirecionando para a página inicial...`,
+          description: `Bem-vindo, ${user.name}! Redirecionando...`,
         });
         
         // Redirecionar para /home após 1.5 segundos
@@ -90,10 +92,9 @@ const Login = () => {
           <div className="flex justify-between items-center">
             <Link to="/" className="text-3xl font-bold text-ortho-orange">Orthomovi</Link>
             <div className="flex items-center space-x-4">
-              <Link to="/produto">
-                <Button variant="ghost">Conheça o produto</Button>
+              <Link to="/cadastro">
+                <Button className="bg-ortho-orange hover:bg-ortho-orange-dark">Cadastre-se</Button>
               </Link>
-              <UserDropdown />
             </div>
           </div>
         </div>
@@ -187,16 +188,7 @@ const Login = () => {
         </div>
       </main>
       
-      <footer className="py-6 bg-white border-t">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>© 2025 Orthomovi Órteses Pediátricas. Todos os direitos reservados.</p>
-          <div className="flex justify-center mt-2 space-x-4">
-            <Link to="/terms" className="hover:text-ortho-orange">Termos de Uso</Link>
-            <Link to="/privacy" className="hover:text-ortho-orange">Política de Privacidade</Link>
-            <Link to="/contact" className="hover:text-ortho-orange">Contato</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
