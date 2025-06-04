@@ -1,3 +1,4 @@
+
 const API_URL = 'https://orthomovi-hasura.4bcy4g.easypanel.host/v1/graphql';
 
 const headers = {
@@ -39,7 +40,7 @@ export interface Result {
   id: string;
   calculated_result: string;
   date: string;
-  status: string;
+  status: string | string[];
   order: {
     user: {
       fullname: string;

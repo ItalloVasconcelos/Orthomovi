@@ -69,18 +69,26 @@ const AdminPanel = () => {
       window.location.href = '/';
     }, 1500);
   };
+
+  // Helper function to get the first status from array or return the status as string
+  const getStatusValue = (status: string | string[]): string => {
+    if (Array.isArray(status)) {
+      return status.length > 0 ? status[0] : 'Análise';
+    }
+    return status || 'Análise';
+  };
   
   const filteredResults = results.filter(result => {
     const patientName = result.order?.user?.fullname || '';
     const matchesSearch = patientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          result.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const resultStatus = result.status || 'Análise';
+    const resultStatus = getStatusValue(result.status);
     const matchesStatus = statusFilter === "all" || resultStatus.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
   
-  const getStatusBadge = (status: string) => {
-    const normalizedStatus = status || 'Análise';
+  const getStatusBadge = (status: string | string[]) => {
+    const normalizedStatus = getStatusValue(status);
     
     switch(normalizedStatus.toLowerCase()) {
       case "análise":
@@ -249,7 +257,7 @@ const AdminPanel = () => {
                                 {formatDate(result.date)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
-                                {getStatusBadge(result.status || 'Análise')}
+                                {getStatusBadge(result.status)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <Button variant="outline" size="sm">
