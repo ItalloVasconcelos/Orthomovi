@@ -5,7 +5,7 @@ const headers = {
   'x-hasura-admin-secret': 'mysecretkey',
 };
 
-export interface Users {
+export interface User {
   id: string;
   fullname: string;
   email: string;
@@ -40,8 +40,8 @@ export interface Result {
   calculated_result: string;
   date: string;
   status: string;
-  orders: {
-    users: {
+  order: {
+    user: {
       fullname: string;
     };
   };
@@ -49,7 +49,7 @@ export interface Result {
 
 // Query para buscar usuário no login
 const GET_USER_QUERY = `
-  query GetUsers($email: String!, $password: String!) {
+  query GetUser($email: String!, $password: String!) {
     users(where: {email: {_eq: $email}, password: {_eq: $password}}) {
       id
       fullname
@@ -73,7 +73,7 @@ const GET_ALL_USERS_QUERY = `
 
 // Mutation para criar novo usuário
 const CREATE_USER_MUTATION = `
-  mutation CreateUsers($fullname: String!, $email: String!, $phone: String!, $password: String!) {
+  mutation CreateUser($fullname: String!, $email: String!, $phone: String!, $password: String!) {
     insert_users_one(object: {
       fullname: $fullname,
       email: $email,
@@ -117,7 +117,7 @@ const GET_ALL_RESULTS_QUERY = `
       date
       status
       order {
-        users {
+        user {
           fullname
         }
       }
@@ -146,8 +146,8 @@ const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 100
 };
 
 export const graphqlService = {
-  // Função para fazer login (GET users)
-  async loginUsers(credentials: LoginCredentials): Promise<Users | null> {
+  // Função para fazer login (GET user)
+  async loginUser(credentials: LoginCredentials): Promise<User | null> {
     try {
       console.log('Tentando fazer login com:', credentials);
       
@@ -187,10 +187,10 @@ export const graphqlService = {
     }
   },
 
-  // Função para registrar usuário (POST users)
-  async registerUsers(usersData: RegisterData): Promise<Users> {
+  // Função para registrar usuário (POST user)
+  async registerUser(userData: RegisterData): Promise<User> {
     try {
-      console.log('Tentando registrar usuário:', usersData);
+      console.log('Tentando registrar usuário:', userData);
       
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
@@ -198,10 +198,10 @@ export const graphqlService = {
         body: JSON.stringify({
           query: CREATE_USER_MUTATION,
           variables: {
-            fullname: usersData.fullname,
-            email: usersData.email,
-            phone: usersData.phone,
-            password: usersData.password,
+            fullname: userData.fullname,
+            email: userData.email,
+            phone: userData.phone,
+            password: userData.password,
           },
         }),
       }, 15000); // 15 segundos de timeout
@@ -229,7 +229,7 @@ export const graphqlService = {
   },
 
   // Função para buscar todos os usuários
-  async getAllUsers(): Promise<Users[]> {
+  async getAllUsers(): Promise<User[]> {
     try {
       console.log('Buscando todos os usuários...');
       
