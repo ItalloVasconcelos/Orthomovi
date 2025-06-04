@@ -5,7 +5,7 @@ const headers = {
   'x-hasura-admin-secret': 'mysecretkey',
 };
 
-export interface User {
+export interface Users {
   id: string;
   fullname: string;
   email: string;
@@ -41,7 +41,7 @@ export interface Result {
   date: string;
   status: string;
   order: {
-    user: {
+    users: {
       fullname: string;
     };
   };
@@ -49,8 +49,8 @@ export interface Result {
 
 // Query para buscar usuário no login
 const GET_USER_QUERY = `
-  query GetUser($email: String!, $password: String!) {
-    users(where: {email: {_eq: $email}, password: {_eq: $password}}) {
+  query GetUsers($email: String!, $password: String!) {
+    userss(where: {email: {_eq: $email}, password: {_eq: $password}}) {
       id
       fullname
       email
@@ -61,8 +61,8 @@ const GET_USER_QUERY = `
 
 // Query para buscar todos os usuários
 const GET_ALL_USERS_QUERY = `
-  query GetAllUsers {
-    users {
+  query GetAllUserss {
+    userss {
       id
       fullname
       email
@@ -73,8 +73,8 @@ const GET_ALL_USERS_QUERY = `
 
 // Mutation para criar novo usuário
 const CREATE_USER_MUTATION = `
-  mutation CreateUser($fullname: String!, $email: String!, $phone: String!, $password: String!) {
-    insert_users_one(object: {
+  mutation CreateUsers($fullname: String!, $email: String!, $phone: String!, $password: String!) {
+    insert_userss_one(object: {
       fullname: $fullname,
       email: $email,
       phone: $phone,
@@ -101,7 +101,7 @@ const GET_COMPANY_CONFIG_QUERY = `
 // Query para buscar dados de contato do admin
 const GET_ADMIN_CONTACT_QUERY = `
   query GetAdminContact {
-    users(limit: 1) {
+    userss(limit: 1) {
       email
       phone
     }
@@ -117,7 +117,7 @@ const GET_ALL_RESULTS_QUERY = `
       date
       status
       order {
-        user {
+        users {
           fullname
         }
       }
@@ -146,8 +146,8 @@ const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 100
 };
 
 export const graphqlService = {
-  // Função para fazer login (GET user)
-  async loginUser(credentials: LoginCredentials): Promise<User | null> {
+  // Função para fazer login (GET users)
+  async loginUsers(credentials: LoginCredentials): Promise<Users | null> {
     try {
       console.log('Tentando fazer login com:', credentials);
       
@@ -175,9 +175,9 @@ export const graphqlService = {
         throw new Error(result.errors[0].message);
       }
 
-      const users = result.data?.users;
-      console.log('Usuários encontrados:', users);
-      return users && users.length > 0 ? users[0] : null;
+      const userss = result.data?.userss;
+      console.log('Usuários encontrados:', userss);
+      return userss && userss.length > 0 ? userss[0] : null;
     } catch (error) {
       console.error('Erro no login:', error);
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -187,10 +187,10 @@ export const graphqlService = {
     }
   },
 
-  // Função para registrar usuário (POST user)
-  async registerUser(userData: RegisterData): Promise<User> {
+  // Função para registrar usuário (POST users)
+  async registerUsers(usersData: RegisterData): Promise<Users> {
     try {
-      console.log('Tentando registrar usuário:', userData);
+      console.log('Tentando registrar usuário:', usersData);
       
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
@@ -198,10 +198,10 @@ export const graphqlService = {
         body: JSON.stringify({
           query: CREATE_USER_MUTATION,
           variables: {
-            fullname: userData.fullname,
-            email: userData.email,
-            phone: userData.phone,
-            password: userData.password,
+            fullname: usersData.fullname,
+            email: usersData.email,
+            phone: usersData.phone,
+            password: usersData.password,
           },
         }),
       }, 15000); // 15 segundos de timeout
@@ -218,7 +218,7 @@ export const graphqlService = {
         throw new Error(result.errors[0].message);
       }
 
-      return result.data?.insert_users_one;
+      return result.data?.insert_userss_one;
     } catch (error) {
       console.error('Erro no cadastro:', error);
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -229,7 +229,7 @@ export const graphqlService = {
   },
 
   // Função para buscar todos os usuários
-  async getAllUsers(): Promise<User[]> {
+  async getAllUserss(): Promise<Users[]> {
     try {
       console.log('Buscando todos os usuários...');
       
@@ -253,7 +253,7 @@ export const graphqlService = {
         throw new Error(result.errors[0].message);
       }
 
-      return result.data?.users || [];
+      return result.data?.userss || [];
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -324,8 +324,8 @@ export const graphqlService = {
         throw new Error(result.errors[0].message);
       }
 
-      const users = result.data?.users;
-      return users && users.length > 0 ? { email: users[0].email, phone: users[0].phone } : null;
+      const userss = result.data?.userss;
+      return userss && userss.length > 0 ? { email: userss[0].email, phone: userss[0].phone } : null;
     } catch (error) {
       console.error('Erro ao buscar dados de contato do admin:', error);
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
