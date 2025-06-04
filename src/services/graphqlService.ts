@@ -7,7 +7,7 @@ const headers = {
 
 export interface User {
   id: string;
-  name: string;
+  fullname: string;
   email: string;
   phone?: string;
   password?: string;
@@ -19,7 +19,7 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  name: string;
+  fullname: string;
   email: string;
   phone: string;
   password: string;
@@ -40,7 +40,7 @@ const GET_USER_QUERY = `
   query GetUser($email: String!, $password: String!) {
     users(where: {email: {_eq: $email}, password: {_eq: $password}}) {
       id
-      name
+      fullname
       email
       phone
     }
@@ -49,15 +49,15 @@ const GET_USER_QUERY = `
 
 // Mutation para criar novo usuário
 const CREATE_USER_MUTATION = `
-  mutation CreateUser($name: String!, $email: String!, $phone: String!, $password: String!) {
+  mutation CreateUser($fullname: String!, $email: String!, $phone: String!, $password: String!) {
     insert_users_one(object: {
-      name: $name,
+      fullname: $fullname,
       email: $email,
       phone: $phone,
       password: $password
     }) {
       id
-      name
+      fullname
       email
       phone
     }
@@ -157,7 +157,7 @@ export const graphqlService = {
         body: JSON.stringify({
           query: CREATE_USER_MUTATION,
           variables: {
-            name: userData.name,
+            fullname: userData.fullname,
             email: userData.email,
             phone: userData.phone,
             password: userData.password,

@@ -54,7 +54,7 @@ const Login = () => {
         
         toast({
           title: "Login bem-sucedido",
-          description: `Bem-vindo, ${user.name}! Redirecionando...`,
+          description: `Bem-vindo, ${user.fullname}! Redirecionando...`,
         });
         
         // Redirecionar para /home após 1.5 segundos

@@ -102,7 +102,7 @@ const RegistrationForm: React.FC = () => {
       
       try {
         const user = await graphqlService.registerUser({
-          name: formData.fullName,
+          fullname: formData.fullName,
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
@@ -110,7 +110,7 @@ const RegistrationForm: React.FC = () => {
 
         toast({
           title: "Conta criada com sucesso!",
-          description: `Bem-vindo ao nosso sistema, ${user.name}! Você será redirecionado para a página de login.`,
+          description: `Bem-vindo ao nosso sistema, ${user.fullname}! Você será redirecionado para a página de login.`,
         });
         
         // Reset form after successful submission
