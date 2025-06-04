@@ -47,6 +47,18 @@ const GET_USER_QUERY = `
   }
 `;
 
+// Query para buscar todos os usuários
+const GET_ALL_USERS_QUERY = `
+  query GetAllUsers {
+    users {
+      id
+      fullname
+      email
+      phone
+    }
+  }
+`;
+
 // Mutation para criar novo usuário
 const CREATE_USER_MUTATION = `
   mutation CreateUser($fullname: String!, $email: String!, $phone: String!, $password: String!) {
@@ -180,6 +192,41 @@ export const graphqlService = {
       return result.data?.insert_users_one;
     } catch (error) {
       console.error('Erro no cadastro:', error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+      }
+      throw error;
+    }
+  },
+
+  // Função para buscar todos os usuários
+  async getAllUsers(): Promise<User[]> {
+    try {
+      console.log('Buscando todos os usuários...');
+      
+      const response = await fetchWithTimeout(API_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: GET_ALL_USERS_QUERY,
+        }),
+      }, 15000);
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Usuários encontrados:', result);
+      
+      if (result.errors) {
+        console.error('Erros na busca de usuários:', result.errors);
+        throw new Error(result.errors[0].message);
+      }
+
+      return result.data?.users || [];
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error);
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
       }

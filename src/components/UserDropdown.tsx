@@ -1,73 +1,52 @@
 
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { User, Settings, Home, LogOut, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { User, LogOut, Settings } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
-import { AccountSettingsModal } from "./AccountSettingsModal";
-import { useAuth } from "@/contexts/AuthContext";
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const UserDropdown = () => {
-  const { toast } = useToast();
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [showAccountModal, setShowAccountModal] = useState(false);
 
   const handleLogout = () => {
     logout();
-    toast({
-      title: "Sessão encerrada",
-      description: "Você foi desconectado com sucesso.",
-    });
-    navigate('/');
   };
-
-  const handleNovoPedido = () => {
-    navigate('/home');
-  };
-
-  if (!user) return null;
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-ortho-orange flex items-center justify-center text-white">
-              <User className="w-5 h-5" />
-            </div>
-            <span className="hidden sm:block">{user.name}</span>
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 bg-white border shadow-lg z-50" align="end">
-          <DropdownMenuItem onClick={handleNovoPedido} className="cursor-pointer">
-            <Home className="mr-2 h-4 w-4" />
-            <span>Novo Pedido</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setShowAccountModal(true)} className="cursor-pointer">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="flex items-center space-x-2">
+          <User size={20} />
+          <span className="hidden md:block">{user?.fullname || 'Usuário'}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="flex items-center justify-start gap-2 p-2">
+          <div className="flex flex-col space-y-1 leading-none">
+            <p className="font-medium">{user?.fullname || 'Usuário'}</p>
+            <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
+          </div>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/account-settings" className="flex items-center">
             <Settings className="mr-2 h-4 w-4" />
-            <span>Configurações da Conta</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Sair</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <AccountSettingsModal 
-        open={showAccountModal} 
-        onOpenChange={setShowAccountModal} 
-      />
-    </>
+            Configurações
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+          <LogOut className="mr-2 h-4 w-4" />
+          Sair
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

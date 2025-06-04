@@ -1,11 +1,9 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Users, 
   Settings, 
-  User, 
-  LogOut,
   Search,
   Filter,
   ChevronDown,
@@ -35,94 +33,43 @@ import {
 import { UserDropdown } from "@/components/UserDropdown";
 import { EditUserModal } from "@/components/admin/EditUserModal";
 import { InactivateUserModal } from "@/components/admin/InactivateUserModal";
-
-// Mock data for users
-const mockUsers = [
-  { 
-    id: "USR-001", 
-    name: "João Silva", 
-    email: "joao.silva@example.com", 
-    phone: "(11) 99999-9999",
-    role: "Cliente",
-    status: "active", 
-    lastLogin: "2025-05-10" 
-  },
-  { 
-    id: "USR-002", 
-    name: "Maria Oliveira", 
-    email: "maria.oliveira@example.com", 
-    phone: "(11) 88888-8888",
-    role: "Cliente",
-    status: "active", 
-    lastLogin: "2025-05-12" 
-  },
-  { 
-    id: "USR-003", 
-    name: "Pedro Santos", 
-    email: "pedro.santos@example.com", 
-    phone: "(11) 77777-7777",
-    role: "Administrador",
-    status: "active", 
-    lastLogin: "2025-05-19" 
-  },
-  { 
-    id: "USR-004", 
-    name: "Ana Costa", 
-    email: "ana.costa@example.com", 
-    phone: "(11) 66666-6666",
-    role: "Cliente",
-    status: "inactive", 
-    lastLogin: "2025-04-22" 
-  },
-  { 
-    id: "USR-005", 
-    name: "Lucas Ferreira", 
-    email: "lucas.ferreira@example.com", 
-    phone: "(11) 55555-5555",
-    role: "Cliente",
-    status: "active", 
-    lastLogin: "2025-05-18" 
-  },
-];
+import { graphqlService, User } from "@/services/graphqlService";
 
 const AdminUsersPage = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [editingUser, setEditingUser] = useState<any>(null);
   const [inactivatingUser, setInactivatingUser] = useState<any>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const filteredUsers = mockUsers.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  // Buscar usuários do banco de dados
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const usersData = await graphqlService.getAllUsers();
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os usuários. Tente novamente.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [toast]);
+  
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === "all" || user.role.toLowerCase() === roleFilter.toLowerCase();
-    const matchesStatus = statusFilter === "all" || user.status === statusFilter;
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch;
   });
-  
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-      case "active":
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            Ativo
-          </span>
-        );
-      case "inactive":
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            Inativo
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            Desconhecido
-          </span>
-        );
-    }
-  };
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/10">
@@ -200,97 +147,70 @@ const AdminUsersPage = () => {
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <div className="relative">
-                      <Filter className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                      <select 
-                        className="pl-8 h-9 rounded-md border border-input bg-background text-sm w-full"
-                        value={roleFilter}
-                        onChange={(e) => setRoleFilter(e.target.value)}
-                      >
-                        <option value="all">Todos os perfis</option>
-                        <option value="cliente">Clientes</option>
-                        <option value="administrador">Administradores</option>
-                      </select>
-                      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                    </div>
-                    <div className="relative">
-                      <Filter className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                      <select 
-                        className="pl-8 h-9 rounded-md border border-input bg-background text-sm w-full"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                      >
-                        <option value="all">Todos os status</option>
-                        <option value="active">Ativos</option>
-                        <option value="inactive">Inativos</option>
-                      </select>
-                      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                    </div>
-                  </div>
                 </div>
               </CardHeader>
               
               <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Celular</TableHead>
-                        <TableHead>Perfil</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Último Login</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredUsers.length > 0 ? (
-                        filteredUsers.map((user) => (
-                          <TableRow key={user.id}>
-                            <TableCell className="font-medium">{user.name}</TableCell>
-                            <TableCell>{user.email}</TableCell>
-                            <TableCell>{user.phone}</TableCell>
-                            <TableCell>{user.role}</TableCell>
-                            <TableCell>{getStatusBadge(user.status)}</TableCell>
-                            <TableCell>{new Date(user.lastLogin).toLocaleDateString('pt-BR')}</TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex justify-end space-x-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  onClick={() => setEditingUser(user)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  className="text-red-500 hover:text-red-700"
-                                  onClick={() => setInactivatingUser(user)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
+                {isLoading ? (
+                  <div className="text-center py-8">
+                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
+                    <p className="mt-2 text-gray-500">Carregando usuários...</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Celular</TableHead>
+                          <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredUsers.length > 0 ? (
+                          filteredUsers.map((user) => (
+                            <TableRow key={user.id}>
+                              <TableCell className="font-medium">{user.fullname}</TableCell>
+                              <TableCell>{user.email}</TableCell>
+                              <TableCell>{user.phone || '-'}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end space-x-2">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => setEditingUser(user)}
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="text-red-500 hover:text-red-700"
+                                    onClick={() => setInactivatingUser(user)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+                              {searchTerm ? 'Nenhum usuário encontrado com os critérios de busca' : 'Nenhum usuário encontrado'}
                             </TableCell>
                           </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center py-4 text-gray-500">
-                            Nenhum usuário encontrado
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
               
               <CardFooter className="flex justify-between">
                 <p className="text-sm text-gray-500">
-                  Mostrando {filteredUsers.length} de {mockUsers.length} usuários
+                  Mostrando {filteredUsers.length} de {users.length} usuários
                 </p>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm" disabled>
