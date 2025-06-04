@@ -34,6 +34,10 @@ export interface CompanyConfig {
 export interface AdminContact {
   email: string;
   phone: string;
+  user: {
+  fullname: string;
+  email: string;
+}
 }
 
 export interface Result {
