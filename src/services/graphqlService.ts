@@ -35,6 +35,18 @@ export interface AdminContact {
   phone: string;
 }
 
+export interface Result {
+  id: string;
+  calculated_result: string;
+  date: string;
+  status: string;
+  order: {
+    user: {
+      fullname: string;
+    };
+  };
+}
+
 // Query para buscar usuário no login
 const GET_USER_QUERY = `
   query GetUser($email: String!, $password: String!) {
@@ -92,6 +104,23 @@ const GET_ADMIN_CONTACT_QUERY = `
     users(limit: 1) {
       email
       phone
+    }
+  }
+`;
+
+// Query para buscar todos os resultados com relacionamentos
+const GET_ALL_RESULTS_QUERY = `
+  query GetAllResults {
+    results {
+      id
+      calculated_result
+      date
+      status
+      order {
+        user {
+          fullname
+        }
+      }
     }
   }
 `;
@@ -299,6 +328,41 @@ export const graphqlService = {
       return users && users.length > 0 ? { email: users[0].email, phone: users[0].phone } : null;
     } catch (error) {
       console.error('Erro ao buscar dados de contato do admin:', error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+      }
+      throw error;
+    }
+  },
+
+  // Função para buscar todos os resultados
+  async getAllResults(): Promise<Result[]> {
+    try {
+      console.log('Buscando todos os resultados...');
+      
+      const response = await fetchWithTimeout(API_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: GET_ALL_RESULTS_QUERY,
+        }),
+      }, 15000);
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Resultados encontrados:', result);
+      
+      if (result.errors) {
+        console.error('Erros na busca de resultados:', result.errors);
+        throw new Error(result.errors[0].message);
+      }
+
+      return result.data?.results || [];
+    } catch (error) {
+      console.error('Erro ao buscar resultados:', error);
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
       }

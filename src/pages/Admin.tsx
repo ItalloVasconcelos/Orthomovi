@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   ArrowRight, 
@@ -29,51 +29,37 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { UserDropdown } from "@/components/UserDropdown";
-
-// Mock data for orders
-const mockOrders = [
-  { 
-    id: "ORD-001", 
-    patientName: "João Silva", 
-    date: "2025-01-15", 
-    status: "pending", 
-    calculatedNumber: "24"
-  },
-  { 
-    id: "ORD-002", 
-    patientName: "Maria Oliveira", 
-    date: "2025-01-14", 
-    status: "processing", 
-    calculatedNumber: "26"
-  },
-  { 
-    id: "ORD-003", 
-    patientName: "Pedro Santos", 
-    date: "2025-01-13", 
-    status: "completed", 
-    calculatedNumber: "22"
-  },
-  { 
-    id: "ORD-004", 
-    patientName: "Ana Costa", 
-    date: "2025-01-12", 
-    status: "cancelled", 
-    calculatedNumber: "25"
-  },
-  { 
-    id: "ORD-005", 
-    patientName: "Lucas Ferreira", 
-    date: "2025-01-11", 
-    status: "pending", 
-    calculatedNumber: "23"
-  },
-];
+import { graphqlService, Result } from "@/services/graphqlService";
+import { formatDate } from "@/utils/dateUtils";
 
 const AdminPanel = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [results, setResults] = useState<Result[]>([]);
+  const [loading, setLoading] = useState(true);
   
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        setLoading(true);
+        const data = await graphqlService.getAllResults();
+        setResults(data);
+      } catch (error) {
+        console.error('Erro ao carregar resultados:', error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os pedidos.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResults();
+  }, [toast]);
+
   const handleLogout = () => {
     toast({
       title: "Encerrando sessão",
@@ -84,48 +70,45 @@ const AdminPanel = () => {
     }, 1500);
   };
   
-  const filteredOrders = mockOrders.filter(order => {
-    const matchesSearch = order.patientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         order.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+  const filteredResults = results.filter(result => {
+    const patientName = result.order?.user?.fullname || '';
+    const matchesSearch = patientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         result.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const resultStatus = result.status || 'Análise';
+    const matchesStatus = statusFilter === "all" || resultStatus.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
   
   const getStatusBadge = (status: string) => {
-    switch(status) {
-      case "pending":
+    const normalizedStatus = status || 'Análise';
+    
+    switch(normalizedStatus.toLowerCase()) {
+      case "análise":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
             <Clock className="w-3 h-3 mr-1" />
-            Pendente
+            Análise
           </span>
         );
-      case "processing":
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            <Clock className="w-3 h-3 mr-1" />
-            Em Processamento
-          </span>
-        );
-      case "completed":
+      case "aprovado":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
             <CheckCircle className="w-3 h-3 mr-1" />
-            Concluído
+            Aprovado
           </span>
         );
-      case "cancelled":
+      case "recusado":
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
             <XCircle className="w-3 h-3 mr-1" />
-            Cancelado
+            Recusado
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
             <AlertCircle className="w-3 h-3 mr-1" />
-            Desconhecido
+            {normalizedStatus}
           </span>
         );
     }
@@ -211,80 +194,85 @@ const AdminPanel = () => {
                       onChange={(e) => setStatusFilter(e.target.value)}
                     >
                       <option value="all">Todos os status</option>
-                      <option value="pending">Pendentes</option>
-                      <option value="processing">Em processamento</option>
-                      <option value="completed">Concluídos</option>
-                      <option value="cancelled">Cancelados</option>
+                      <option value="análise">Análise</option>
+                      <option value="aprovado">Aprovado</option>
+                      <option value="recusado">Recusado</option>
                     </select>
                     <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Paciente
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Número
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Data
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Ações
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredOrders.length > 0 ? (
-                        filteredOrders.map((order) => (
-                          <tr key={order.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {order.id}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {order.patientName}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-ortho-orange">
-                              {order.calculatedNumber}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(order.date).toLocaleDateString('pt-BR')}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {getStatusBadge(order.status)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <Button variant="outline" size="sm">
-                                Ver detalhes
-                              </Button>
+                {loading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <div className="text-sm text-gray-500">Carregando pedidos...</div>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            ID
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Paciente
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Número
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Data
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ações
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredResults.length > 0 ? (
+                          filteredResults.map((result) => (
+                            <tr key={result.id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {result.id}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {result.order?.user?.fullname || 'Nome não disponível'}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-ortho-orange">
+                                {result.calculated_result || 'N/A'}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {formatDate(result.date)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {getStatusBadge(result.status || 'Análise')}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <Button variant="outline" size="sm">
+                                  Ver detalhes
+                                </Button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                              {loading ? 'Carregando...' : 'Nenhum pedido encontrado'}
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
-                            Nenhum pedido encontrado
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-between">
                 <p className="text-sm text-gray-500">
-                  Mostrando {filteredOrders.length} de {mockOrders.length} pedidos
+                  Mostrando {filteredResults.length} de {results.length} pedidos
                 </p>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm" disabled>
