@@ -3,7 +3,6 @@ import React from "react";
 import { X } from "lucide-react";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -17,113 +16,135 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-type ClientMeasurements = {
-  a: number;
-  b: number;
-  c: number;
-  d: number;
-};
+import { Result } from "@/services/graphqlService";
+import { formatDate } from "@/utils/dateUtils";
 
 interface ClientDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  client: {
-    id: string;
-    name: string;
-    email: string;
-    status: string;
-    calculatedSize: string;
-    measurements: ClientMeasurements;
-  } | null;
-  onStatusChange: (clientId: string, newStatus: string) => void;
-  getStatusClass: (status: string) => string;
+  result: Result | null;
+  onStatusChange?: (resultId: string, newStatus: string) => void;
 }
 
 export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   isOpen,
   onOpenChange,
-  client,
+  result,
   onStatusChange,
-  getStatusClass,
 }) => {
-  if (!client) return null;
+  if (!result) return null;
+
+  const getStatusValue = (status: string | string[]): string => {
+    if (Array.isArray(status)) {
+      return status.length > 0 ? status[0] : 'Análise';
+    }
+    return status || 'Análise';
+  };
+
+  const currentStatus = getStatusValue(result.status);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogClose className="absolute right-4 top-4 p-1 rounded-full hover:bg-gray-100">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Fechar</span>
-        </DialogClose>
-        
         <DialogHeader>
           <DialogTitle className="pr-6">
-            Detalhes da Medição de {client.name}
+            Detalhes do Pedido #{result.id.slice(0, 8)}
           </DialogTitle>
-          <p className="text-sm text-gray-500 mt-1">{client.email}</p>
         </DialogHeader>
         
         <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="text-center py-3">
-              <div className="text-sm text-gray-500 mb-1">Nº Calculado</div>
-              <div className="text-4xl font-bold text-ortho-orange">
-                {client.calculatedSize}
+          {/* Informações do Paciente */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-lg mb-3">Informações do Paciente</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-gray-500 mb-1">Nome</div>
+                <div className="font-medium">{result.order?.user?.fullname || 'Nome não disponível'}</div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">Email</div>
+                <div className="font-medium text-sm">{result.order?.user?.email || 'Email não disponível'}</div>
               </div>
             </div>
-            
-            <div className="border-t pt-4 grid grid-cols-2 gap-3">
-              <div className="border rounded-md p-3">
-                <div className="text-sm text-gray-500">Medida A</div>
-                <div className="font-medium">{client.measurements.a} cm</div>
+          </div>
+
+          {/* Resultado Calculado */}
+          <div className="text-center py-4 bg-ortho-orange/10 rounded-lg">
+            <div className="text-sm text-gray-600 mb-1">Número Calculado</div>
+            <div className="text-4xl font-bold text-ortho-orange">
+              {result.calculated_result}
+            </div>
+            <div className="text-sm text-gray-500 mt-1">
+              Data: {formatDate(result.date)}
+            </div>
+          </div>
+          
+          {/* Medidas */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3">Medidas</h3>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="border rounded-md p-3 text-center">
+                <div className="text-sm text-gray-500 mb-1">Medida A</div>
+                <div className="font-bold text-lg">
+                  {result.measurements?.medida_a ? `${result.measurements.medida_a} cm` : 'N/A'}
+                </div>
               </div>
-              <div className="border rounded-md p-3">
-                <div className="text-sm text-gray-500">Medida B</div>
-                <div className="font-medium">{client.measurements.b} cm</div>
+              <div className="border rounded-md p-3 text-center">
+                <div className="text-sm text-gray-500 mb-1">Medida H</div>
+                <div className="font-bold text-lg">
+                  {result.measurements?.medida_h ? `${result.measurements.medida_h} cm` : 'N/A'}
+                </div>
               </div>
-              <div className="border rounded-md p-3">
-                <div className="text-sm text-gray-500">Medida C</div>
-                <div className="font-medium">{client.measurements.c} cm</div>
-              </div>
-              <div className="border rounded-md p-3">
-                <div className="text-sm text-gray-500">Medida D</div>
-                <div className="font-medium">{client.measurements.d} cm</div>
+              <div className="border rounded-md p-3 text-center">
+                <div className="text-sm text-gray-500 mb-1">Medida D</div>
+                <div className="font-bold text-lg">
+                  {result.measurements?.medida_d ? `${result.measurements.medida_d} cm` : 'N/A'}
+                </div>
               </div>
             </div>
-            
-            <div className="border-t pt-4">
-              <div className="text-sm font-medium mb-2">Fotos Enviadas</div>
-              <div className="grid grid-cols-2 gap-2">
-                {['A', 'B', 'C', 'D'].map((photo) => (
-                  <div key={photo} className="aspect-square bg-gray-100 rounded-md flex items-center justify-center">
-                    <span className="text-gray-400">Foto {photo}</span>
-                  </div>
-                ))}
-              </div>
+          </div>
+          
+          {/* Imagens (Placeholder) */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3">Imagens</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {['Medida A', 'Medida H', 'Medida D', 'Adicional'].map((label, index) => (
+                <div key={index} className="aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
+                  <div className="text-gray-400 text-sm mb-1">📷</div>
+                  <div className="text-gray-500 text-xs">{label}</div>
+                  <div className="text-gray-400 text-xs mt-1">Em breve</div>
+                </div>
+              ))}
             </div>
-            
-            <div className="border-t pt-4">
-              <div className="text-sm font-medium mb-2">Status atual</div>
+          </div>
+          
+          {/* Status */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3">Status do Pedido</h3>
+            {onStatusChange ? (
               <Select
-                defaultValue={client.status}
-                onValueChange={(value) => onStatusChange(client.id, value)}
+                defaultValue={currentStatus}
+                onValueChange={(value) => onStatusChange(result.id, value)}
               >
-                <SelectTrigger className={`w-full ${getStatusClass(client.status)}`}>
-                  <SelectValue placeholder={client.status} />
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={currentStatus} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Pendente">Pendente</SelectItem>
-                  <SelectItem value="Em análise">Em análise</SelectItem>
-                  <SelectItem value="Concluído">Concluído</SelectItem>
+                  <SelectItem value="Análise">Em Análise</SelectItem>
+                  <SelectItem value="Aprovado">Aprovado</SelectItem>
+                  <SelectItem value="Recusado">Recusado</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            ) : (
+              <div className="p-3 bg-gray-50 rounded-md">
+                <span className="font-medium">{currentStatus}</span>
+              </div>
+            )}
           </div>
         </div>
         
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>
+          <Button onClick={() => onOpenChange(false)} className="w-full">
             Fechar
           </Button>
         </DialogFooter>

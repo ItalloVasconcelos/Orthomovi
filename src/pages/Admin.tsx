@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -29,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { UserDropdown } from "@/components/UserDropdown";
+import { ClientDetailsModal } from "@/components/admin/ClientDetailsModal";
 import { graphqlService, Result } from "@/services/graphqlService";
 import { formatDate } from "@/utils/dateUtils";
 
@@ -38,6 +38,8 @@ const AdminPanel = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [results, setResults] = useState<Result[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedResult, setSelectedResult] = useState<Result | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   useEffect(() => {
     const fetchResults = async () => {
@@ -70,7 +72,6 @@ const AdminPanel = () => {
     }, 1500);
   };
 
-  // Helper function to get the first status from array or return the status as string
   const getStatusValue = (status: string | string[]): string => {
     if (Array.isArray(status)) {
       return status.length > 0 ? status[0] : 'Análise';
@@ -120,6 +121,25 @@ const AdminPanel = () => {
           </span>
         );
     }
+  };
+
+  const handleViewDetails = (result: Result) => {
+    setSelectedResult(result);
+    setIsModalOpen(true);
+  };
+
+  const handleStatusChange = (resultId: string, newStatus: string) => {
+    // Atualizar status local até implementar API
+    setResults(prev => prev.map(result => 
+      result.id === resultId 
+        ? { ...result, status: newStatus }
+        : result
+    ));
+    
+    toast({
+      title: "Status atualizado",
+      description: `Status alterado para: ${newStatus}`,
+    });
   };
   
   return (
@@ -245,7 +265,7 @@ const AdminPanel = () => {
                           filteredResults.map((result) => (
                             <tr key={result.id} className="hover:bg-gray-50">
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {result.id}
+                                {result.id.slice(0, 8)}...
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {result.order?.user?.fullname || 'Nome não disponível'}
@@ -260,7 +280,11 @@ const AdminPanel = () => {
                                 {getStatusBadge(result.status)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => handleViewDetails(result)}
+                                >
                                   Ver detalhes
                                 </Button>
                               </td>
@@ -295,6 +319,14 @@ const AdminPanel = () => {
           </div>
         </div>
       </main>
+      
+      {/* Modal de Detalhes */}
+      <ClientDetailsModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        result={selectedResult}
+        onStatusChange={handleStatusChange}
+      />
       
       <footer className="py-6 bg-white border-t">
         <div className="container mx-auto px-4 text-center text-sm text-gray-500">
