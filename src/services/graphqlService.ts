@@ -25,6 +25,16 @@ export interface RegisterData {
   password: string;
 }
 
+export interface CompanyConfig {
+  company_name: string;
+  cnpj: string;
+}
+
+export interface AdminContact {
+  email: string;
+  phone: string;
+}
+
 // Query para buscar usuário no login
 const GET_USER_QUERY = `
   query GetUser($email: String!, $password: String!) {
@@ -48,6 +58,26 @@ const CREATE_USER_MUTATION = `
     }) {
       id
       name
+      email
+      phone
+    }
+  }
+`;
+
+// Query para buscar configurações da empresa
+const GET_COMPANY_CONFIG_QUERY = `
+  query GetCompanyConfig {
+    config {
+      company_name
+      cnpj
+    }
+  }
+`;
+
+// Query para buscar dados de contato do admin
+const GET_ADMIN_CONTACT_QUERY = `
+  query GetAdminContact {
+    users(limit: 1) {
       email
       phone
     }
@@ -150,6 +180,78 @@ export const graphqlService = {
       return result.data?.insert_users_one;
     } catch (error) {
       console.error('Erro no cadastro:', error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+      }
+      throw error;
+    }
+  },
+
+  // Função para buscar configurações da empresa
+  async getCompanyConfig(): Promise<CompanyConfig | null> {
+    try {
+      console.log('Buscando configurações da empresa...');
+      
+      const response = await fetchWithTimeout(API_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: GET_COMPANY_CONFIG_QUERY,
+        }),
+      }, 15000);
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Configurações da empresa:', result);
+      
+      if (result.errors) {
+        console.error('Erros na busca de configurações:', result.errors);
+        throw new Error(result.errors[0].message);
+      }
+
+      const config = result.data?.config;
+      return config && config.length > 0 ? config[0] : null;
+    } catch (error) {
+      console.error('Erro ao buscar configurações da empresa:', error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+      }
+      throw error;
+    }
+  },
+
+  // Função para buscar dados de contato do admin
+  async getAdminContact(): Promise<AdminContact | null> {
+    try {
+      console.log('Buscando dados de contato do admin...');
+      
+      const response = await fetchWithTimeout(API_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          query: GET_ADMIN_CONTACT_QUERY,
+        }),
+      }, 15000);
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log('Dados de contato do admin:', result);
+      
+      if (result.errors) {
+        console.error('Erros na busca de contato do admin:', result.errors);
+        throw new Error(result.errors[0].message);
+      }
+
+      const users = result.data?.users;
+      return users && users.length > 0 ? { email: users[0].email, phone: users[0].phone } : null;
+    } catch (error) {
+      console.error('Erro ao buscar dados de contato do admin:', error);
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
       }

@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Users, 
@@ -24,10 +23,43 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { UserDropdown } from "@/components/UserDropdown";
+import { graphqlService, CompanyConfig, AdminContact } from "@/services/graphqlService";
 
 const AdminConfigPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [companyConfig, setCompanyConfig] = useState<CompanyConfig | null>(null);
+  const [adminContact, setAdminContact] = useState<AdminContact | null>(null);
+
+  useEffect(() => {
+    const fetchConfigData = async () => {
+      try {
+        setIsLoadingData(true);
+        console.log('Carregando dados de configuração...');
+        
+        const [configData, contactData] = await Promise.all([
+          graphqlService.getCompanyConfig(),
+          graphqlService.getAdminContact()
+        ]);
+        
+        console.log('Dados carregados:', { configData, contactData });
+        setCompanyConfig(configData);
+        setAdminContact(contactData);
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+        toast({
+          title: "Erro ao carregar configurações",
+          description: "Não foi possível carregar os dados de configuração. Tente novamente.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchConfigData();
+  }, [toast]);
 
   const handleSaveSettings = () => {
     setIsLoading(true);
@@ -40,6 +72,28 @@ const AdminConfigPage = () => {
       });
     }, 1000);
   };
+  
+  if (isLoadingData) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/10">
+        <header className="py-4 px-4 bg-white shadow-sm">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center">
+              <Link to="/" className="text-2xl font-bold text-ortho-orange">Orthomovi</Link>
+              <UserDropdown />
+            </div>
+          </div>
+        </header>
+        
+        <main className="flex-grow container mx-auto px-4 py-6 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ortho-orange mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando configurações...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/10">
@@ -114,19 +168,35 @@ const AdminConfigPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="company-name">Nome da Empresa</Label>
-                      <Input id="company-name" defaultValue="Orthomovi Órteses Pediátricas" className="h-12" />
+                      <Input 
+                        id="company-name" 
+                        defaultValue={companyConfig?.company_name || "Orthomovi Órteses Pediátricas"} 
+                        className="h-12" 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-email">Email de Contato</Label>
-                      <Input id="company-email" defaultValue="contato@orthomovi.com.br" className="h-12" />
+                      <Input 
+                        id="company-email" 
+                        defaultValue={adminContact?.email || "contato@orthomovi.com.br"} 
+                        className="h-12" 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-phone">Telefone de Contato</Label>
-                      <Input id="company-phone" defaultValue="(11) 99999-9999" className="h-12" />
+                      <Input 
+                        id="company-phone" 
+                        defaultValue={adminContact?.phone || "(11) 99999-9999"} 
+                        className="h-12" 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="company-cnpj">CNPJ</Label>
-                      <Input id="company-cnpj" defaultValue="12.345.678/0001-90" className="h-12" />
+                      <Input 
+                        id="company-cnpj" 
+                        defaultValue={companyConfig?.cnpj || "12.345.678/0001-90"} 
+                        className="h-12" 
+                      />
                     </div>
                   </div>
                 </div>
