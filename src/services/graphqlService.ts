@@ -1,3 +1,4 @@
+
 const API_URL = 'https://orthomovi-hasura.4bcy4g.easypanel.host/v1/graphql';
 
 const headers = {
@@ -5,7 +6,7 @@ const headers = {
   'x-hasura-admin-secret': 'mysecretkey',
 };
 
-export interface Users {
+export interface User {
   id: string;
   fullname: string;
   email: string;
@@ -39,9 +40,9 @@ export interface Result {
   id: string;
   calculated_result: string;
   date: string;
-  status: string;
-  orders: {
-    users: {
+  status: string | string[];
+  order: {
+    user: {
       fullname: string;
     };
   };
@@ -49,7 +50,7 @@ export interface Result {
 
 // Query para buscar usuário no login
 const GET_USER_QUERY = `
-  query GetUsers($email: String!, $password: String!) {
+  query GetUser($email: String!, $password: String!) {
     users(where: {email: {_eq: $email}, password: {_eq: $password}}) {
       id
       fullname
@@ -73,7 +74,7 @@ const GET_ALL_USERS_QUERY = `
 
 // Mutation para criar novo usuário
 const CREATE_USER_MUTATION = `
-  mutation CreateUsers($fullname: String!, $email: String!, $phone: String!, $password: String!) {
+  mutation CreateUser($fullname: String!, $email: String!, $phone: String!, $password: String!) {
     insert_users_one(object: {
       fullname: $fullname,
       email: $email,
@@ -94,6 +95,10 @@ const GET_COMPANY_CONFIG_QUERY = `
     config {
       company_name
       cnpj
+      user {
+      fullname
+      email
+    }
     }
   }
 `;
@@ -117,7 +122,7 @@ const GET_ALL_RESULTS_QUERY = `
       date
       status
       order {
-        users {
+        user {
           fullname
         }
       }
@@ -128,7 +133,7 @@ const GET_ALL_RESULTS_QUERY = `
 const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 10000) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
+
   try {
     const response = await fetch(url, {
       ...options,
@@ -146,11 +151,11 @@ const fetchWithTimeout = async (url: string, options: RequestInit, timeout = 100
 };
 
 export const graphqlService = {
-  // Função para fazer login (GET users)
-  async loginUsers(credentials: LoginCredentials): Promise<Users | null> {
+  // Função para fazer login (GET user)
+  async loginUser(credentials: LoginCredentials): Promise<User | null> {
     try {
       console.log('Tentando fazer login com:', credentials);
-      
+
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
@@ -169,7 +174,7 @@ export const graphqlService = {
 
       const result = await response.json();
       console.log('Resposta da API:', result);
-      
+
       if (result.errors) {
         console.error('Erros da API:', result.errors);
         throw new Error(result.errors[0].message);
@@ -187,21 +192,21 @@ export const graphqlService = {
     }
   },
 
-  // Função para registrar usuário (POST users)
-  async registerUsers(usersData: RegisterData): Promise<Users> {
+  // Função para registrar usuário (POST user)
+  async registerUser(userData: RegisterData): Promise<User> {
     try {
-      console.log('Tentando registrar usuário:', usersData);
-      
+      console.log('Tentando registrar usuário:', userData);
+
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify({
           query: CREATE_USER_MUTATION,
           variables: {
-            fullname: usersData.fullname,
-            email: usersData.email,
-            phone: usersData.phone,
-            password: usersData.password,
+            fullname: userData.fullname,
+            email: userData.email,
+            phone: userData.phone,
+            password: userData.password,
           },
         }),
       }, 15000); // 15 segundos de timeout
@@ -212,7 +217,7 @@ export const graphqlService = {
 
       const result = await response.json();
       console.log('Resposta do registro:', result);
-      
+
       if (result.errors) {
         console.error('Erros no registro:', result.errors);
         throw new Error(result.errors[0].message);
@@ -229,10 +234,10 @@ export const graphqlService = {
   },
 
   // Função para buscar todos os usuários
-  async getAllUsers(): Promise<Users[]> {
+  async getAllUsers(): Promise<User[]> {
     try {
       console.log('Buscando todos os usuários...');
-      
+
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
@@ -247,7 +252,7 @@ export const graphqlService = {
 
       const result = await response.json();
       console.log('Usuários encontrados:', result);
-      
+
       if (result.errors) {
         console.error('Erros na busca de usuários:', result.errors);
         throw new Error(result.errors[0].message);
@@ -267,7 +272,7 @@ export const graphqlService = {
   async getCompanyConfig(): Promise<CompanyConfig | null> {
     try {
       console.log('Buscando configurações da empresa...');
-      
+
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
@@ -282,7 +287,7 @@ export const graphqlService = {
 
       const result = await response.json();
       console.log('Configurações da empresa:', result);
-      
+
       if (result.errors) {
         console.error('Erros na busca de configurações:', result.errors);
         throw new Error(result.errors[0].message);
@@ -303,7 +308,7 @@ export const graphqlService = {
   async getAdminContact(): Promise<AdminContact | null> {
     try {
       console.log('Buscando dados de contato do admin...');
-      
+
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
@@ -318,7 +323,7 @@ export const graphqlService = {
 
       const result = await response.json();
       console.log('Dados de contato do admin:', result);
-      
+
       if (result.errors) {
         console.error('Erros na busca de contato do admin:', result.errors);
         throw new Error(result.errors[0].message);
@@ -339,7 +344,7 @@ export const graphqlService = {
   async getAllResults(): Promise<Result[]> {
     try {
       console.log('Buscando todos os resultados...');
-      
+
       const response = await fetchWithTimeout(API_URL, {
         method: 'POST',
         headers,
@@ -354,7 +359,7 @@ export const graphqlService = {
 
       const result = await response.json();
       console.log('Resultados encontrados:', result);
-      
+
       if (result.errors) {
         console.error('Erros na busca de resultados:', result.errors);
         throw new Error(result.errors[0].message);
