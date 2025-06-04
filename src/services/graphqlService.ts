@@ -40,7 +40,7 @@ export interface Result {
   calculated_result: string;
   date: string;
   status: string;
-  order: {
+  orders: {
     users: {
       fullname: string;
     };
