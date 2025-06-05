@@ -63,17 +63,20 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Novas cores baseadas na referência
-				'brand-primary': '#1E40AF', // Azul principal
+				// Novas cores conforme especificado
+				'brand-primary': '#0469D7', // Azul principal para botões
+				'brand-primary-dark': '#022180', // Azul escuro para gradiente
 				'brand-secondary': '#3B82F6', // Azul secundário
-				'brand-accent': '#F59E0B', // Laranja/amarelo para CTAs
+				'brand-accent': '#FB7201', // Laranja vibrante para destaques
 				'brand-text': '#1F2937', // Texto principal escuro
 				'brand-text-light': '#6B7280', // Texto secundário
+				'brand-text-secondary': '#C7D2E2', // Texto secundário específico
 				'brand-bg': '#F8FAFC', // Fundo claro
-				'brand-white': '#FFFFFF',
+				'brand-bg-beige': '#F5F5DC', // Bege claro para seções
+				'brand-white': '#FFFFFF', // Branco
 				// Manter cores ortho existentes para compatibilidade
-				'ortho-orange': '#F59E0B',
-				'ortho-orange-dark': '#D97706',
+				'ortho-orange': '#FB7201',
+				'ortho-orange-dark': '#e65100',
 				'ortho-blue': '#EFF6FF',
 				'ortho-blue-dark': '#DBEAFE'
 			},

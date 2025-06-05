@@ -34,14 +34,11 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 }) => {
   if (!result) return null;
 
-  const getStatusValue = (status: string | string[]): string => {
-    if (Array.isArray(status)) {
-      return status.length > 0 ? status[0] : 'Análise';
+  const handleStatusChange = (newStatus: string) => {
+    if (onStatusChange) {
+      onStatusChange(result.id, newStatus);
     }
-    return status || 'Análise';
   };
-
-  const currentStatus = getStatusValue(result.status);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -123,11 +120,11 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             <h3 className="font-semibold text-lg mb-3">Status do Pedido</h3>
             {onStatusChange ? (
               <Select
-                defaultValue={currentStatus}
-                onValueChange={(value) => onStatusChange(result.id, value)}
+                defaultValue={result.status}
+                onValueChange={handleStatusChange}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={currentStatus} />
+                  <SelectValue placeholder={result.status} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Análise">Em Análise</SelectItem>
@@ -137,7 +134,7 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               </Select>
             ) : (
               <div className="p-3 bg-gray-50 rounded-md">
-                <span className="font-medium">{currentStatus}</span>
+                <span className="font-medium">{result.status}</span>
               </div>
             )}
           </div>
