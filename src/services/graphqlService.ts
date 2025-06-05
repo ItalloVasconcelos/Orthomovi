@@ -131,6 +131,15 @@ const QUERIES = {
         email
       }
     }
+  `,
+
+  GET_COMPANY_CONFIG: `
+    query GetCompanyConfig {
+      company_config(limit: 1) {
+        company_name
+        cnpj
+      }
+    }
   `
 };
 
@@ -227,5 +236,19 @@ export const graphqlService = {
     } : null;
   },
 
-  // Removed getCompanyConfig as it was causing errors in the network requests
+  async getCompanyConfig(): Promise<CompanyConfig | null> {
+    console.log('Buscando configurações da empresa...');
+    try {
+      const data = await executeQuery(QUERIES.GET_COMPANY_CONFIG);
+      const config = data?.company_config;
+      return config && config.length > 0 ? config[0] : null;
+    } catch (error) {
+      console.error('Erro ao buscar configurações da empresa:', error);
+      // Return default values if the table doesn't exist or there's an error
+      return {
+        company_name: "Orthomovi Órteses Pediátricas",
+        cnpj: "12.345.678/0001-90"
+      };
+    }
+  },
 };
