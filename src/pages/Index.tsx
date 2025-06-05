@@ -1,9 +1,15 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, MapPin, Phone, Mail } from "lucide-react";
 import { PhotoWizard } from "@/components/PhotoWizard";
 import { Button } from "@/components/ui/button";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger 
+} from "@/components/ui/accordion";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,8 +17,21 @@ import { useAuth } from "@/contexts/AuthContext";
 const Index = () => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   
   const isHomePage = location.pathname === "/home";
+
+  const handleSolicitarTenis = () => {
+    if (isAuthenticated) {
+      navigate('/home');
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const handleVerLocalizacao = () => {
+    window.open('https://www.google.com/maps/place/Orthomovi/@-7.2555324,-39.3180029,8720m/data=!3m1!1e3!4m6!3m5!1s0x7a179ea330ccd65:0x1dc24fc4265fcd00!8m2!3d-7.2555324!4d-39.3180029!16s%2Fg%2F11lp1v9qld?entry=ttu&g_ep=EgoyMDI1MDYwNC4wIKXMDSoASAFQAw%3D%3D', '_blank');
+  };
 
   if (loading) {
     return (
@@ -68,8 +87,11 @@ const Index = () => {
                 <p className="text-xl mb-8 leading-relaxed opacity-90">
                   Design exclusivo, com mais altura e largura, proporcionando um calce mais justo, favorecendo a marcha e o equilíbrio.
                 </p>
-                <Button className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                       style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}>
+                <Button 
+                  onClick={handleSolicitarTenis}
+                  className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                  style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+                >
                   Solicitar tênis sob medida
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -135,8 +157,11 @@ const Index = () => {
                 <p className="text-brand-text-light">Calçado sob medida para ajuste de dismetria de membro inferior.</p>
               </div>
             </div>
-            <Button className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                   style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}>
+            <Button 
+              onClick={handleSolicitarTenis}
+              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+            >
               Solicitar tênis sob medida
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -164,8 +189,11 @@ const Index = () => {
                 </div>
               ))}
             </div>
-            <Button className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                   style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}>
+            <Button 
+              onClick={handleSolicitarTenis}
+              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+            >
               Solicitar tênis sob medida
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -194,8 +222,11 @@ const Index = () => {
                 </div>
               ))}
             </div>
-            <Button className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                   style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}>
+            <Button 
+              onClick={handleSolicitarTenis}
+              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+            >
               Solicitar tênis sob medida
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -211,8 +242,11 @@ const Index = () => {
             <p className="text-xl text-brand-text-light max-w-4xl mx-auto mb-8 leading-relaxed">
               A OrthoMovi é uma marca de calçados ortopédicos para crianças com necessidades especiais, dedicada a proporcionar conforto, funcionalidade e estilo. Nossa missão é garantir que cada criança tenha acesso a calçados que promovam seu desenvolvimento e bem-estar.
             </p>
-            <Button className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                   style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}>
+            <Button 
+              onClick={handleSolicitarTenis}
+              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+            >
               Solicitar tênis sob medida
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -240,32 +274,70 @@ const Index = () => {
             <p className="text-xl text-brand-text-light mb-8">
               Estamos localizados na Rua João Freire de Araújo 245, na cidade de Juazeiro do Norte, no Ceará.
             </p>
-            <Button variant="outline" className="text-lg px-8 py-4 border-2 border-brand-text text-brand-text hover:bg-brand-text hover:text-white">
+            <Button 
+              onClick={handleVerLocalizacao}
+              variant="outline" 
+              className="text-lg px-8 py-4 border-2 border-brand-text text-brand-text hover:bg-brand-text hover:text-white"
+            >
               <MapPin className="mr-2 w-5 h-5" />
               Ver localização
             </Button>
           </div>
         </section>
 
-        {/* Perguntas Frequentes */}
+        {/* Perguntas Frequentes com Accordion */}
         <section className="py-20 px-4" style={{ backgroundColor: '#e3f2fd' }}>
           <div className="container mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12">
               Perguntas frequentes
             </h2>
-            <div className="max-w-4xl mx-auto space-y-4">
-              {[
-                'Como vou saber o número do tênis para órtese ou Dismetria?',
-                'O que é um tênis para palmilha ortopédica?',
-                'O que é sola Rocker?',
-                'Como faço para comprar?',
-                'Qual o prazo de entrega?'
-              ].map((question, index) => (
-                <div key={index} className="bg-white p-6 rounded-lg shadow-sm text-left">
-                  <h3 className="text-lg font-semibold text-brand-text">{question}</h3>
-                  <p className="text-brand-text-light mt-2">Resposta em breve...</p>
-                </div>
-              ))}
+            <div className="max-w-4xl mx-auto">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1" className="bg-white rounded-lg mb-4 px-6">
+                  <AccordionTrigger className="text-left">
+                    Como vou saber o número do tênis para órtese ou Dismetria?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-left text-brand-text-light">
+                    Vamos lhe enviar um formulário ilustrativo, onde constam as medidas necessárias para serem tiradas.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-2" className="bg-white rounded-lg mb-4 px-6">
+                  <AccordionTrigger className="text-left">
+                    O que é um tênis para palmilha ortopédica?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-left text-brand-text-light">
+                    É um tênis diferenciado, feito com estrutura interna para acomodar a palmilha, deixando o calce adaptado, sem diferença de altura.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-3" className="bg-white rounded-lg mb-4 px-6">
+                  <AccordionTrigger className="text-left">
+                    O que é sola Rocker?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-left text-brand-text-light">
+                    É um solado com uma curvatura que ajuda a distribuir melhor o peso do corpo, aliviando a pressão sobre o arco do pé, permitindo a marcha mais suave e natural.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-4" className="bg-white rounded-lg mb-4 px-6">
+                  <AccordionTrigger className="text-left">
+                    Como faço para comprar?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-left text-brand-text-light">
+                    Entre em contato pelo nosso WhatsApp.
+                  </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-5" className="bg-white rounded-lg mb-4 px-6">
+                  <AccordionTrigger className="text-left">
+                    Qual o prazo de entrega?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-left text-brand-text-light">
+                    Como são feitos sob encomenda (individualizados), serão enviados no prazo de duas semanas e, nossa equipe estará sempre lhe informando o andamento do seu pedido.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
         </section>

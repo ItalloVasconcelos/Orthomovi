@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
@@ -41,27 +40,32 @@ const AdminUsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true);
+      const usersData = await graphqlService.getAllUsers();
+      setUsers(usersData);
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os usuários. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Buscar usuários do banco de dados
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setIsLoading(true);
-        const usersData = await graphqlService.getAllUsers();
-        setUsers(usersData);
-      } catch (error) {
-        console.error('Erro ao buscar usuários:', error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível carregar os usuários. Tente novamente.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchUsers();
-  }, [toast]);
+  }, []);
+
+  const handleUserUpdated = () => {
+    // Recarregar a lista de usuários após uma atualização
+    fetchUsers();
+  };
   
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -194,6 +198,7 @@ const AdminUsersPage = () => {
                                   <Button 
                                     variant="outline" 
                                     size="sm"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
                                     onClick={() => setEditingUser(user)}
                                   >
                                     <Edit className="h-4 w-4" />
@@ -256,6 +261,7 @@ const AdminUsersPage = () => {
         user={editingUser}
         open={!!editingUser}
         onOpenChange={() => setEditingUser(null)}
+        onUserUpdated={handleUserUpdated}
       />
 
       <InactivateUserModal 

@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const userData = JSON.parse(savedUser);
         // Garantir que o role seja definido baseado no ID
-        const role = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
+        const role: 'admin' | 'user' = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
         setUser({ ...userData, role });
       } catch (error) {
         console.error('Erro ao carregar dados do usuário:', error);
@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (userData: User) => {
     // Garantir que o role seja definido baseado no ID
-    const role = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
+    const role: 'admin' | 'user' = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
     const userWithRole = { ...userData, role };
     setUser(userWithRole);
     localStorage.setItem('user', JSON.stringify(userWithRole));

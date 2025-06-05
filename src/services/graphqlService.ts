@@ -1,4 +1,3 @@
-
 const API_URL = 'https://orthomovi-hasura.4bcy4g.easypanel.host/v1/graphql';
 
 const headers = {
@@ -168,7 +167,7 @@ const QUERIES = {
       $email: String,
       $phone: String
     ) {
-      update_admin(_set: {
+      update_admin(where: {}, _set: {
         company_name: $company_name,
         cnpj: $cnpj
       }) {
@@ -265,7 +264,7 @@ export const graphqlService = {
     if (users && users.length > 0) {
       const user = users[0];
       // Determinar o role baseado no ID
-      const role = user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
+      const role: 'admin' | 'user' = user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
       return { ...user, role };
     }
     return null;
@@ -275,7 +274,7 @@ export const graphqlService = {
     console.log('Tentando registrar usuário:', userData);
     const data = await executeQuery(QUERIES.CREATE_USER, userData);
     const user = data?.insert_users_one;
-    return { ...user, role: 'user' };
+    return { ...user, role: 'user' as const };
   },
 
   async getAllUsers(): Promise<User[]> {
@@ -284,7 +283,7 @@ export const graphqlService = {
     const users = data?.users || [];
     return users.map((user: any) => ({
       ...user,
-      role: user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user'
+      role: (user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user') as 'admin' | 'user'
     }));
   },
 
@@ -295,7 +294,7 @@ export const graphqlService = {
     if (user) {
       return {
         ...user,
-        role: user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user'
+        role: (user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user') as 'admin' | 'user'
       };
     }
     return null;
