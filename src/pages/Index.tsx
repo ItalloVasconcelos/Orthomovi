@@ -1,6 +1,6 @@
 
-import React, { useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { PhotoWizard } from "@/components/PhotoWizard";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,9 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const { isAuthenticated, loading } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    if (!loading && isAuthenticated && location.pathname === "/") {
-      navigate("/home");
-    }
-  }, [isAuthenticated, loading, navigate, location.pathname]);
+  
+  const isHomePage = location.pathname === "/home";
 
   if (loading) {
     return (
@@ -27,8 +22,6 @@ const Index = () => {
     );
   }
 
-  const isHomePage = location.pathname === "/home";
-
   return (
     <div className="min-h-screen flex flex-col bg-brand-bg">
       <Header />
@@ -37,16 +30,30 @@ const Index = () => {
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="container mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-heading font-bold text-brand-text mb-6 leading-tight">
-              Órteses Pediátricas
-              <span className="block text-brand-primary">Personalizadas</span>
-            </h1>
-            <p className="text-xl text-brand-text-light max-w-3xl mx-auto mb-8 leading-relaxed">
-              Sistema de medição automática para órteses pediátricas usando tecnologia inovadora. 
-              Precisão, conforto e resultados superiores para seus pacientes.
-            </p>
+            {isHomePage ? (
+              <>
+                <h1 className="text-4xl md:text-6xl font-heading font-bold text-brand-text mb-6 leading-tight">
+                  Bem-vindo de volta!
+                </h1>
+                <p className="text-xl text-brand-text-light max-w-3xl mx-auto mb-8 leading-relaxed">
+                  Agora você pode começar a usar nosso sistema de medição automática. 
+                  Tire fotos das órteses e receba medições precisas instantaneamente.
+                </p>
+              </>
+            ) : (
+              <>
+                <h1 className="text-4xl md:text-6xl font-heading font-bold text-brand-text mb-6 leading-tight">
+                  Órteses Pediátricas
+                  <span className="block text-brand-primary">Personalizadas</span>
+                </h1>
+                <p className="text-xl text-brand-text-light max-w-3xl mx-auto mb-8 leading-relaxed">
+                  Sistema de medição automática para órteses pediátricas usando tecnologia inovadora. 
+                  Precisão, conforto e resultados superiores para seus pacientes.
+                </p>
+              </>
+            )}
             
-            {!isAuthenticated && (
+            {!isAuthenticated && !isHomePage && (
               <div className="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 mb-12">
                 <Link to="/cadastro">
                   <Button className="btn-primary text-lg px-8 py-4">
@@ -60,14 +67,15 @@ const Index = () => {
               </div>
             )}
 
-            {/* Photo Wizard */}
+            {/* Photo Wizard - sempre visível */}
             <div className="w-full max-w-md mx-auto">
               <PhotoWizard />
             </div>
           </div>
         </section>
 
-        {!isAuthenticated && (
+        {/* Seções informativas - apenas para usuários não logados ou na landing page */}
+        {(!isAuthenticated || !isHomePage) && (
           <>
             {/* Como Funciona Section */}
             <section id="como-funciona" className="py-20 bg-brand-white">
