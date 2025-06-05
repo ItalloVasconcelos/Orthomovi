@@ -5,6 +5,7 @@ import { User } from '@/services/graphqlService';
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   login: (userData: User) => void;
   logout: () => void;
   loading: boolean;
@@ -34,7 +35,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser);
-        setUser(userData);
+        // Garantir que o role seja definido baseado no ID
+        const role = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
+        setUser({ ...userData, role });
       } catch (error) {
         console.error('Erro ao carregar dados do usuário:', error);
         localStorage.removeItem('user');
@@ -44,8 +47,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (userData: User) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    // Garantir que o role seja definido baseado no ID
+    const role = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
+    const userWithRole = { ...userData, role };
+    setUser(userWithRole);
+    localStorage.setItem('user', JSON.stringify(userWithRole));
   };
 
   const logout = () => {
@@ -54,9 +60,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const isAuthenticated = !!user;
+  const isAdmin = user?.role === 'admin';
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

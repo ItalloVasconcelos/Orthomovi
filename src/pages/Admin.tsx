@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
-  ArrowRight, 
   Users, 
   FileText, 
   Settings, 
-  User, 
-  LogOut,
   Search,
   Filter,
   ChevronDown,
@@ -61,16 +58,6 @@ const AdminPanel = () => {
 
     fetchResults();
   }, [toast]);
-
-  const handleLogout = () => {
-    toast({
-      title: "Encerrando sessão",
-      description: "Você será redirecionado para a página inicial.",
-    });
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1500);
-  };
 
   const getStatusValue = (status: string | string[]): string => {
     if (Array.isArray(status)) {
@@ -129,25 +116,27 @@ const AdminPanel = () => {
   };
 
   const handleStatusChange = (resultId: string, newStatus: string) => {
-    // Atualizar status local até implementar API
+    // Atualizar status local
     setResults(prev => prev.map(result => 
       result.id === resultId 
         ? { ...result, status: newStatus }
         : result
     ));
-    
-    toast({
-      title: "Status atualizado",
-      description: `Status alterado para: ${newStatus}`,
-    });
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/10">
-      <header className="py-4 px-4 bg-white shadow-sm">
+    <div className="min-h-screen flex flex-col bg-brand-bg">
+      <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
-            <Link to="/" className="text-2xl font-bold text-ortho-orange">Orthomovi</Link>
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">O</span>
+              </div>
+              <span className="text-xl font-heading font-bold text-brand-text">
+                Orthomovi
+              </span>
+            </Link>
             <UserDropdown />
           </div>
         </div>
@@ -169,21 +158,21 @@ const AdminPanel = () => {
       
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Painel Administrativo</h1>
-          <p className="text-gray-600">Gerencie pedidos, usuários e configurações do sistema</p>
+          <h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Painel Administrativo</h1>
+          <p className="text-brand-text-light">Gerencie pedidos, usuários e configurações do sistema</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="md:col-span-1">
             <Card className="shadow-md">
-              <CardHeader className="bg-ortho-blue/20 pb-2">
+              <CardHeader className="bg-brand-bg-beige pb-2">
                 <CardTitle className="text-lg">Menu</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <nav className="flex flex-col">
-                  <Link to="/admin" className="flex items-center px-4 py-3 bg-ortho-orange/10 border-l-4 border-ortho-orange">
-                    <FileText className="mr-2 text-ortho-orange" size={18} />
+                  <Link to="/admin" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent">
+                    <FileText className="mr-2 text-brand-accent" size={18} />
                     <span>Pedidos</span>
                   </Link>
                   <Link to="/admin/users" className="flex items-center px-4 py-3 hover:bg-gray-50">
@@ -202,7 +191,7 @@ const AdminPanel = () => {
           {/* Main Content */}
           <div className="md:col-span-3">
             <Card className="shadow-md">
-              <CardHeader className="bg-ortho-blue/20 pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+              <CardHeader className="bg-brand-bg-beige pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                 <CardTitle className="text-lg mb-2 sm:mb-0">Fila de Pedidos</CardTitle>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <div className="relative">
@@ -270,7 +259,7 @@ const AdminPanel = () => {
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {result.order?.user?.fullname || 'Nome não disponível'}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-ortho-orange">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-brand-accent">
                                 {result.calculated_result || 'N/A'}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

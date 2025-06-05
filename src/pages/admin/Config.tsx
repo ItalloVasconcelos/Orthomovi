@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import { 
   Users, 
   Settings, 
-  User, 
-  LogOut,
   Save
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,14 +21,18 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { UserDropdown } from "@/components/UserDropdown";
-import { graphqlService, CompanyConfig, AdminContact } from "@/services/graphqlService";
+import { graphqlService } from "@/services/graphqlService";
 
 const AdminConfigPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [companyConfig, setCompanyConfig] = useState<CompanyConfig | null>(null);
-  const [adminContact, setAdminContact] = useState<AdminContact | null>(null);
+  const [formData, setFormData] = useState({
+    companyName: "",
+    email: "",
+    phone: "",
+    cnpj: ""
+  });
 
   useEffect(() => {
     const fetchConfigData = async () => {
@@ -38,14 +40,16 @@ const AdminConfigPage = () => {
         setIsLoadingData(true);
         console.log('Carregando dados de configuração...');
         
-        const [configData, contactData] = await Promise.all([
-          graphqlService.getCompanyConfig(),
-          graphqlService.getAdminContact()
-        ]);
+        const { company, contact } = await graphqlService.getAdminConfig();
         
-        console.log('Dados carregados:', { configData, contactData });
-        setCompanyConfig(configData);
-        setAdminContact(contactData);
+        console.log('Dados carregados:', { company, contact });
+        
+        setFormData({
+          companyName: company?.company_name || "OrthoMovi Órteses Pediátricas",
+          email: contact?.email || "admin@orthomovi.com.br",
+          phone: contact?.phone || "(88) 99999-9999",
+          cnpj: company?.cnpj || "12.345.678/0001-90"
+        });
       } catch (error) {
         console.error('Erro ao carregar configurações:', error);
         toast({
@@ -61,25 +65,55 @@ const AdminConfigPage = () => {
     fetchConfigData();
   }, [toast]);
 
-  const handleSaveSettings = () => {
+  const handleSaveSettings = async () => {
     setIsLoading(true);
     
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Configurações salvas",
-        description: "As configurações do sistema foram atualizadas com sucesso.",
+    try {
+      const success = await graphqlService.updateCompanyConfig({
+        company_name: formData.companyName,
+        cnpj: formData.cnpj,
+        email: formData.email,
+        phone: formData.phone
       });
-    }, 1000);
+
+      if (success) {
+        toast({
+          title: "Configurações salvas",
+          description: "As configurações do sistema foram atualizadas com sucesso.",
+        });
+      } else {
+        throw new Error("Falha ao salvar configurações");
+      }
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar as configurações. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
   
   if (isLoadingData) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/10">
-        <header className="py-4 px-4 bg-white shadow-sm">
+      <div className="min-h-screen flex flex-col bg-brand-bg">
+        <header className="py-4 px-4 bg-brand-white shadow-sm">
           <div className="container mx-auto">
             <div className="flex justify-between items-center">
-              <Link to="/" className="text-2xl font-bold text-ortho-orange">Orthomovi</Link>
+              <Link to="/" className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">O</span>
+                </div>
+                <span className="text-xl font-heading font-bold text-brand-text">
+                  Orthomovi
+                </span>
+              </Link>
               <UserDropdown />
             </div>
           </div>
@@ -87,7 +121,7 @@ const AdminConfigPage = () => {
         
         <main className="flex-grow container mx-auto px-4 py-6 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ortho-orange mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary mx-auto mb-4"></div>
             <p className="text-gray-600">Carregando configurações...</p>
           </div>
         </main>
@@ -96,11 +130,18 @@ const AdminConfigPage = () => {
   }
   
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-ortho-blue/10">
-      <header className="py-4 px-4 bg-white shadow-sm">
+    <div className="min-h-screen flex flex-col bg-brand-bg">
+      <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div className="container mx-auto">
           <div className="flex justify-between items-center">
-            <Link to="/" className="text-2xl font-bold text-ortho-orange">Orthomovi</Link>
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">O</span>
+              </div>
+              <span className="text-xl font-heading font-bold text-brand-text">
+                Orthomovi
+              </span>
+            </Link>
             <UserDropdown />
           </div>
         </div>
@@ -126,15 +167,15 @@ const AdminConfigPage = () => {
       
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Configurações do Sistema</h1>
-          <p className="text-gray-600">Configure os parâmetros gerais da plataforma</p>
+          <h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Configurações do Sistema</h1>
+          <p className="text-brand-text-light">Configure os parâmetros gerais da plataforma</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="md:col-span-1">
             <Card className="shadow-md">
-              <CardHeader className="bg-ortho-blue/20 pb-2">
+              <CardHeader className="bg-brand-bg-beige pb-2">
                 <CardTitle className="text-lg">Menu</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -147,8 +188,8 @@ const AdminConfigPage = () => {
                     <Users className="mr-2 text-gray-500" size={18} />
                     <span>Usuários</span>
                   </Link>
-                  <Link to="/admin/config" className="flex items-center px-4 py-3 bg-ortho-orange/10 border-l-4 border-ortho-orange">
-                    <Settings className="mr-2 text-ortho-orange" size={18} />
+                  <Link to="/admin/config" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent">
+                    <Settings className="mr-2 text-brand-accent" size={18} />
                     <span>Configurações</span>
                   </Link>
                 </nav>
@@ -159,7 +200,7 @@ const AdminConfigPage = () => {
           {/* Main Content */}
           <div className="md:col-span-3">
             <Card className="shadow-md">
-              <CardHeader className="bg-ortho-blue/20 pb-2">
+              <CardHeader className="bg-brand-bg-beige pb-2">
                 <CardTitle className="text-lg">Configurações Gerais</CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-6">
@@ -170,7 +211,8 @@ const AdminConfigPage = () => {
                       <Label htmlFor="company-name">Nome da Empresa</Label>
                       <Input 
                         id="company-name" 
-                        defaultValue={companyConfig?.company_name || "Orthomovi Órteses Pediátricas"} 
+                        value={formData.companyName}
+                        onChange={(e) => handleInputChange('companyName', e.target.value)}
                         className="h-12" 
                       />
                     </div>
@@ -178,7 +220,8 @@ const AdminConfigPage = () => {
                       <Label htmlFor="company-email">Email de Contato</Label>
                       <Input 
                         id="company-email" 
-                        defaultValue={adminContact?.email || "contato@orthomovi.com.br"} 
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
                         className="h-12" 
                       />
                     </div>
@@ -186,7 +229,8 @@ const AdminConfigPage = () => {
                       <Label htmlFor="company-phone">Telefone de Contato</Label>
                       <Input 
                         id="company-phone" 
-                        defaultValue={adminContact?.phone || "(11) 99999-9999"} 
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
                         className="h-12" 
                       />
                     </div>
@@ -194,7 +238,8 @@ const AdminConfigPage = () => {
                       <Label htmlFor="company-cnpj">CNPJ</Label>
                       <Input 
                         id="company-cnpj" 
-                        defaultValue={companyConfig?.cnpj || "12.345.678/0001-90"} 
+                        value={formData.cnpj}
+                        onChange={(e) => handleInputChange('cnpj', e.target.value)}
                         className="h-12" 
                       />
                     </div>
@@ -243,7 +288,7 @@ const AdminConfigPage = () => {
               <CardFooter className="flex justify-end space-x-4 pt-4 border-t">
                 <Button variant="outline">Cancelar</Button>
                 <Button 
-                  className="bg-ortho-orange hover:bg-ortho-orange-dark h-12 px-6"
+                  className="btn-primary h-12 px-6"
                   onClick={handleSaveSettings}
                   disabled={isLoading}
                 >
@@ -265,13 +310,104 @@ const AdminConfigPage = () => {
         </div>
       </main>
       
-      <footer className="py-6 bg-white border-t">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>© 2025 Orthomovi Órteses Pediátricas. Todos os direitos reservados.</p>
-          <div className="flex justify-center mt-2 space-x-4">
-            <Link to="/terms" className="hover:text-ortho-orange">Termos de Uso</Link>
-            <Link to="/privacy" className="hover:text-ortho-orange">Política de Privacidade</Link>
-            <Link to="/contact" className="hover:text-ortho-orange">Contato</Link>
+      <footer className="bg-brand-text text-white py-12 mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Logo e descrição */}
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">O</span>
+                </div>
+                <span className="text-xl font-heading font-bold">
+                  Orthomovi
+                </span>
+              </div>
+              <p className="text-gray-300 mb-4 max-w-md">
+                Sistema de medição automática para órteses pediátricas usando tecnologia inovadora. 
+                Precisão, conforto e resultados superiores para seus pacientes.
+              </p>
+              <p className="text-sm text-gray-400">
+                © 2025 Orthomovi Órteses Pediátricas. Todos os direitos reservados.
+              </p>
+            </div>
+
+            {/* Links rápidos */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Links Rápidos</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#como-funciona" className="text-gray-300 hover:text-white transition-colors">
+                    Como Funciona
+                  </a>
+                </li>
+                <li>
+                  <a href="#beneficios" className="text-gray-300 hover:text-white transition-colors">
+                    Benefícios
+                  </a>
+                </li>
+                <li>
+                  <Link to="/cadastro" className="text-gray-300 hover:text-white transition-colors">
+                    Cadastre-se
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/login" className="text-gray-300 hover:text-white transition-colors">
+                    Login
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Suporte */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Suporte</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/terms" className="text-gray-300 hover:text-white transition-colors">
+                    Termos de Uso
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">
+                    Política de Privacidade
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
+                    Contato
+                  </Link>
+                </li>
+                <li>
+                  <a href="mailto:suporte@orthomovi.com" className="text-gray-300 hover:text-white transition-colors">
+                    suporte@orthomovi.com
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Linha divisória */}
+          <div className="border-t border-gray-700 mt-8 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-sm text-gray-400">
+                Desenvolvido com ❤️ para profissionais da saúde
+              </p>
+              <div className="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">Facebook</span>
+                  📧
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">LinkedIn</span>
+                  💼
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  <span className="sr-only">Instagram</span>
+                  📷
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

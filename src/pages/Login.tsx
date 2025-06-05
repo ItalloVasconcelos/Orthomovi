@@ -44,7 +44,7 @@ const Login = () => {
     
     try {
       const user = await graphqlService.loginUser({
-        email: emailOrPhone,
+        emailOrPhone: emailOrPhone,
         password: password,
       });
       
@@ -57,14 +57,18 @@ const Login = () => {
           description: `Bem-vindo, ${user.fullname}! Redirecionando...`,
         });
         
-        // Redirecionar para /home após 1.5 segundos
+        // Redirecionar baseado no role do usuário
         setTimeout(() => {
-          navigate("/home");
+          if (user.role === 'admin') {
+            navigate("/admin");
+          } else {
+            navigate("/home");
+          }
         }, 1500);
       } else {
         toast({
           title: "Erro no login",
-          description: "Email ou senha incorretos.",
+          description: "Email/telefone ou senha incorretos.",
           variant: "destructive",
         });
       }
@@ -117,7 +121,7 @@ const Login = () => {
                 <Mail className="input-icon text-brand-text-light" size={18} />
                 <Input
                   type="text"
-                  placeholder="Email"
+                  placeholder="Email ou Telefone"
                   value={emailOrPhone}
                   onChange={(e) => setEmailOrPhone(e.target.value)}
                   className="pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20"

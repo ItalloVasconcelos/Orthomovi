@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { User, Mail, Phone, MapPin, Calendar, Camera, Save } from "lucide-react";
+import { User, Mail, Phone, Calendar, Camera, Save } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { graphqlService } from "@/services/graphqlService";
 
 interface AccountSettingsModalProps {
   open: boolean;
@@ -56,16 +58,12 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
   onOpenChange,
 }) => {
   const { toast } = useToast();
+  const { user, login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "João Silva",
-    email: "joao.silva@email.com",
-    phone: "(11) 99999-9999",
-    address: "Rua das Flores, 123",
-    city: "São Paulo",
-    state: "SP",
-    zipCode: "01234-567",
-    birthDate: "1985-05-15",
+    fullName: "",
+    email: "",
+    phone: "",
   });
   
   const [notifications, setNotifications] = useState({
@@ -75,16 +73,49 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
     marketingEmails: false,
   });
 
-  const handleSaveProfile = () => {
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        fullName: user.fullname || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    
     setIsLoading(true);
     
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Perfil atualizado",
-        description: "Suas informações foram salvas com sucesso.",
+    try {
+      const updatedUser = await graphqlService.updateUser(user.id, {
+        fullname: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
       });
-    }, 1000);
+
+      if (updatedUser) {
+        // Atualizar o contexto de autenticação com os novos dados
+        login({ ...updatedUser, role: user.role });
+        
+        toast({
+          title: "Perfil atualizado",
+          description: "Suas informações foram salvas com sucesso.",
+        });
+      } else {
+        throw new Error("Falha ao atualizar o perfil");
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível salvar as alterações. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -129,7 +160,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               
               {/* Profile Picture */}
               <div className="flex items-center space-x-4 mb-6">
-                <div className="w-20 h-20 rounded-full bg-ortho-orange flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-20 h-20 rounded-full bg-brand-primary flex items-center justify-center text-white text-2xl font-bold">
                   {formData.fullName.charAt(0)}
                 </div>
                 <div>
@@ -184,20 +215,6 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
                     />
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="birthDate">Data de Nascimento</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                    <Input 
-                      id="birthDate" 
-                      type="date"
-                      value={formData.birthDate}
-                      onChange={(e) => handleInputChange('birthDate', e.target.value)}
-                      className="pl-10 h-12" 
-                    />
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -235,7 +252,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               <Button 
                 onClick={handleSaveProfile}
                 disabled={isLoading}
-                className="bg-ortho-orange hover:bg-ortho-orange-dark h-12 px-8"
+                className="bg-brand-primary hover:bg-brand-primary-dark h-12 px-8"
               >
                 {isLoading ? (
                   <>
@@ -270,7 +287,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
                       <TableCell>{order.patientName}</TableCell>
-                      <TableCell className="font-bold text-ortho-orange">{order.calculatedNumber}</TableCell>
+                      <TableCell className="font-bold text-brand-primary">{order.calculatedNumber}</TableCell>
                       <TableCell>{getStatusBadge(order.status)}</TableCell>
                     </TableRow>
                   ))}

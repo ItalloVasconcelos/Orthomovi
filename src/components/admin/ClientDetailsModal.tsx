@@ -16,8 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Result } from "@/services/graphqlService";
+import { Result, graphqlService } from "@/services/graphqlService";
 import { formatDate } from "@/utils/dateUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClientDetailsModalProps {
   isOpen: boolean;
@@ -32,11 +33,30 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   result,
   onStatusChange,
 }) => {
+  const { toast } = useToast();
+
   if (!result) return null;
 
-  const handleStatusChange = (newStatus: string) => {
-    if (onStatusChange) {
-      onStatusChange(result.id, newStatus);
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      const success = await graphqlService.updateResultStatus(result.id, newStatus);
+      
+      if (success && onStatusChange) {
+        onStatusChange(result.id, newStatus);
+        toast({
+          title: "Status atualizado",
+          description: `Status alterado para: ${newStatus}`,
+        });
+      } else {
+        throw new Error("Falha ao atualizar status");
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -66,9 +86,9 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
           </div>
 
           {/* Resultado Calculado */}
-          <div className="text-center py-4 bg-ortho-orange/10 rounded-lg">
+          <div className="text-center py-4 bg-brand-accent/10 rounded-lg">
             <div className="text-sm text-gray-600 mb-1">Número Calculado</div>
-            <div className="text-4xl font-bold text-ortho-orange">
+            <div className="text-4xl font-bold text-brand-accent">
               {result.calculated_result}
             </div>
             <div className="text-sm text-gray-500 mt-1">
@@ -83,19 +103,19 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               <div className="border rounded-md p-3 text-center">
                 <div className="text-sm text-gray-500 mb-1">Medida A</div>
                 <div className="font-bold text-lg">
-                  {result.measurements?.medida_a ? `${result.measurements.medida_a} cm` : 'N/A'}
+                  Em breve
                 </div>
               </div>
               <div className="border rounded-md p-3 text-center">
                 <div className="text-sm text-gray-500 mb-1">Medida H</div>
                 <div className="font-bold text-lg">
-                  {result.measurements?.medida_h ? `${result.measurements.medida_h} cm` : 'N/A'}
+                  Em breve
                 </div>
               </div>
               <div className="border rounded-md p-3 text-center">
                 <div className="text-sm text-gray-500 mb-1">Medida D</div>
                 <div className="font-bold text-lg">
-                  {result.measurements?.medida_d ? `${result.measurements.medida_d} cm` : 'N/A'}
+                  Em breve
                 </div>
               </div>
             </div>

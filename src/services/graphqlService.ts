@@ -12,10 +12,11 @@ export interface User {
   email: string;
   phone?: string;
   password?: string;
+  role?: 'admin' | 'user';
 }
 
 export interface LoginCredentials {
-  email: string;
+  emailOrPhone: string;
   password: string;
 }
 
@@ -45,11 +46,6 @@ export interface Result {
   calculated_result: string;
   date: string;
   status: string;
-  measurements?: {
-    medida_a?: number;
-    medida_h?: number;
-    medida_d?: number;
-  };
   order: {
     user: {
       id: string;
@@ -59,11 +55,30 @@ export interface Result {
   };
 }
 
-// Consolidated queries
+export interface UpdateUserData {
+  fullname?: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface UpdateCompanyConfigData {
+  company_name?: string;
+  cnpj?: string;
+  email?: string;
+  phone?: string;
+}
+
+// Consolidated queries and mutations
 const QUERIES = {
-  GET_USER: `
-    query GetUser($email: String!, $password: String!) {
-      users(where: {email: {_eq: $email}, password: {_eq: $password}}) {
+  GET_USER_BY_EMAIL_OR_PHONE: `
+    query GetUserByEmailOrPhone($emailOrPhone: String!, $password: String!) {
+      users(where: {
+        _or: [
+          {email: {_eq: $emailOrPhone}},
+          {phone: {_eq: $emailOrPhone}}
+        ],
+        password: {_eq: $password}
+      }) {
         id
         fullname
         email
@@ -99,6 +114,21 @@ const QUERIES = {
     }
   `,
   
+  UPDATE_USER: `
+    mutation UpdateUser($id: String!, $fullname: String, $email: String, $phone: String) {
+      update_users_by_pk(pk_columns: {id: $id}, _set: {
+        fullname: $fullname,
+        email: $email,
+        phone: $phone
+      }) {
+        id
+        fullname
+        email
+        phone
+      }
+    }
+  `,
+  
   GET_ALL_RESULTS: `
     query GetAllResults {
       results {
@@ -106,11 +136,6 @@ const QUERIES = {
         calculated_result
         date
         status
-        measurements {
-          medida_a
-          medida_h
-          medida_d
-        }
         order {
           user {
             id
@@ -122,9 +147,13 @@ const QUERIES = {
     }
   `,
   
-  GET_ADMIN_CONTACT: `
-    query GetAdminContact {
-      users(limit: 1) {
+  GET_ADMIN_DATA: `
+    query GetAdminData {
+      admin(limit: 1) {
+        company_name
+        cnpj
+      }
+      users(where: {id: {_eq: "3535796c-6e5b-4764-a91a-8d8655efa381"}}) {
         email
         phone
         fullname
@@ -132,11 +161,36 @@ const QUERIES = {
     }
   `,
 
-  GET_COMPANY_CONFIG: `
-    query GetCompanyConfig {
-      company_config(limit: 1) {
-        company_name
-        cnpj
+  UPDATE_COMPANY_CONFIG: `
+    mutation UpdateCompanyConfig(
+      $company_name: String,
+      $cnpj: String,
+      $email: String,
+      $phone: String
+    ) {
+      update_admin(_set: {
+        company_name: $company_name,
+        cnpj: $cnpj
+      }) {
+        affected_rows
+      }
+      update_users(
+        where: {id: {_eq: "3535796c-6e5b-4764-a91a-8d8655efa381"}},
+        _set: {
+          email: $email,
+          phone: $phone
+        }
+      ) {
+        affected_rows
+      }
+    }
+  `,
+
+  UPDATE_RESULT_STATUS: `
+    mutation UpdateResultStatus($id: String!, $status: String!) {
+      update_results_by_pk(pk_columns: {id: $id}, _set: {status: $status}) {
+        id
+        status
       }
     }
   `
@@ -201,22 +255,50 @@ const executeQuery = async (query: string, variables?: any) => {
 export const graphqlService = {
   async loginUser(credentials: LoginCredentials): Promise<User | null> {
     console.log('Tentando fazer login com:', credentials);
-    const data = await executeQuery(QUERIES.GET_USER, credentials);
+    const data = await executeQuery(QUERIES.GET_USER_BY_EMAIL_OR_PHONE, {
+      emailOrPhone: credentials.emailOrPhone,
+      password: credentials.password
+    });
     const users = data?.users;
     console.log('Usuários encontrados:', users);
-    return users && users.length > 0 ? users[0] : null;
+    
+    if (users && users.length > 0) {
+      const user = users[0];
+      // Determinar o role baseado no ID
+      const role = user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
+      return { ...user, role };
+    }
+    return null;
   },
 
   async registerUser(userData: RegisterData): Promise<User> {
     console.log('Tentando registrar usuário:', userData);
     const data = await executeQuery(QUERIES.CREATE_USER, userData);
-    return data?.insert_users_one;
+    const user = data?.insert_users_one;
+    return { ...user, role: 'user' };
   },
 
   async getAllUsers(): Promise<User[]> {
     console.log('Buscando todos os usuários...');
     const data = await executeQuery(QUERIES.GET_ALL_USERS);
-    return data?.users || [];
+    const users = data?.users || [];
+    return users.map((user: any) => ({
+      ...user,
+      role: user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user'
+    }));
+  },
+
+  async updateUser(id: string, userData: UpdateUserData): Promise<User | null> {
+    console.log('Atualizando usuário:', id, userData);
+    const data = await executeQuery(QUERIES.UPDATE_USER, { id, ...userData });
+    const user = data?.update_users_by_pk;
+    if (user) {
+      return {
+        ...user,
+        role: user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user'
+      };
+    }
+    return null;
   },
 
   async getAllResults(): Promise<Result[]> {
@@ -226,7 +308,6 @@ export const graphqlService = {
       const results = data?.results || [];
       console.log('Resultados encontrados:', results);
       
-      // Garantir que o status seja sempre uma string
       return results.map((result: any) => ({
         ...result,
         status: Array.isArray(result.status) ? (result.status[0] || 'Análise') : (result.status || 'Análise')
@@ -240,11 +321,6 @@ export const graphqlService = {
           calculated_result: '25.4',
           date: '2024-01-15T10:30:00Z',
           status: 'Análise',
-          measurements: {
-            medida_a: 12.5,
-            medida_h: 8.3,
-            medida_d: 15.2
-          },
           order: {
             user: {
               id: 'user1',
@@ -258,11 +334,6 @@ export const graphqlService = {
           calculated_result: '28.7',
           date: '2024-01-14T14:20:00Z',
           status: 'Aprovado',
-          measurements: {
-            medida_a: 13.1,
-            medida_h: 9.2,
-            medida_d: 16.8
-          },
           order: {
             user: {
               id: 'user2',
@@ -275,52 +346,75 @@ export const graphqlService = {
     }
   },
 
-  async getAdminContact(): Promise<AdminContact | null> {
-    console.log('Buscando dados de contato do admin...');
+  async updateResultStatus(id: string, status: string): Promise<boolean> {
+    console.log('Atualizando status do resultado:', id, status);
     try {
-      const data = await executeQuery(QUERIES.GET_ADMIN_CONTACT);
-      const users = data?.users;
-      if (users && users.length > 0) {
-        return {
-          email: users[0].email,
-          phone: users[0].phone,
-          user: {
-            fullname: users[0].fullname,
-            email: users[0].email
-          }
-        };
-      }
+      await executeQuery(QUERIES.UPDATE_RESULT_STATUS, { id, status });
+      return true;
     } catch (error) {
-      console.error('Erro ao buscar contato do admin:', error);
+      console.error('Erro ao atualizar status:', error);
+      return false;
     }
-    
-    // Retornar dados padrão se não conseguir buscar
-    return {
-      email: 'contato@orthomovi.com.br',
-      phone: '(88) 99999-9999',
-      user: {
-        fullname: 'Admin OrthoMovi',
-        email: 'admin@orthomovi.com.br'
-      }
-    };
   },
 
-  async getCompanyConfig(): Promise<CompanyConfig | null> {
-    console.log('Buscando configurações da empresa...');
+  async getAdminConfig(): Promise<{company: CompanyConfig | null, contact: AdminContact | null}> {
+    console.log('Buscando configurações do admin...');
     try {
-      const data = await executeQuery(QUERIES.GET_COMPANY_CONFIG);
-      const config = data?.company_config;
-      if (config && config.length > 0) {
-        return config[0];
-      }
+      const data = await executeQuery(QUERIES.GET_ADMIN_DATA);
+      const adminData = data?.admin?.[0];
+      const userData = data?.users?.[0];
+      
+      return {
+        company: adminData ? {
+          company_name: adminData.company_name,
+          cnpj: adminData.cnpj
+        } : {
+          company_name: "OrthoMovi Órteses Pediátricas",
+          cnpj: "12.345.678/0001-90"
+        },
+        contact: userData ? {
+          email: userData.email,
+          phone: userData.phone,
+          user: {
+            fullname: userData.fullname,
+            email: userData.email
+          }
+        } : {
+          email: 'admin@orthomovi.com.br',
+          phone: '(88) 99999-9999',
+          user: {
+            fullname: 'Admin OrthoMovi',
+            email: 'admin@orthomovi.com.br'
+          }
+        }
+      };
     } catch (error) {
-      console.error('Erro ao buscar configurações da empresa:', error);
+      console.error('Erro ao buscar configurações do admin:', error);
+      return {
+        company: {
+          company_name: "OrthoMovi Órteses Pediátricas",
+          cnpj: "12.345.678/0001-90"
+        },
+        contact: {
+          email: 'admin@orthomovi.com.br',
+          phone: '(88) 99999-9999',
+          user: {
+            fullname: 'Admin OrthoMovi',
+            email: 'admin@orthomovi.com.br'
+          }
+        }
+      };
     }
-    
-    // Retornar valores padrão se a tabela não existir ou houver erro
-    return {
-      company_name: "OrthoMovi Órteses Pediátricas",
-      cnpj: "12.345.678/0001-90"
-    };
+  },
+
+  async updateCompanyConfig(configData: UpdateCompanyConfigData): Promise<boolean> {
+    console.log('Atualizando configurações da empresa:', configData);
+    try {
+      await executeQuery(QUERIES.UPDATE_COMPANY_CONFIG, configData);
+      return true;
+    } catch (error) {
+      console.error('Erro ao atualizar configurações:', error);
+      return false;
+    }
   },
 };
