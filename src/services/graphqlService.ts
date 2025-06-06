@@ -1,5 +1,5 @@
 
-const API_URL = 'https://orthomovi-hasura.4bcy4g.easypanel.host/v1/graphql';
+const API_URL = 'https://orthomovi-hasura.t2wird.easypanel.host/v1/graphql';
 
 const headers = {
   'content-type': 'application/json',
@@ -115,7 +115,7 @@ const QUERIES = {
   `,
   
   UPDATE_USER: `
-    mutation UpdateUser($id: String!, $fullname: String, $email: String, $phone: String) {
+    mutation UpdateUser($id: uuid!, $fullname: String, $email: String, $phone: String) {
       update_users_by_pk(pk_columns: {id: $id}, _set: {
         fullname: $fullname,
         email: $email,
@@ -153,7 +153,7 @@ const QUERIES = {
         company_name
         cnpj
       }
-      users(where: {id: {_eq: "3535796c-6e5b-4764-a91a-8d8655efa381"}}) {
+      users(where: {id: {_eq: "6998f67e-9f53-46f0-af1f-672c08468b94"}}) {
         email
         phone
         fullname
@@ -195,7 +195,7 @@ const QUERIES = {
   `,
 
   UPDATE_RESULT_STATUS: `
-    mutation UpdateResultStatus($id: String!, $status: String!) {
+    mutation UpdateResultStatus($id: uuid!, $status: String!) {
       update_results_by_pk(pk_columns: {id: $id}, _set: {status: $status}) {
         id
         status
@@ -273,7 +273,7 @@ export const graphqlService = {
     if (users && users.length > 0) {
       const user = users[0];
       // Determinar o role baseado no ID
-      const role: 'admin' | 'user' = user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
+      const role: 'admin' | 'user' = user.id === '6998f67e-9f53-46f0-af1f-672c08468b94' ? 'admin' : 'user';
       return { ...user, role };
     }
     return null;
@@ -292,7 +292,7 @@ export const graphqlService = {
     const users = data?.users || [];
     return users.map((user: any) => ({
       ...user,
-      role: (user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user') as 'admin' | 'user'
+      role: (user.id === '6998f67e-9f53-46f0-af1f-672c08468b94' ? 'admin' : 'user') as 'admin' | 'user'
     }));
   },
 
@@ -313,7 +313,7 @@ export const graphqlService = {
       if (user) {
         return {
           ...user,
-          role: (user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user') as 'admin' | 'user'
+          role: (user.id === '6998f67e-9f53-46f0-af1f-672c08468b94' ? 'admin' : 'user') as 'admin' | 'user'
         };
       }
       return null;
