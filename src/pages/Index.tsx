@@ -89,7 +89,7 @@ const Index = () => {
                 </p>
                 <Button 
                   onClick={handleSolicitarTenis}
-                  className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                  className="h-2/4  text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                   style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
                 >
                   Solicitar tênis sob medida
@@ -97,8 +97,8 @@ const Index = () => {
                 </Button>
               </div>
               <div className="flex justify-center">
-                <div className="w-full max-w-md aspect-square bg-white/20 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-lg">Imagem: Pai e filho com produto</span>
+                <div className="w-full max-w-md aspect-square  rounded-lg flex items-center justify-center">
+                  <img src={"src/assets/img/hero-image.svg"} width={"100%"} alt={"Homem segurando os tênis e exemplos das próteses."}/>
                 </div>
               </div>
             </div>
@@ -110,8 +110,8 @@ const Index = () => {
           <div className="container mx-auto">
             {/* Espaço para imagem */}
             <div className="flex justify-center mb-8">
-              <div className="w-full max-w-md aspect-video bg-white/50 rounded-lg flex items-center justify-center">
-                <span className="text-gray-600">Espaço para imagem</span>
+              <div className="w-6/12 aspect-video  rounded-lg flex items-center justify-center">
+               <img src="src/assets/img/imagens_proteses.svg" alt="Exemplos de próteses" width="100%"/>
               </div>
             </div>
 
@@ -137,10 +137,10 @@ const Index = () => {
 
             <div className="text-center">
               <h3 className="text-2xl md:text-3xl font-heading font-bold text-brand-text mb-6">
-                Sabemos o quanto é importante encontrar um calçado sob medida para seu filho
+                Sabemos o quanto é importante encontrar um <span style={{ color: '#E64551' }}>calçado sob medida</span> para seu filho
               </h3>
               <p className="text-lg text-brand-text-light max-w-4xl mx-auto leading-relaxed">
-                Entendemos que cada criança é única e tem necessidades diferentes. Por isso, oferecemos uma variedade de opções de tênis e sandálias em diferentes modelos, alturas e larguras, para garantir o par perfeito que se adapte às necessidades específicas do seu filho.
+                Entendemos que <span style={{ fontWeight: 'bold' }}>cada criança é única e tem necessidades diferentes.</span> Por isso, oferecemos uma variedade de opções de tênis e sandálias em diferentes modelos, alturas e larguras, para garantir o par perfeito que se adapte às necessidades específicas do seu filho.
               </p>
             </div>
           </div>
@@ -150,18 +150,25 @@ const Index = () => {
         <section className="py-20 px-4 bg-white">
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 text-center">
-              Nossos tênis da linha 6FW
+              Nossos tênis da linha <span style={{
+              fontWeight: "bold",
+              background: "linear-gradient(to right, orange, red)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              color: "transparent" }}>6FW</span>
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Espaço para imagem à esquerda */}
               <div className="flex justify-center">
-                <div className="w-full max-w-md aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-600">Espaço para imagem dos tênis</span>
+                <div className="w-full aspect-video  rounded-lg flex items-center justify-center">
+                  <img src="src/assets/img/exemplo_tenis.svg" alt="Imagem de um tênis demonstrando a qualidade e conforto que a prótese oferece." width="80%"/>
                 </div>
               </div>
 
               {/* Cards à direita */}
               <div className="space-y-6">
+                <h2>Foram feitos especialmente para crianças que necessitam:</h2>
                 <div className="p-6 rounded-lg shadow-sm" style={{ backgroundColor: '#FFDDBA' }}>
                   <div className="flex items-center mb-3">
                     <div className="w-1 h-8 bg-orange-500 rounded mr-3"></div>
@@ -197,7 +204,7 @@ const Index = () => {
             <div className="text-center mt-12">
               <Button 
                 onClick={handleSolicitarTenis}
-                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                className="h-2/4  text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
               >
                 Solicitar tênis sob medida
@@ -216,7 +223,8 @@ const Index = () => {
                 tênis e sandálias
               </span>
             </h2>
-            
+              <h2>O que possibilita:</h2>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Lista à esquerda */}
               <div className="space-y-4">
@@ -228,17 +236,18 @@ const Index = () => {
                   'Marcha funcional e segura',
                   'Desenvolvimento motor aprimorado'
                 ].map((benefit, index) => (
-                  <div key={index} className="flex items-center p-4 bg-white rounded-lg shadow-sm">
-                    <CheckCircle className="text-green-500 mr-3 flex-shrink-0 w-6 h-6" />
-                    <span className="text-brand-text font-medium">{benefit}</span>
-                  </div>
+                    <div key={index} className="flex items-center p-4 bg-white rounded-lg shadow-sm">
+
+                      <CheckCircle className="text-green-500 mr-3 flex-shrink-0 w-6 h-6"/>
+                      <span className="text-brand-text font-medium">{benefit}</span>
+                    </div>
                 ))}
               </div>
 
               {/* Espaço para imagem à direita */}
               <div className="flex justify-center">
-                <div className="w-full max-w-md aspect-square bg-white/50 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-600">Espaço para imagem</span>
+                <div className="w-full max-w-md aspect-square rounded-lg flex items-center justify-center">
+                  <img src="src/assets/img/varios_tenis.svg" alt="Exemplos de tênis" width="100%"/>
                 </div>
               </div>
             </div>
@@ -246,7 +255,7 @@ const Index = () => {
             <div className="text-left mt-8">
               <Button 
                 onClick={handleSolicitarTenis}
-                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
               >
                 Solicitar tênis sob medida
@@ -257,7 +266,9 @@ const Index = () => {
         </section>
 
         {/* Diferenciais dos Calçados */}
-        <section className="py-20 px-4" style={{ backgroundColor: '#FB7201' }}>
+        <section className="py-20 px-4" style={{
+          background: 'radial-gradient(circle at top left, #ff9000 0%, transparent 50%), linear-gradient(to bottom right, #ff7200, #ff3000)',
+                    }}>
           <div className="container mx-auto">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-12 text-center">
               O que você vai encontrar em nossos calçados:
@@ -266,8 +277,8 @@ const Index = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Espaço para imagem à esquerda */}
               <div className="flex justify-center">
-                <div className="w-full max-w-md aspect-square bg-white/20 rounded-lg flex items-center justify-center">
-                  <span className="text-white">Espaço para imagem</span>
+                <div className="w-full max-w-md aspect-square  rounded-lg flex items-center justify-center">
+                  <img src="src/assets/img/tenis_exclusivo.svg" alt="Imagem de tênis, mostrando exclusividade e elegância." width="100%"/>
                 </div>
               </div>
 
@@ -283,17 +294,19 @@ const Index = () => {
                   'Sola Rocker',
                   'Fabricação própria'
                 ].map((feature, index) => (
-                  <div key={index} className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-center">
-                    <h3 className="text-white font-semibold">{feature}</h3>
-                  </div>
+                    <div key={index} className="flex items-center p-4 bg-white rounded-lg shadow-sm">
+
+                      <CheckCircle className="text-green-500 mr-3 flex-shrink-0 w-6 h-6"/>
+                      <span className="text-brand-text font-medium">{feature}</span>
+                    </div>
                 ))}
               </div>
             </div>
 
             <div className="text-center mt-12">
-              <Button 
-                onClick={handleSolicitarTenis}
-                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+              <Button
+                  onClick={handleSolicitarTenis}
+                  className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
               >
                 Solicitar tênis sob medida
@@ -307,56 +320,71 @@ const Index = () => {
         <section className="py-20 px-4 bg-white">
           <div className="container mx-auto">
             {/* Espaço para imagem acima do título */}
-            <div className="flex justify-center mb-8">
-              <div className="w-full max-w-lg aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                <span className="text-gray-600">Espaço para imagem da empresa</span>
+            <div className="flex justify-center mb-1">
+              <div className="w-full  aspect-video  rounded-lg flex items-center justify-center">
+                <img src="src/assets/img/entrega.svg" alt="Banner de entrega para todo o Brasil" width="100%"/>
               </div>
             </div>
-
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 text-center">
-              Sobre a OrthoMovi
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 ">
+              <span style={{
+              fontWeight: "bold",
+              background: "linear-gradient(to right, orange, red)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              color: "transparent"
+            }}>Sobre a OrthoMovi</span>
             </h2>
-            
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 text-center">
+
+            </h2>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Texto à esquerda */}
               <div className="space-y-6">
                 <p className="text-lg text-brand-text-light leading-relaxed">
-                  A OrthoMovi é uma marca de calçados ortopédicos para crianças com necessidades especiais, que necessitem de uso de órtese, uso de palmilha e/ou compensação de altura.
+                  A <span style={{fontWeight: "bold"}}>OrthoMovi</span> é uma marca de calçados ortopédicos para crianças com necessidades especiais, que
+                  necessitem de uso de órtese, uso de palmilha e/ou compensação de altura.
                 </p>
                 <p className="text-lg text-brand-text-light leading-relaxed">
-                  Somos uma das únicas empresas brasileiras que produzem calçados feitos individualmente, de acordo com a necessidade da criança, conforme orientação de profissionais capacitados da área da saúde osteomuscular e neurológica.
+                  <span style={{fontWeight: "bold"}}>Somos uma das únicas empresas brasileiras que produzem calçados feitos individualmente, de acordo com
+                  a necessidade da criança,</span> conforme orientação de profissionais capacitados da área da saúde
+                  osteomuscular e neurológica.
                 </p>
                 <p className="text-lg text-brand-text-light leading-relaxed">
-                  O calçado correto, feito especialmente para aquela criança, favorece à melhoria da postura, facilitando o Movimento, levando ao alcance de excelentes resultados na evolução da marcha dessas crianças.
+                  <span style={{fontWeight: "bold"}}>O calçado correto, feito especialmente para aquela criança,</span> favorece à melhoria da postura,
+                  facilitando o <span style={{fontWeight: "bold"}}>Movimento,</span> levando ao alcance de excelentes resultados na evolução da marcha dessas
+                  crianças.
                 </p>
                 <p className="text-lg text-brand-text-light leading-relaxed">
-                  Estamos no mercado há quase 20 anos, produzindo calçados infantis e agregamos toda nossa experiência em um novo projeto de fabricação de calçados ortopédicos, com a OrthoMovi.
+                  <span style={{fontWeight: "bold"}}>Estamos no mercado há quase 20 anos,</span> produzindo calçados infantis e agregamos toda nossa experiência
+                  em um novo projeto de fabricação de calçados ortopédicos, com a <span style={{fontWeight: "bold"}}>OrthoMovi.</span>
                 </p>
               </div>
 
               {/* Espaço para imagem à direita */}
               <div className="flex justify-center">
-                <div className="w-full max-w-md aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-600">Espaço para imagem</span>
+                <div className="w-full max-w-md aspect-square rounded-lg flex items-center justify-center">
+                  <img src="src/assets/img/avaliações.svg" alt="Imagem de avaliações positivas!" width="100%"/>
                 </div>
               </div>
             </div>
 
-            <div className="text-center mt-12">
-              <Button 
-                onClick={handleSolicitarTenis}
-                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-                style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+            <div className="mt-12">
+              <Button
+                  onClick={handleSolicitarTenis}
+                  className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                  style={{background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)'}}
               >
                 Solicitar tênis sob medida
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-5 h-5"/>
               </Button>
             </div>
           </div>
         </section>
 
         {/* Depoimentos */}
-        <section className="py-20 px-4" style={{ backgroundColor: '#F5F5DC' }}>
+        <section className="py-20 px-4" style={{backgroundColor: '#F5F5DC'}}>
           <div className="container mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12">
               O que dizem nossos Clientes
@@ -383,7 +411,7 @@ const Index = () => {
                   <div className="flex items-center justify-center space-x-6 text-brand-text-light mb-6">
                     <div className="flex items-center">
                       <Phone className="w-5 h-5 mr-2" />
-                      <span>(88) 99999-9999</span>
+                      <span>(88) 9.9646-18819</span>
                     </div>
                     <div className="flex items-center">
                       <Mail className="w-5 h-5 mr-2" />
@@ -392,7 +420,8 @@ const Index = () => {
                   </div>
                   <Button 
                     onClick={handleVerLocalizacao}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+                    className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                    style={{background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)'}}
                   >
                     <MapPin className="mr-2 w-5 h-5" />
                     Ver localização no mapa
@@ -462,34 +491,8 @@ const Index = () => {
         </section>
       </main>
       
-      {/* Footer customizado */}
-      <footer className="bg-black text-white py-12 px-4">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-2xl font-heading font-bold mb-4">OrthoMovi</h3>
-              <p className="text-gray-400">Calçados ortopédicos para crianças com necessidades especiais.</p>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Links Rápidos</h4>
-              <ul className="space-y-2">
-                <li><Link to="/privacy" className="text-gray-400 hover:text-white">Política de Privacidade</Link></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Mensagem no Whatsapp</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">Contato</h4>
-              <div className="space-y-2 text-gray-400">
-                <p className="flex items-center"><Phone className="w-4 h-4 mr-2" /> (88) 99999-9999</p>
-                <p className="flex items-center"><Mail className="w-4 h-4 mr-2" /> contato@orthomovi.com</p>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-            <p className="text-gray-400">2024 © OrthoMovi. Todos os direitos reservados.</p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer  */}
+      <Footer />
     </div>
   );
 };

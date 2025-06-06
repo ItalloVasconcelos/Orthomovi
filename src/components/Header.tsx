@@ -19,17 +19,14 @@ export const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">O</span>
-            </div>
-            <span className="text-xl font-heading font-bold text-brand-text">
-              Orthomovi
-            </span>
+            <span className="text-xl font-heading font-bold">
+              <img src="src/assets/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
+              </span>
           </Link>
 
           {/* Navigation - apenas para usuários não autenticados na home */}
           {!isAuthenticated && location.pathname === "/" && (
-            <nav className="hidden md:flex items-center space-x-8">
+              <nav className="hidden md:flex items-center space-x-8">
               <a href="#como-funciona" className="text-brand-text-light hover:text-brand-primary transition-colors">
                 Como Funciona
               </a>

@@ -7,15 +7,12 @@ export const Footer = () => {
   return (
     <footer className="bg-brand-text text-white py-12 mt-auto">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-28">
           {/* Logo e descrição */}
-          <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
-              </div>
+          <div className="col-span-1 md:col-span-1 ">
+            <div className="flex items-center space-x-2 mb-6">
               <span className="text-xl font-heading font-bold">
-                Orthomovi
+              <img src="src/assets/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
               </span>
             </div>
             <p className="text-gray-300 mb-4">
