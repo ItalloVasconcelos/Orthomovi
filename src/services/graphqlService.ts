@@ -83,6 +83,7 @@ const QUERIES = {
         fullname
         email
         phone
+        role
       }
     }
   `,
@@ -94,6 +95,7 @@ const QUERIES = {
         fullname
         email
         phone
+        role
       }
     }
   `,
@@ -138,7 +140,6 @@ const QUERIES = {
         status
         order {
           user {
-            id
             fullname
             email
           }
@@ -273,7 +274,8 @@ export const graphqlService = {
     if (users && users.length > 0) {
       const user = users[0];
       // Determinar o role baseado no ID
-      const role: 'admin' | 'user' = user.id === '6998f67e-9f53-46f0-af1f-672c08468b94' ? 'admin' : 'user';
+      const role = user.role as 'admin' | 'user';
+console.log("Role aqui:", user.role)
       return { ...user, role };
     }
     return null;
@@ -292,7 +294,7 @@ export const graphqlService = {
     const users = data?.users || [];
     return users.map((user: any) => ({
       ...user,
-      role: (user.id === '6998f67e-9f53-46f0-af1f-672c08468b94' ? 'admin' : 'user') as 'admin' | 'user'
+      role: (user.role as 'admin' | 'user')
     }));
   },
 
@@ -313,7 +315,7 @@ export const graphqlService = {
       if (user) {
         return {
           ...user,
-          role: (user.id === '6998f67e-9f53-46f0-af1f-672c08468b94' ? 'admin' : 'user') as 'admin' | 'user'
+          role: (user.role as 'admin' | 'user')
         };
       }
       return null;
