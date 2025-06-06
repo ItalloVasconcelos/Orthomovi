@@ -1,4 +1,3 @@
-
 const API_URL = 'https://orthomovi-hasura.t2wird.easypanel.host/v1/graphql';
 
 const headers = {
@@ -106,12 +105,14 @@ const QUERIES = {
         fullname: $fullname,
         email: $email,
         phone: $phone,
-        password: $password
+        password: $password,
+        role: "user"
       }) {
         id
         fullname
         email
         phone
+        role
       }
     }
   `,
@@ -127,6 +128,7 @@ const QUERIES = {
         fullname
         email
         phone
+        role
       }
     }
   `,
@@ -154,7 +156,7 @@ const QUERIES = {
         company_name
         cnpj
       }
-      users(where: {id: {_eq: "6998f67e-9f53-46f0-af1f-672c08468b94"}}) {
+      users(where: {role: {_eq: "admin"}}, limit: 1) {
         email
         phone
         fullname
@@ -180,7 +182,7 @@ const QUERIES = {
         }
       }
       update_users(
-        where: {id: {_eq: "3535796c-6e5b-4764-a91a-8d8655efa381"}},
+        where: {role: {_eq: "admin"}},
         _set: {
           email: $email,
           phone: $phone
@@ -273,10 +275,13 @@ export const graphqlService = {
     
     if (users && users.length > 0) {
       const user = users[0];
-      // Determinar o role baseado no ID
-      const role = user.role as 'admin' | 'user';
-console.log("Role aqui:", user.role)
-      return { ...user, role };
+      console.log("Role do usuário do banco:", user.role);
+      
+      // Usar o role direto do banco de dados
+      return {
+        ...user,
+        role: user.role || 'user' // fallback para 'user' se role não estiver definido
+      };
     }
     return null;
   },
@@ -285,7 +290,7 @@ console.log("Role aqui:", user.role)
     console.log('Tentando registrar usuário:', userData);
     const data = await executeQuery(QUERIES.CREATE_USER, userData);
     const user = data?.insert_users_one;
-    return { ...user, role: 'user' as const };
+    return { ...user, role: user.role || 'user' };
   },
 
   async getAllUsers(): Promise<User[]> {
@@ -294,7 +299,7 @@ console.log("Role aqui:", user.role)
     const users = data?.users || [];
     return users.map((user: any) => ({
       ...user,
-      role: (user.role as 'admin' | 'user')
+      role: user.role || 'user'
     }));
   },
 
@@ -315,7 +320,7 @@ console.log("Role aqui:", user.role)
       if (user) {
         return {
           ...user,
-          role: (user.role as 'admin' | 'user')
+          role: user.role || 'user'
         };
       }
       return null;

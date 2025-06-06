@@ -35,9 +35,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (savedUser) {
       try {
         const userData = JSON.parse(savedUser);
-        // Garantir que o role seja definido baseado no ID
-        const role: 'admin' | 'user' = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
-        setUser({ ...userData, role });
+        console.log('Usuário carregado do localStorage:', userData);
+        setUser(userData);
       } catch (error) {
         console.error('Erro ao carregar dados do usuário:', error);
         localStorage.removeItem('user');
@@ -47,11 +46,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = (userData: User) => {
-    // Garantir que o role seja definido baseado no ID
-    const role: 'admin' | 'user' = userData.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user';
-    const userWithRole = { ...userData, role };
-    setUser(userWithRole);
-    localStorage.setItem('user', JSON.stringify(userWithRole));
+    console.log('Login realizado com usuário:', userData);
+    console.log('Role do usuário:', userData.role);
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
@@ -61,6 +59,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isAuthenticated = !!user;
   const isAdmin = user?.role === 'admin';
+
+  console.log('Estado atual do auth:', {
+    user: user,
+    isAuthenticated,
+    isAdmin,
+    userRole: user?.role
+  });
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout, loading }}>
