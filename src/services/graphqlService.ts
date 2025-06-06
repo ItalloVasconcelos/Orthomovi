@@ -1,3 +1,4 @@
+
 const API_URL = 'https://orthomovi-hasura.4bcy4g.easypanel.host/v1/graphql';
 
 const headers = {
@@ -172,6 +173,10 @@ const QUERIES = {
         cnpj: $cnpj
       }) {
         affected_rows
+        returning {
+          company_name
+          cnpj
+        }
       }
       update_users(
         where: {id: {_eq: "3535796c-6e5b-4764-a91a-8d8655efa381"}},
@@ -181,6 +186,10 @@ const QUERIES = {
         }
       ) {
         affected_rows
+        returning {
+          email
+          phone
+        }
       }
     }
   `,
@@ -289,15 +298,29 @@ export const graphqlService = {
 
   async updateUser(id: string, userData: UpdateUserData): Promise<User | null> {
     console.log('Atualizando usuário:', id, userData);
-    const data = await executeQuery(QUERIES.UPDATE_USER, { id, ...userData });
-    const user = data?.update_users_by_pk;
-    if (user) {
-      return {
-        ...user,
-        role: (user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user') as 'admin' | 'user'
-      };
+    try {
+      const variables: any = { id };
+      if (userData.fullname !== undefined) variables.fullname = userData.fullname;
+      if (userData.email !== undefined) variables.email = userData.email;
+      if (userData.phone !== undefined) variables.phone = userData.phone;
+      
+      console.log('Variáveis para atualização:', variables);
+      
+      const data = await executeQuery(QUERIES.UPDATE_USER, variables);
+      console.log('Resposta da atualização:', data);
+      
+      const user = data?.update_users_by_pk;
+      if (user) {
+        return {
+          ...user,
+          role: (user.id === '3535796c-6e5b-4764-a91a-8d8655efa381' ? 'admin' : 'user') as 'admin' | 'user'
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Erro detalhado ao atualizar usuário:', error);
+      throw error;
     }
-    return null;
   },
 
   async getAllResults(): Promise<Result[]> {
@@ -348,11 +371,16 @@ export const graphqlService = {
   async updateResultStatus(id: string, status: string): Promise<boolean> {
     console.log('Atualizando status do resultado:', id, status);
     try {
-      await executeQuery(QUERIES.UPDATE_RESULT_STATUS, { id, status });
-      return true;
+      const data = await executeQuery(QUERIES.UPDATE_RESULT_STATUS, { id, status });
+      console.log('Resposta da atualização de status:', data);
+      
+      if (data?.update_results_by_pk) {
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
-      return false;
+      throw error;
     }
   },
 
@@ -409,11 +437,21 @@ export const graphqlService = {
   async updateCompanyConfig(configData: UpdateCompanyConfigData): Promise<boolean> {
     console.log('Atualizando configurações da empresa:', configData);
     try {
-      await executeQuery(QUERIES.UPDATE_COMPANY_CONFIG, configData);
+      const variables: any = {};
+      if (configData.company_name !== undefined) variables.company_name = configData.company_name;
+      if (configData.cnpj !== undefined) variables.cnpj = configData.cnpj;
+      if (configData.email !== undefined) variables.email = configData.email;
+      if (configData.phone !== undefined) variables.phone = configData.phone;
+      
+      console.log('Variáveis para atualização de config:', variables);
+      
+      const data = await executeQuery(QUERIES.UPDATE_COMPANY_CONFIG, variables);
+      console.log('Resposta da atualização de config:', data);
+      
       return true;
     } catch (error) {
       console.error('Erro ao atualizar configurações:', error);
-      return false;
+      throw error;
     }
   },
 };

@@ -1,7 +1,10 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Eye, EyeOff, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { graphqlService } from "@/services/graphqlService";
 
 interface FormData {
@@ -151,151 +154,151 @@ const RegistrationForm: React.FC = () => {
   };
   
   return (
-    <div className="relative w-full max-w-md mx-auto px-4 sm:px-0 animate-fade-in">
-      <div className="absolute inset-0 bg-ortho-blue rounded-3xl transform rotate-1 -z-10"></div>
-      <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 transform -rotate-1">
-        <div className="transform rotate-1">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Cadastro</h1>
-            <p className="text-gray-600">Crie sua conta para acessar nosso sistema</p>
-          </div>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <User className="input-icon" size={18} />
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Nome completo"
-                className={`w-full ortho-input ${
-                  errors.fullName ? "border-red-500" : ""
-                }`}
-              />
-              {errors.fullName && <p className="error-message">{errors.fullName}</p>}
-            </div>
-            
-            <div className="relative">
-              <Mail className="input-icon" size={18} />
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="E-mail"
-                className={`w-full ortho-input ${
-                  errors.email ? "border-red-500" : ""
-                }`}
-              />
-              {errors.email && <p className="error-message">{errors.email}</p>}
-            </div>
-
-            <div className="relative">
-              <Phone className="input-icon" size={18} />
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Telefone (11) 99999-9999"
-                className={`w-full ortho-input ${
-                  errors.phone ? "border-red-500" : ""
-                }`}
-              />
-              {errors.phone && <p className="error-message">{errors.phone}</p>}
-            </div>
-            
-            <div className="relative">
-              <Lock className="input-icon" size={18} />
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Senha (mínimo 6 caracteres)"
-                className={`w-full ortho-input ${
-                  errors.password ? "border-red-500" : ""
-                }`}
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-              {errors.password && <p className="error-message">{errors.password}</p>}
-            </div>
-            
-            <div className="relative">
-              <Lock className="input-icon" size={18} />
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirmar senha"
-                className={`w-full ortho-input ${
-                  errors.confirmPassword ? "border-red-500" : ""
-                }`}
-              />
-              <button
-                type="button"
-                onClick={toggleConfirmPasswordVisibility}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-              {errors.confirmPassword && (
-                <p className="error-message">{errors.confirmPassword}</p>
-              )}
-            </div>
-            
-            <div className="flex items-start space-x-2">
-              <div className="flex h-5 items-center">
-                <input
-                  type="checkbox"
-                  name="termsAccepted"
-                  checked={formData.termsAccepted}
-                  onChange={handleChange}
-                  className="h-4 w-4 rounded border-gray-300 text-ortho-orange focus:ring-ortho-orange/20"
-                />
-              </div>
-              <div className="text-sm">
-                <label htmlFor="termsAccepted" className="text-gray-700">
-                  Li e aceito os{" "}
-                  <Link to="/terms" className="text-ortho-orange hover:underline">
-                    termos de uso
-                  </Link>
-                </label>
-                {errors.termsAccepted && (
-                  <p className="error-message">{errors.termsAccepted}</p>
-                )}
-              </div>
-            </div>
-            
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="ortho-button w-full flex justify-center items-center"
-            >
-              {isSubmitting ? (
-                <span className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em]"></span>
-              ) : (
-                "Criar Conta"
-              )}
-            </button>
-          </form>
-          
-          <p className="mt-6 text-center text-gray-600">
-            Já tem conta?{" "}
-            <Link to="/login" className="text-ortho-orange hover:underline">
-              Faça login
-            </Link>
-          </p>
-        </div>
+    <div className="bg-brand-white rounded-xl shadow-lg p-8 animate-fade-in">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Cadastro</h1>
+        <p className="text-brand-text-light">Crie sua conta para acessar nosso sistema</p>
       </div>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="relative">
+          <User className="input-icon text-brand-text-light" size={18} />
+          <Input
+            type="text"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleChange}
+            placeholder="Nome completo"
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
+              errors.fullName ? "border-red-500" : ""
+            }`}
+            autoComplete="name"
+          />
+          {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+        </div>
+        
+        <div className="relative">
+          <Mail className="input-icon text-brand-text-light" size={18} />
+          <Input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="E-mail"
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
+              errors.email ? "border-red-500" : ""
+            }`}
+            autoComplete="email"
+          />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        </div>
+
+        <div className="relative">
+          <Phone className="input-icon text-brand-text-light" size={18} />
+          <Input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="Telefone (11) 99999-9999"
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
+              errors.phone ? "border-red-500" : ""
+            }`}
+            autoComplete="tel"
+          />
+          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+        </div>
+        
+        <div className="relative">
+          <Lock className="input-icon text-brand-text-light" size={18} />
+          <Input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Senha (mínimo 6 caracteres)"
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
+              errors.password ? "border-red-500" : ""
+            }`}
+            autoComplete="new-password"
+          />
+          <button
+            type="button"
+            onClick={togglePasswordVisibility}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-light hover:text-brand-text"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+        </div>
+        
+        <div className="relative">
+          <Lock className="input-icon text-brand-text-light" size={18} />
+          <Input
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirmar senha"
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
+              errors.confirmPassword ? "border-red-500" : ""
+            }`}
+            autoComplete="new-password"
+          />
+          <button
+            type="button"
+            onClick={toggleConfirmPasswordVisibility}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-light hover:text-brand-text"
+          >
+            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+          )}
+        </div>
+        
+        <div className="flex items-start space-x-2">
+          <div className="flex h-5 items-center">
+            <input
+              type="checkbox"
+              name="termsAccepted"
+              checked={formData.termsAccepted}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
+            />
+          </div>
+          <div className="text-sm">
+            <label htmlFor="termsAccepted" className="text-brand-text-light">
+              Li e aceito os{" "}
+              <Link to="/terms" className="text-brand-primary hover:underline">
+                termos de uso
+              </Link>
+            </label>
+            {errors.termsAccepted && (
+              <p className="text-red-500 text-sm">{errors.termsAccepted}</p>
+            )}
+          </div>
+        </div>
+        
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="btn-primary w-full h-12 text-base"
+        >
+          {isSubmitting ? (
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em]"></span>
+          ) : (
+            "Criar Conta"
+          )}
+        </Button>
+      </form>
+      
+      <p className="mt-8 text-center text-brand-text-light">
+        Já tem conta?{" "}
+        <Link to="/login" className="text-brand-primary hover:underline font-medium">
+          Faça login
+        </Link>
+      </p>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
+import { MapPin, Phone, Mail } from "lucide-react";
 
 export const Footer = () => {
   return (
@@ -8,7 +9,7 @@ export const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo e descrição */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="col-span-1 md:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">O</span>
@@ -17,7 +18,7 @@ export const Footer = () => {
                 Orthomovi
               </span>
             </div>
-            <p className="text-gray-300 mb-4 max-w-md">
+            <p className="text-gray-300 mb-4">
               Sistema de medição automática para órteses pediátricas usando tecnologia inovadora. 
               Precisão, conforto e resultados superiores para seus pacientes.
             </p>
@@ -26,20 +27,29 @@ export const Footer = () => {
             </p>
           </div>
 
+          {/* Onde nos encontrar */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Onde nos encontrar</h3>
+            <ul className="space-y-3">
+              <li className="flex items-start space-x-2">
+                <MapPin className="text-brand-primary mt-1 flex-shrink-0" size={16} />
+                <span className="text-gray-300">
+                  Rua João Freire de Araújo, 245, Juazeiro do Norte - CE
+                </span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Phone className="text-brand-primary flex-shrink-0" size={16} />
+                <a href="tel:+5588996461881" className="text-gray-300 hover:text-white transition-colors">
+                  (88) 9.9646-1881
+                </a>
+              </li>
+            </ul>
+          </div>
+
           {/* Links rápidos */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Links Rápidos</h3>
             <ul className="space-y-2">
-              <li>
-                <a href="#como-funciona" className="text-gray-300 hover:text-white transition-colors">
-                  Como Funciona
-                </a>
-              </li>
-              <li>
-                <a href="#beneficios" className="text-gray-300 hover:text-white transition-colors">
-                  Benefícios
-                </a>
-              </li>
               <li>
                 <Link to="/cadastro" className="text-gray-300 hover:text-white transition-colors">
                   Cadastre-se
@@ -49,6 +59,16 @@ export const Footer = () => {
                 <Link to="/login" className="text-gray-300 hover:text-white transition-colors">
                   Login
                 </Link>
+              </li>
+              <li>
+                <a 
+                  href="https://wa.me/5588996461881" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Mensagem no WhatsApp
+                </a>
               </li>
             </ul>
           </div>
@@ -64,43 +84,16 @@ export const Footer = () => {
               </li>
               <li>
                 <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors">
-                  Política de Privacidade
+                  Políticas de Privacidade
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
-                  Contato
-                </Link>
-              </li>
-              <li>
-                <a href="mailto:suporte@orthomovi.com" className="text-gray-300 hover:text-white transition-colors">
-                  suporte@orthomovi.com
+                <a href="mailto:suporte@orthomovi.com" className="text-gray-300 hover:text-white transition-colors flex items-center space-x-2">
+                  <Mail size={16} />
+                  <span>suporte@orthomovi.com</span>
                 </a>
               </li>
             </ul>
-          </div>
-        </div>
-
-        {/* Linha divisória */}
-        <div className="border-t border-gray-700 mt-8 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-gray-400">
-              Desenvolvido com ❤️ para profissionais da saúde
-            </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <span className="sr-only">Facebook</span>
-                📧
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <span className="sr-only">LinkedIn</span>
-                💼
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <span className="sr-only">Instagram</span>
-                📷
-              </a>
-            </div>
           </div>
         </div>
       </div>
