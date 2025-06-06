@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, LogOut, Settings } from 'lucide-react';
 import {
   DropdownMenu,
@@ -14,11 +14,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AccountSettingsModal } from '@/components/AccountSettingsModal';
 
 export const UserDropdown = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleConfigurationsClick = () => {
+    if (isAdmin) {
+      navigate('/admin');
+    } else {
+      setIsSettingsOpen(true);
+    }
   };
 
   return (
@@ -38,9 +47,9 @@ export const UserDropdown = () => {
             </div>
           </div>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>
+          <DropdownMenuItem onClick={handleConfigurationsClick}>
             <Settings className="mr-2 h-4 w-4" />
-            Configurações
+            {isAdmin ? 'Painel Administrativo' : 'Configurações'}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="text-red-600">
@@ -50,10 +59,12 @@ export const UserDropdown = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AccountSettingsModal 
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-      />
+      {!isAdmin && (
+        <AccountSettingsModal 
+          open={isSettingsOpen}
+          onOpenChange={setIsSettingsOpen}
+        />
+      )}
     </>
   );
 };

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowRight, CheckCircle, MapPin, Phone, Mail } from "lucide-react";
+import { ArrowRight, CheckCircle, MapPin, Phone, Mail, Heart, Users, Brain } from "lucide-react";
 import { PhotoWizard } from "@/components/PhotoWizard";
 import { Button } from "@/components/ui/button";
 import { 
@@ -105,156 +105,258 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Inclusão e Acessibilidade */}
+        {/* Inclusão e Acessibilidade + Sabemos o quanto é importante */}
         <section className="py-20 px-4" style={{ backgroundColor: '#F5F5DC' }}>
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12">
-              Mamãe e papai, se seu filho tem uma condição especial, nós te ajudamos.
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-2 text-brand-text">Espectro Autista (TEA)</h3>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-2 text-brand-text">Síndrome de Down</h3>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-2 text-brand-text">Paralisia Cerebral</h3>
+          <div className="container mx-auto">
+            {/* Espaço para imagem */}
+            <div className="flex justify-center mb-8">
+              <div className="w-full max-w-md aspect-video bg-white/50 rounded-lg flex items-center justify-center">
+                <span className="text-gray-600">Espaço para imagem</span>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* Benefícios dos Produtos */}
-        <section className="py-20 px-4 bg-white">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-8">
-              Sabemos o quanto é importante encontrar um calçado sob medida para seu filho
-            </h2>
-            <p className="text-xl text-brand-text-light max-w-4xl mx-auto leading-relaxed">
-              Entendemos que cada criança é única e tem necessidades diferentes. Por isso, oferecemos uma variedade de opções de tênis e sandálias em diferentes modelos, alturas e larguras, para garantir o par perfeito que se adapte às necessidades específicas do seu filho.
-            </p>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-8">
+                <span style={{ color: '#FB7201' }}>Papai e mamãe</span>, se seu filho tem uma condição especial, nós te ajudamos.
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
+                <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-center space-x-2">
+                  <Brain className="w-6 h-6 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-brand-text">Espectro Autista (TEA)</h3>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-center space-x-2">
+                  <Heart className="w-6 h-6 text-red-600" />
+                  <h3 className="text-lg font-semibold text-brand-text">Síndrome de Down</h3>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow-sm flex items-center justify-center space-x-2">
+                  <Users className="w-6 h-6 text-green-600" />
+                  <h3 className="text-lg font-semibold text-brand-text">Paralisia Cerebral</h3>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <h3 className="text-2xl md:text-3xl font-heading font-bold text-brand-text mb-6">
+                Sabemos o quanto é importante encontrar um calçado sob medida para seu filho
+              </h3>
+              <p className="text-lg text-brand-text-light max-w-4xl mx-auto leading-relaxed">
+                Entendemos que cada criança é única e tem necessidades diferentes. Por isso, oferecemos uma variedade de opções de tênis e sandálias em diferentes modelos, alturas e larguras, para garantir o par perfeito que se adapte às necessidades específicas do seu filho.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* Linha 6FW */}
-        <section className="py-20 px-4" style={{ backgroundColor: '#F5F5DC' }}>
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12">
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 text-center">
               Nossos tênis da linha 6FW
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              <div className="bg-white p-8 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-4 text-brand-text">Uso de órtese</h3>
-                <p className="text-brand-text-light">Projetado e fabricado especialmente para proporcionar um ajuste perfeito.</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Espaço para imagem à esquerda */}
+              <div className="flex justify-center">
+                <div className="w-full max-w-md aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-600">Espaço para imagem dos tênis</span>
+                </div>
               </div>
-              <div className="bg-white p-8 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-4 text-brand-text">Uso de Palmilha</h3>
-                <p className="text-brand-text-light">Desenvolvido para integrar palmilhas ortopédicas, oferecendo um ajuste adequado.</p>
-              </div>
-              <div className="bg-white p-8 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-4 text-brand-text">Quem tem dismetria</h3>
-                <p className="text-brand-text-light">Calçado sob medida para ajuste de dismetria de membro inferior.</p>
+
+              {/* Cards à direita */}
+              <div className="space-y-6">
+                <div className="p-6 rounded-lg shadow-sm" style={{ backgroundColor: '#FFDDBA' }}>
+                  <div className="flex items-center mb-3">
+                    <div className="w-1 h-8 bg-orange-500 rounded mr-3"></div>
+                    <h3 className="text-xl font-semibold text-brand-text">Uso de órtese</h3>
+                  </div>
+                  <p className="text-brand-text-light">
+                    Projetado e fabricado especialmente para proporcionar um ajuste perfeito. Desenvolvido com atenção personalizada, levando em consideração as especificidades de cada órtese e as necessidades únicas de cada caso.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-lg shadow-sm" style={{ backgroundColor: '#FFDDBA' }}>
+                  <div className="flex items-center mb-3">
+                    <div className="w-1 h-8 bg-orange-500 rounded mr-3"></div>
+                    <h3 className="text-xl font-semibold text-brand-text">Uso de Palmilha</h3>
+                  </div>
+                  <p className="text-brand-text-light">
+                    Desenvolvido para integrar palmilhas ortopédicas, oferecendo um ajuste adequado, conforto no calce, melhorando a postura, a marcha e aliviando dores ou desconfortos, dando total suporte ao tratamento.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-lg shadow-sm" style={{ backgroundColor: '#FFDDBA' }}>
+                  <div className="flex items-center mb-3">
+                    <div className="w-1 h-8 bg-orange-500 rounded mr-3"></div>
+                    <h3 className="text-xl font-semibold text-brand-text">Quem tem dismetria</h3>
+                  </div>
+                  <p className="text-brand-text-light">
+                    Calçado sob medida para ajuste de dismetria de membro inferior.
+                  </p>
+                </div>
               </div>
             </div>
-            <Button 
-              onClick={handleSolicitarTenis}
-              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
-            >
-              Solicitar tênis sob medida
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+
+            <div className="text-center mt-12">
+              <Button 
+                onClick={handleSolicitarTenis}
+                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+              >
+                Solicitar tênis sob medida
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </section>
 
         {/* Benefícios para a Criança */}
-        <section className="py-20 px-4 bg-white">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12">
-              Seu filho merece usar nossos tênis e sandálias
+        <section className="py-20 px-4" style={{ backgroundColor: '#F5F5DC' }}>
+          <div className="container mx-auto">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 text-center">
+              Seu filho merece usar nossos{' '}
+              <span style={{ background: 'linear-gradient(135deg, #FB7201 0%, #e65100 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                tênis e sandálias
+              </span>
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto mb-12">
-              {[
-                'Criança com mais confiança',
-                'Aumento da autoestima',
-                'Melhora postura e equilíbrio',
-                'Redução da fadiga e dor',
-                'Marcha funcional e segura',
-                'Desenvolvimento motor aprimorado'
-              ].map((benefit, index) => (
-                <div key={index} className="flex items-center p-4 bg-gray-50 rounded-lg">
-                  <CheckCircle className="text-green-500 mr-3 flex-shrink-0 w-6 h-6" />
-                  <span className="text-brand-text font-medium">{benefit}</span>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Lista à esquerda */}
+              <div className="space-y-4">
+                {[
+                  'Criança com mais confiança',
+                  'Aumento da autoestima',
+                  'Melhora postura e equilíbrio',
+                  'Redução da fadiga e dor',
+                  'Marcha funcional e segura',
+                  'Desenvolvimento motor aprimorado'
+                ].map((benefit, index) => (
+                  <div key={index} className="flex items-center p-4 bg-white rounded-lg shadow-sm">
+                    <CheckCircle className="text-green-500 mr-3 flex-shrink-0 w-6 h-6" />
+                    <span className="text-brand-text font-medium">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Espaço para imagem à direita */}
+              <div className="flex justify-center">
+                <div className="w-full max-w-md aspect-square bg-white/50 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-600">Espaço para imagem</span>
                 </div>
-              ))}
+              </div>
             </div>
-            <Button 
-              onClick={handleSolicitarTenis}
-              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
-            >
-              Solicitar tênis sob medida
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+
+            <div className="text-left mt-8">
+              <Button 
+                onClick={handleSolicitarTenis}
+                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+              >
+                Solicitar tênis sob medida
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </section>
 
         {/* Diferenciais dos Calçados */}
         <section className="py-20 px-4" style={{ backgroundColor: '#FB7201' }}>
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-12">
+          <div className="container mx-auto">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-12 text-center">
               O que você vai encontrar em nossos calçados:
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {[
-                'Design Exclusivo',
-                'Feito em couro',
-                'Tecido específico para Tênis',
-                'Contraforte resistente',
-                'Muito conforto',
-                'Solado em borracha vulcanizada',
-                'Sola Rocker',
-                'Fabricação própria'
-              ].map((feature, index) => (
-                <div key={index} className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
-                  <h3 className="text-white font-semibold">{feature}</h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Espaço para imagem à esquerda */}
+              <div className="flex justify-center">
+                <div className="w-full max-w-md aspect-square bg-white/20 rounded-lg flex items-center justify-center">
+                  <span className="text-white">Espaço para imagem</span>
                 </div>
-              ))}
+              </div>
+
+              {/* Lista à direita */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  'Design Exclusivo',
+                  'Feito em couro',
+                  'Tecido específico para Tênis',
+                  'Contraforte resistente',
+                  'Muito conforto',
+                  'Solado em borracha vulcanizada',
+                  'Sola Rocker',
+                  'Fabricação própria'
+                ].map((feature, index) => (
+                  <div key={index} className="bg-white/10 backdrop-blur-sm p-4 rounded-lg text-center">
+                    <h3 className="text-white font-semibold">{feature}</h3>
+                  </div>
+                ))}
+              </div>
             </div>
-            <Button 
-              onClick={handleSolicitarTenis}
-              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
-            >
-              Solicitar tênis sob medida
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+
+            <div className="text-center mt-12">
+              <Button 
+                onClick={handleSolicitarTenis}
+                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+              >
+                Solicitar tênis sob medida
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </section>
 
         {/* Sobre a OrthoMovi */}
-        <section className="py-20 px-4" style={{ backgroundColor: '#F5F5DC' }}>
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-8">
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            {/* Espaço para imagem acima do título */}
+            <div className="flex justify-center mb-8">
+              <div className="w-full max-w-lg aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+                <span className="text-gray-600">Espaço para imagem da empresa</span>
+              </div>
+            </div>
+
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 text-center">
               Sobre a OrthoMovi
             </h2>
-            <p className="text-xl text-brand-text-light max-w-4xl mx-auto mb-8 leading-relaxed">
-              A OrthoMovi é uma marca de calçados ortopédicos para crianças com necessidades especiais, dedicada a proporcionar conforto, funcionalidade e estilo. Nossa missão é garantir que cada criança tenha acesso a calçados que promovam seu desenvolvimento e bem-estar.
-            </p>
-            <Button 
-              onClick={handleSolicitarTenis}
-              className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
-              style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
-            >
-              Solicitar tênis sob medida
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Texto à esquerda */}
+              <div className="space-y-6">
+                <p className="text-lg text-brand-text-light leading-relaxed">
+                  A OrthoMovi é uma marca de calçados ortopédicos para crianças com necessidades especiais, que necessitem de uso de órtese, uso de palmilha e/ou compensação de altura.
+                </p>
+                <p className="text-lg text-brand-text-light leading-relaxed">
+                  Somos uma das únicas empresas brasileiras que produzem calçados feitos individualmente, de acordo com a necessidade da criança, conforme orientação de profissionais capacitados da área da saúde osteomuscular e neurológica.
+                </p>
+                <p className="text-lg text-brand-text-light leading-relaxed">
+                  O calçado correto, feito especialmente para aquela criança, favorece à melhoria da postura, facilitando o Movimento, levando ao alcance de excelentes resultados na evolução da marcha dessas crianças.
+                </p>
+                <p className="text-lg text-brand-text-light leading-relaxed">
+                  Estamos no mercado há quase 20 anos, produzindo calçados infantis e agregamos toda nossa experiência em um novo projeto de fabricação de calçados ortopédicos, com a OrthoMovi.
+                </p>
+              </div>
+
+              {/* Espaço para imagem à direita */}
+              <div className="flex justify-center">
+                <div className="w-full max-w-md aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-600">Espaço para imagem</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-12">
+              <Button 
+                onClick={handleSolicitarTenis}
+                className="text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl" 
+                style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+              >
+                Solicitar tênis sob medida
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </section>
 
         {/* Depoimentos */}
-        <section className="py-20 px-4 bg-white">
+        <section className="py-20 px-4" style={{ backgroundColor: '#F5F5DC' }}>
           <div className="container mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12">
               O que dizem nossos Clientes
@@ -266,34 +368,51 @@ const Index = () => {
         </section>
 
         {/* Localização */}
-        <section className="py-20 px-4" style={{ backgroundColor: '#F5F5DC' }}>
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-8">
-              Localização da nossa Fábrica
-            </h2>
-            <p className="text-xl text-brand-text-light mb-8">
-              Estamos localizados na Rua João Freire de Araújo 245, na cidade de Juazeiro do Norte, no Ceará.
-            </p>
-            <Button 
-              onClick={handleVerLocalizacao}
-              variant="outline" 
-              className="text-lg px-8 py-4 border-2 border-brand-text text-brand-text hover:bg-brand-text hover:text-white"
-            >
-              <MapPin className="mr-2 w-5 h-5" />
-              Ver localização
-            </Button>
+        <section className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-6">
+                Localização da nossa Fábrica
+              </h2>
+              <div className="max-w-2xl mx-auto">
+                <div className="bg-gradient-to-r from-orange-100 to-orange-50 p-8 rounded-xl shadow-sm">
+                  <MapPin className="w-12 h-12 text-orange-600 mx-auto mb-4" />
+                  <p className="text-xl text-brand-text mb-6 font-medium">
+                    Estamos localizados na Rua João Freire de Araújo 245, na cidade de Juazeiro do Norte, no Ceará.
+                  </p>
+                  <div className="flex items-center justify-center space-x-6 text-brand-text-light mb-6">
+                    <div className="flex items-center">
+                      <Phone className="w-5 h-5 mr-2" />
+                      <span>(88) 99999-9999</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Mail className="w-5 h-5 mr-2" />
+                      <span>contato@orthomovi.com</span>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={handleVerLocalizacao}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <MapPin className="mr-2 w-5 h-5" />
+                    Ver localização no mapa
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Perguntas Frequentes com Accordion */}
-        <section className="py-20 px-4" style={{ backgroundColor: '#e3f2fd' }}>
+        {/* Perguntas Frequentes */}
+        <section className="py-20 px-4 bg-white">
           <div className="container mx-auto text-center">
+            <p className="text-lg text-brand-text-light mb-2">Dúvidas Comuns</p>
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12">
               Perguntas frequentes
             </h2>
             <div className="max-w-4xl mx-auto">
               <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1" className="bg-white rounded-lg mb-4 px-6">
+                <AccordionItem value="item-1" className="rounded-lg mb-4 px-6" style={{ backgroundColor: '#FCCD9F' }}>
                   <AccordionTrigger className="text-left">
                     Como vou saber o número do tênis para órtese ou Dismetria?
                   </AccordionTrigger>
@@ -302,7 +421,7 @@ const Index = () => {
                   </AccordionContent>
                 </AccordionItem>
                 
-                <AccordionItem value="item-2" className="bg-white rounded-lg mb-4 px-6">
+                <AccordionItem value="item-2" className="rounded-lg mb-4 px-6" style={{ backgroundColor: '#FCCD9F' }}>
                   <AccordionTrigger className="text-left">
                     O que é um tênis para palmilha ortopédica?
                   </AccordionTrigger>
@@ -311,7 +430,7 @@ const Index = () => {
                   </AccordionContent>
                 </AccordionItem>
                 
-                <AccordionItem value="item-3" className="bg-white rounded-lg mb-4 px-6">
+                <AccordionItem value="item-3" className="rounded-lg mb-4 px-6" style={{ backgroundColor: '#FCCD9F' }}>
                   <AccordionTrigger className="text-left">
                     O que é sola Rocker?
                   </AccordionTrigger>
@@ -320,7 +439,7 @@ const Index = () => {
                   </AccordionContent>
                 </AccordionItem>
                 
-                <AccordionItem value="item-4" className="bg-white rounded-lg mb-4 px-6">
+                <AccordionItem value="item-4" className="rounded-lg mb-4 px-6" style={{ backgroundColor: '#FCCD9F' }}>
                   <AccordionTrigger className="text-left">
                     Como faço para comprar?
                   </AccordionTrigger>
@@ -329,7 +448,7 @@ const Index = () => {
                   </AccordionContent>
                 </AccordionItem>
                 
-                <AccordionItem value="item-5" className="bg-white rounded-lg mb-4 px-6">
+                <AccordionItem value="item-5" className="rounded-lg mb-4 px-6" style={{ backgroundColor: '#FCCD9F' }}>
                   <AccordionTrigger className="text-left">
                     Qual o prazo de entrega?
                   </AccordionTrigger>
