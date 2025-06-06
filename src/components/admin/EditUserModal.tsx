@@ -11,17 +11,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Phone, Save } from "lucide-react";
+import { graphqlService } from "@/services/graphqlService";
 
 interface EditUserModalProps {
   user: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUserUpdated: () => void;
 }
 
 export const EditUserModal: React.FC<EditUserModalProps> = ({
   user,
   open,
   onOpenChange,
+  onUserUpdated,
 }) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -34,24 +37,42 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.name || "",
+        name: user.fullname || "",
         email: user.email || "",
         phone: user.phone || "",
       });
     }
   }, [user]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user?.id) return;
+    
     setIsLoading(true);
     
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await graphqlService.updateUser(user.id, {
+        fullname: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+      });
+      
       toast({
         title: "Usuário atualizado",
         description: "As informações do usuário foram salvas com sucesso.",
       });
+      
+      onUserUpdated();
       onOpenChange(false);
-    }, 1000);
+    } catch (error) {
+      console.error('Erro ao atualizar usuário:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o usuário. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -117,7 +138,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
             <Button 
               onClick={handleSave}
               disabled={isLoading}
-              className="bg-ortho-orange hover:bg-ortho-orange-dark h-12 px-6"
+              className="bg-gradient-to-r from-brand-button-start to-brand-button-end hover:from-brand-button-start-dark hover:to-brand-button-end-dark h-12 px-6 text-white"
             >
               {isLoading ? (
                 <>
