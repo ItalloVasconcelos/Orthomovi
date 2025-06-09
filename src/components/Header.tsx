@@ -20,7 +20,7 @@ export const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <span className="text-xl font-heading font-bold">
-              <img src="src/assets/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
+              <img src="../../public/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
               </span>
           </Link>
 
