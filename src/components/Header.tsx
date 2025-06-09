@@ -6,7 +6,7 @@ import { UserDropdown } from "@/components/UserDropdown";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const Header = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, keycloakLogin } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -45,16 +45,19 @@ export const Header = () => {
               <UserDropdown />
             ) : (
               <div className="flex items-center space-x-3">
-                <a href="/https://orthomovi-keycloak.t2wird.easypanel.host/realms/master/protocol/openid-connect/auth?client_id=orthomovi&redirect_uri=https://orthomovi-frontend.t2wird.easypanel.host/&response_type=code&scope=openid&state=random123">
-                  <Button variant="ghost" className="text-brand-text hover:text-brand-primary">
-                    Login
-                  </Button>
-                </a>
-                <Link to="/https://orthomovi-keycloak.t2wird.easypanel.host/realms/master/protocol/openid-connect/auth?client_id=orthomovi&redirect_uri=https://orthomovi-frontend.t2wird.easypanel.host/&response_type=code&scope=openid&state=random123">
-                  <Button className="btn-primary">
-                    Cadastre-se
-                  </Button>
-                </Link>
+                <Button 
+                  variant="ghost" 
+                  className="text-brand-text hover:text-brand-primary"
+                  onClick={keycloakLogin}
+                >
+                  Login
+                </Button>
+                <Button 
+                  className="btn-primary"
+                  onClick={keycloakLogin}
+                >
+                  Cadastre-se
+                </Button>
               </div>
             )}
           </div>

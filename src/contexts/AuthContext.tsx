@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/services/graphqlService';
 import keycloak from '@/services/keycloak';
+import { keycloakSyncService } from '@/services/keycloakSync';
 
 interface AuthContextType {
   user: User | null;
@@ -33,27 +34,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há um usuário logado no localStorage ao inicializar
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const initializeAuth = async () => {
       try {
-        const userData = JSON.parse(savedUser);
-        console.log('Usuário carregado do localStorage:', userData);
-        setUser(userData);
+        // Verificar se há um usuário logado no localStorage ao inicializar
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          try {
+            const userData = JSON.parse(savedUser);
+            console.log('Usuário carregado do localStorage:', userData);
+            setUser(userData);
+          } catch (error) {
+            console.error('Erro ao carregar dados do usuário:', error);
+            localStorage.removeItem('user');
+          }
+        }
+
+        // Verificar autenticação do Keycloak e sincronizar
+        if (keycloak.authenticated) {
+          console.log('Usuário autenticado via Keycloak');
+          try {
+            const syncedUser = await keycloakSyncService.syncUserWithDatabase();
+            if (syncedUser) {
+              console.log('Usuário sincronizado:', syncedUser);
+              setUser(syncedUser);
+              localStorage.setItem('user', JSON.stringify(syncedUser));
+            }
+          } catch (error) {
+            console.error('Erro ao sincronizar usuário do Keycloak:', error);
+          }
+        }
       } catch (error) {
-        console.error('Erro ao carregar dados do usuário:', error);
-        localStorage.removeItem('user');
+        console.error('Erro na inicialização da autenticação:', error);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    // Verificar autenticação do Keycloak
-    if (keycloak.authenticated) {
-      console.log('Usuário autenticado via Keycloak');
-      // Aqui você pode criar um usuário baseado nos dados do Keycloak
-      // e sincronizar com seu backend se necessário
-    }
-
-    setLoading(false);
+    initializeAuth();
   }, []);
 
   const login = (userData: User) => {

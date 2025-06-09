@@ -16,11 +16,11 @@ export const KeycloakProvider = ({ children }: Props) => {
         
         keycloak
             .init({
-                onLoad: "check-sso", // Mudando para check-sso para evitar loop de redirect
+                onLoad: "check-sso",
                 pkceMethod: "S256",
                 flow: "standard",
-                redirectUri: `${currentUrl}/`, // Definindo explicitamente o redirect URI
-                checkLoginIframe: false, // Desabilitar para evitar problemas de CORS
+                redirectUri: `${currentUrl}/`,
+                checkLoginIframe: false,
             })
             .then(authenticated => {
                 console.log('Keycloak inicializado. Autenticado:', authenticated);
@@ -28,12 +28,13 @@ export const KeycloakProvider = ({ children }: Props) => {
                 
                 if (authenticated) {
                     console.log('Usuário autenticado via Keycloak:', keycloak.tokenParsed);
+                    console.log('Token completo:', keycloak.token);
                 }
             })
             .catch(error => {
                 console.error('Erro na inicialização do Keycloak:', error);
                 setError(`Erro de autenticação: ${error.message}`);
-                setInitialized(true); // Permitir que a aplicação continue mesmo com erro
+                setInitialized(true);
             });
     }, []);
 
