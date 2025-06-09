@@ -25,7 +25,12 @@ const Index = () => {
     if (isAuthenticated) {
       navigate('/home');
     } else {
-      navigate('/login');
+      navigate('/https://orthomovi-keycloak.t2wird.easypanel.host/realms/master/protocol/openid-connect/auth\n'+
+          '?client_id=orthomovi\n'+
+          '&redirect_uri=https://orthomovi-frontend.t2wird.easypanel.host/\n'+
+          '&response_type=code\n'+
+          '&scope=openid\n'+
+          '&state=random123');
     }
   };
 
