@@ -25,7 +25,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, keycloakLogin } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +86,10 @@ const Login = () => {
     }
   };
 
+  const handleKeycloakLogin = () => {
+    keycloakLogin();
+  };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -114,6 +118,23 @@ const Login = () => {
             <div className="text-center mb-8">
               <h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Login</h1>
               <p className="text-brand-text-light">Acesse sua conta para continuar</p>
+            </div>
+            
+            {/* Botão de Login via Keycloak */}
+            <div className="mb-6">
+              <Button 
+                type="button"
+                onClick={handleKeycloakLogin}
+                className="w-full h-12 text-base bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Entrar com Keycloak
+              </Button>
+              
+              <div className="flex items-center my-4">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="flex-shrink mx-4 text-gray-400 text-sm">ou</span>
+                <div className="flex-grow border-t border-gray-300"></div>
+              </div>
             </div>
             
             <form onSubmit={handleLogin} className="space-y-6">

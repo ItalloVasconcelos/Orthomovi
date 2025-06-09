@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/services/graphqlService';
+import keycloak from '@/services/keycloak';
 
 interface AuthContextType {
   user: User | null;
@@ -9,6 +10,8 @@ interface AuthContextType {
   login: (userData: User) => void;
   logout: () => void;
   loading: boolean;
+  keycloakLogin: () => void;
+  keycloakLogout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +45,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('user');
       }
     }
+
+    // Verificar autenticação do Keycloak
+    if (keycloak.authenticated) {
+      console.log('Usuário autenticado via Keycloak');
+      // Aqui você pode criar um usuário baseado nos dados do Keycloak
+      // e sincronizar com seu backend se necessário
+    }
+
     setLoading(false);
   }, []);
 
@@ -57,18 +68,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('user');
   };
 
-  const isAuthenticated = !!user;
+  const keycloakLogin = () => {
+    keycloak.login({
+      redirectUri: window.location.origin + '/'
+    });
+  };
+
+  const keycloakLogout = () => {
+    keycloak.logout({
+      redirectUri: window.location.origin + '/'
+    });
+    logout(); // Também limpa o estado local
+  };
+
+  const isAuthenticated = !!user || keycloak.authenticated;
   const isAdmin = user?.role === 'admin';
 
   console.log('Estado atual do auth:', {
     user: user,
     isAuthenticated,
     isAdmin,
-    userRole: user?.role
+    userRole: user?.role,
+    keycloakAuthenticated: keycloak.authenticated
   });
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      isAdmin, 
+      login, 
+      logout, 
+      loading,
+      keycloakLogin,
+      keycloakLogout
+    }}>
       {children}
     </AuthContext.Provider>
   );
