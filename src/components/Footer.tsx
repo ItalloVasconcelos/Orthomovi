@@ -12,7 +12,7 @@ export const Footer = () => {
           <div className="col-span-1 md:col-span-1 ">
             <div className="flex items-center space-x-2 mb-6">
               <span className="text-xl font-heading font-bold">
-              <img src="../../public/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
+              <img src="/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
               </span>
             </div>
             <p className="text-gray-300 mb-4">
