@@ -5,7 +5,7 @@ WORKDIR /app
 # Copia tudo do projeto para dentro do container
 COPY . .
 
-RUN bun install --frozen-lockfile
+RUN bun install
 RUN bun run build
 
 FROM nginx:alpine
