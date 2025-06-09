@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, MapPin, Phone, Mail, Heart, Users, Brain } from "lucide-react";
@@ -103,7 +102,7 @@ const Index = () => {
               </div>
               <div className="flex justify-center">
                 <div className="w-full max-w-md aspect-square  rounded-lg flex items-center justify-center">
-                  <img src={"src/assets/img/hero-image.svg"} width={"100%"} alt={"Homem segurando os tênis e exemplos das próteses."}/>
+                  <img src="/img/hero-image.svg" width="100%" alt="Homem segurando os tênis e exemplos das próteses."/>
                 </div>
               </div>
             </div>
@@ -116,7 +115,7 @@ const Index = () => {
             {/* Espaço para imagem */}
             <div className="flex justify-center mb-8">
               <div className="w-6/12 aspect-video  rounded-lg flex items-center justify-center">
-               <img src="../../public/img/imagens_proteses.svg" alt="Exemplos de próteses" width="100%"/>
+               <img src="/img/imagens_proteses.svg" alt="Exemplos de próteses" width="100%"/>
               </div>
             </div>
 
@@ -167,7 +166,7 @@ const Index = () => {
               {/* Espaço para imagem à esquerda */}
               <div className="flex justify-center">
                 <div className="w-full aspect-video  rounded-lg flex items-center justify-center">
-                  <img src="../../public/img/exemplo_tenis.svg" alt="Imagem de um tênis demonstrando a qualidade e conforto que a prótese oferece." width="80%"/>
+                  <img src="/img/exemplo_tenis.svg" alt="Imagem de um tênis demonstrando a qualidade e conforto que a prótese oferece." width="80%"/>
                 </div>
               </div>
 
@@ -252,7 +251,7 @@ const Index = () => {
               {/* Espaço para imagem à direita */}
               <div className="flex justify-center">
                 <div className="w-full max-w-md aspect-square rounded-lg flex items-center justify-center">
-                  <img src="../../public/img/varios_tenis.svg" alt="Exemplos de tênis" width="100%"/>
+                  <img src="/img/varios_tenis.svg" alt="Exemplos de tênis" width="100%"/>
                 </div>
               </div>
             </div>
@@ -283,7 +282,7 @@ const Index = () => {
               {/* Espaço para imagem à esquerda */}
               <div className="flex justify-center">
                 <div className="w-full max-w-md aspect-square  rounded-lg flex items-center justify-center">
-                  <img src="../../public/img/tenis_exclusivo.svg" alt="Imagem de tênis, mostrando exclusividade e elegância." width="100%"/>
+                  <img src="/img/tenis_exclusivo.svg" alt="Imagem de tênis, mostrando exclusividade e elegância." width="100%"/>
                 </div>
               </div>
 
@@ -327,7 +326,7 @@ const Index = () => {
             {/* Espaço para imagem acima do título */}
             <div className="flex justify-center mb-1">
               <div className="w-full  aspect-video  rounded-lg flex items-center justify-center">
-                <img src="../../public/img/entrega.svg" alt="Banner de entrega para todo o Brasil" width="100%"/>
+                <img src="/img/entrega.svg" alt="Banner de entrega para todo o Brasil" width="100%"/>
               </div>
             </div>
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-12 ">
@@ -370,7 +369,7 @@ const Index = () => {
               {/* Espaço para imagem à direita */}
               <div className="flex justify-center">
                 <div className="w-full max-w-md aspect-square rounded-lg flex items-center justify-center">
-                  <img src="../../public/img/avaliações.svg" alt="Imagem de avaliações positivas!" width="100%"/>
+                  <img src="/img/avaliações.svg" alt="Imagem de avaliações positivas!" width="100%"/>
                 </div>
               </div>
             </div>
