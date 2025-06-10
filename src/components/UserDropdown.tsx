@@ -1,6 +1,7 @@
+// src/components/UserDropdown.tsx
 
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, LogOut, Settings } from 'lucide-react';
 import {
   DropdownMenu,
@@ -11,27 +12,24 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { AccountSettingsModal } from '@/components/AccountSettingsModal';
+import keycloak from '@/services/keycloak'; // Importe a instância do keycloak
 
 export const UserDropdown = () => {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-  };
-
-  const handleConfigurationsClick = () => {
+  const handleSettingsClick = () => {
     if (isAdmin) {
+      // Se for admin, leva para o painel de admin do app
       navigate('/admin');
     } else {
-      setIsSettingsOpen(true);
+      // Se for usuário comum, abre a página de conta do Keycloak em uma nova aba
+      // A função createAccountUrl() gera a URL correta para a página de perfil do usuário.
+      window.open(keycloak.createAccountUrl(), '_blank');
     }
   };
 
   return (
-    <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="flex items-center space-x-2">
@@ -41,30 +39,20 @@ export const UserDropdown = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <div className="flex items-center justify-start gap-2 p-2">
-            <div className="flex flex-col space-y-1 leading-none">
-              <p className="font-medium">{user?.fullname || 'Usuário'}</p>
-              <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
-            </div>
+            {/* ... info do usuário ... */}
           </div>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleConfigurationsClick}>
+          <DropdownMenuItem onClick={handleSettingsClick}>
             <Settings className="mr-2 h-4 w-4" />
-            {isAdmin ? 'Painel Administrativo' : 'Configurações'}
+            {/* O texto muda dependendo da role */}
+            <span>{isAdmin ? 'Painel Administrativo' : 'Minha Conta'}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+          <DropdownMenuItem onClick={logout} className="text-red-600">
             <LogOut className="mr-2 h-4 w-4" />
-            Sair
+            <span>Sair</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {!isAdmin && (
-        <AccountSettingsModal 
-          open={isSettingsOpen}
-          onOpenChange={setIsSettingsOpen}
-        />
-      )}
-    </>
   );
 };

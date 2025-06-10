@@ -1,276 +1,113 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { 
-  Users, 
-  Settings, 
-  Search,
-  Edit,
-  Trash2
-} from "lucide-react";
+import { Users, Settings, Search, Edit, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage
-} from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { UserDropdown } from "@/components/UserDropdown";
-import { EditUserModal } from "@/components/admin/EditUserModal";
 import { InactivateUserModal } from "@/components/admin/InactivateUserModal";
 import { graphqlService, User } from "@/services/graphqlService";
+import { useAuth } from "@/contexts/AuthContext";
+import keycloak from "@/services/keycloak";
 
 const AdminUsersPage = () => {
   const { toast } = useToast();
+  const { token, loading: authLoading } = useAuth();
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingUser, setEditingUser] = useState<any>(null);
-  const [inactivatingUser, setInactivatingUser] = useState<any>(null);
+  const [inactivatingUser, setInactivatingUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
-  const fetchUsers = async () => {
-    try {
-      setIsLoading(true);
-      const usersData = await graphqlService.getAllUsers();
-      setUsers(usersData);
-    } catch (error) {
-      console.error('Erro ao buscar usuários:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar os usuários. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
+
+  useEffect(() => {
+    if (!authLoading && token) {
+      const fetchUsers = async () => {
+        setIsLoading(true);
+        try {
+          const usersData = await graphqlService.getAllUsers(token);
+          setUsers(usersData);
+        } catch (error) {
+          console.error('Erro ao buscar usuários:', error);
+          toast({
+            title: "Erro ao buscar usuários",
+            description: "Você pode não ter permissão para esta ação.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchUsers();
+    } else if (!authLoading) {
       setIsLoading(false);
+    }
+  }, [authLoading, token, toast]);
+
+  const handleEditUserInKeycloak = (userId: string) => {
+    if (keycloak.authServerUrl && keycloak.realm) {
+      const adminUrl = `${keycloak.authServerUrl}/admin/${keycloak.realm}/console/#/realms/${keycloak.realm}/users/${userId}`;
+      window.open(adminUrl, '_blank');
     }
   };
 
-  // Buscar usuários do banco de dados
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const filteredUsers = users.filter(user =>
+      (user.fullname?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
 
-  const handleUserUpdated = () => {
-    // Recarregar a lista de usuários após uma atualização
-    fetchUsers();
-  };
-  
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.fullname.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
-  
   return (
-    <div className="min-h-screen flex flex-col bg-brand-bg">
-      <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="container mx-auto">
-          <div className="flex justify-between items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
-              </div>
-              <span className="text-xl font-heading font-bold text-brand-text">
-                Orthomovi
-              </span>
-            </Link>
-            <UserDropdown />
-          </div>
+      <div className="min-h-screen flex flex-col bg-brand-bg">
+        <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+          <div className="container mx-auto"><div className="flex justify-between items-center"><Link to="/" className="flex items-center space-x-2"><div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center"><span className="text-white font-bold text-sm">O</span></div><span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span></Link><UserDropdown /></div></div>
+        </header>
+
+        <div className="container mx-auto py-4 px-4">
+          <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>Usuários</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb>
         </div>
-      </header>
-      
-      <div className="container mx-auto py-4 px-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Início</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Usuários</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+
+        <main className="flex-grow container mx-auto px-4 py-6">
+          <div className="mb-8"><h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Gerenciamento de Usuários</h1><p className="text-brand-text-light">Visualize e edite informações dos usuários do sistema</p></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-1">
+              <Card className="shadow-md"><CardHeader className="bg-brand-bg-beige pb-2"><CardTitle className="text-lg">Menu</CardTitle></CardHeader><CardContent className="p-0"><nav className="flex flex-col"><Link to="/admin" className="flex items-center px-4 py-3 hover:bg-gray-50"><FileText className="mr-2 text-gray-500" size={18} /><span>Pedidos</span></Link><Link to="/admin/users" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent"><Users className="mr-2 text-brand-accent" size={18} /><span>Usuários</span></Link><Link to="/admin/config" className="flex items-center px-4 py-3 hover:bg-gray-50"><Settings className="mr-2 text-gray-500" size={18} /><span>Configurações</span></Link></nav></CardContent></Card>
+            </div>
+            <div className="md:col-span-3">
+              <Card className="shadow-md">
+                <CardHeader className="bg-brand-bg-beige pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                  <CardTitle className="text-lg mb-2 sm:mb-0">Lista de Usuários</CardTitle>
+                  <div className="relative"><Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} /><Input placeholder="Buscar usuários..." className="pl-8 h-9 text-sm w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                      <div className="text-center py-8"><p>Carregando usuários...</p></div>
+                  ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader><TableRow><TableHead>Nome</TableHead><TableHead>Email</TableHead><TableHead>Celular</TableHead><TableHead>Tipo</TableHead><TableHead className="text-right">Ações</TableHead></TableRow></TableHeader>
+                          <TableBody>
+                            {filteredUsers.map((user) => (
+                                <TableRow key={user.id}>
+                                  <TableCell className="font-medium">{user.fullname}</TableCell>
+                                  <TableCell>{user.email}</TableCell>
+                                  <TableCell>{user.phone || '-'}</TableCell>
+                                  <TableCell><span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'app_admin' ? 'bg-brand-primary/10 text-brand-primary' : 'bg-gray-100 text-gray-800'}`}>{user.role === 'app_admin' ? 'Admin' : 'Usuário'}</span></TableCell>
+                                  <TableCell className="text-right"><div className="flex justify-end space-x-2"><Button variant="outline" size="icon" className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 h-8 w-8" onClick={() => handleEditUserInKeycloak(user.id)} title="Editar no Keycloak"><Edit className="h-4 w-4" /></Button><Button variant="outline" size="icon" className="text-red-500 hover:bg-red-50 hover:text-red-700 h-8 w-8" onClick={() => setInactivatingUser(user)} title="Inativar Usuário"><Trash2 className="h-4 w-4" /></Button></div></TableCell>
+                                </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
+        <InactivateUserModal user={inactivatingUser} open={!!inactivatingUser} onOpenChange={() => setInactivatingUser(null)} />
       </div>
-      
-      <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Gerenciamento de Usuários</h1>
-          <p className="text-brand-text-light">Visualize e edite informações dos usuários do sistema</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="md:col-span-1">
-            <Card className="shadow-md">
-              <CardHeader className="bg-brand-bg-beige pb-2">
-                <CardTitle className="text-lg">Menu</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <nav className="flex flex-col">
-                  <Link to="/admin" className="flex items-center px-4 py-3 hover:bg-gray-50">
-                    <Settings className="mr-2 text-gray-500" size={18} />
-                    <span>Pedidos</span>
-                  </Link>
-                  <Link to="/admin/users" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent">
-                    <Users className="mr-2 text-brand-accent" size={18} />
-                    <span>Usuários</span>
-                  </Link>
-                  <Link to="/admin/config" className="flex items-center px-4 py-3 hover:bg-gray-50">
-                    <Settings className="mr-2 text-gray-500" size={18} />
-                    <span>Configurações</span>
-                  </Link>
-                </nav>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Main Content */}
-          <div className="md:col-span-3">
-            <Card className="shadow-md">
-              <CardHeader className="bg-brand-bg-beige pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <CardTitle className="text-lg mb-2 sm:mb-0">Lista de Usuários</CardTitle>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                    <Input 
-                      placeholder="Buscar usuários..." 
-                      className="pl-8 h-9 text-sm w-full"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                {isLoading ? (
-                  <div className="text-center py-8">
-                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-                    <p className="mt-2 text-gray-500">Carregando usuários...</p>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Nome</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Celular</TableHead>
-                          <TableHead>Tipo</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredUsers.length > 0 ? (
-                          filteredUsers.map((user) => (
-                            <TableRow key={user.id}>
-                              <TableCell className="font-medium">{user.fullname}</TableCell>
-                              <TableCell>{user.email}</TableCell>
-                              <TableCell>{user.phone || '-'}</TableCell>
-                              <TableCell>
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  user.role === 'admin' 
-                                    ? 'bg-brand-primary/10 text-brand-primary' 
-                                    : 'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {user.role === 'admin' ? 'Admin' : 'Usuário'}
-                                </span>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <div className="flex justify-end space-x-2">
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
-                                    onClick={() => setEditingUser(user)}
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="text-red-500 hover:text-red-700"
-                                    onClick={() => setInactivatingUser(user)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          <TableRow>
-                            <TableCell colSpan={5} className="text-center py-4 text-gray-500">
-                              {searchTerm ? 'Nenhum usuário encontrado com os critérios de busca' : 'Nenhum usuário encontrado'}
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </CardContent>
-              
-              <CardFooter className="flex justify-between">
-                <p className="text-sm text-gray-500">
-                  Mostrando {filteredUsers.length} de {users.length} usuários
-                </p>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" disabled>
-                    Anterior
-                  </Button>
-                  <Button variant="outline" size="sm" disabled>
-                    Próximo
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
-      </main>
-      
-      <footer className="py-6 bg-white border-t">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>© 2025 Orthomovi Órteses Pediátricas. Todos os direitos reservados.</p>
-          <div className="flex justify-center mt-2 space-x-4">
-            <Link to="/terms" className="hover:text-ortho-orange">Termos de Uso</Link>
-            <Link to="/privacy" className="hover:text-ortho-orange">Política de Privacidade</Link>
-            <Link to="/contact" className="hover:text-ortho-orange">Contato</Link>
-          </div>
-        </div>
-      </footer>
-
-      <EditUserModal 
-        user={editingUser}
-        open={!!editingUser}
-        onOpenChange={() => setEditingUser(null)}
-        onUserUpdated={handleUserUpdated}
-      />
-
-      <InactivateUserModal 
-        user={inactivatingUser}
-        open={!!inactivatingUser}
-        onOpenChange={() => setInactivatingUser(null)}
-      />
-    </div>
   );
 };
-
 export default AdminUsersPage;
