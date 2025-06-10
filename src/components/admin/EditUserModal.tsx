@@ -11,10 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Phone, Save } from "lucide-react";
-import { graphqlService } from "@/services/graphqlService";
+import { graphqlService, User as UserType } from "@/services/graphqlService";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface EditUserModalProps {
-  user: any;
+  user: UserType | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUserUpdated: () => void;
@@ -27,9 +28,10 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   onUserUpdated,
 }) => {
   const { toast } = useToast();
+  const { token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    fullname: "",
     email: "",
     phone: "",
   });
@@ -37,7 +39,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   useEffect(() => {
     if (user) {
       setFormData({
-        name: user.fullname || "",
+        fullname: user.fullname || "",
         email: user.email || "",
         phone: user.phone || "",
       });
@@ -45,16 +47,16 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   }, [user]);
 
   const handleSave = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !token) return;
     
     setIsLoading(true);
     
     try {
       await graphqlService.updateUser(user.id, {
-        fullname: formData.name,
+        fullname: formData.fullname,
         email: formData.email,
         phone: formData.phone,
-      });
+      }, token);
       
       toast({
         title: "Usuário atualizado",
@@ -96,8 +98,8 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
                 <Input 
                   id="name" 
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  value={formData.fullname}
+                  onChange={(e) => handleInputChange('fullname', e.target.value)}
                   className="pl-10 h-12" 
                 />
               </div>

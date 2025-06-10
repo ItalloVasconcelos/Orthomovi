@@ -1,3 +1,4 @@
+
 // --- INTERFACES DE DADOS ---
 export interface User {
   id: string;
@@ -21,8 +22,30 @@ export interface Result {
   };
 }
 
-// ... Suas outras interfaces (UpdateUserData, etc.) podem vir aqui ...
+export interface UpdateUserData {
+  fullname?: string;
+  email?: string;
+  phone?: string;
+}
 
+export interface CompanyConfig {
+  id: string;
+  company_name: string;
+  cnpj: string;
+}
+
+export interface ContactConfig {
+  id: string;
+  email: string;
+  phone: string;
+}
+
+export interface UpdateCompanyConfigData {
+  company_name: string;
+  email: string;
+  phone: string;
+  cnpj: string;
+}
 
 // --- ENGINE DE EXECUÇÃO ---
 const API_URL = 'https://orthomovi-hasura.t2wird.easypanel.host/v1/graphql';
@@ -39,7 +62,10 @@ const executeGraphQL = async (query: string, token: string, variables?: any) => 
       headers,
       body: JSON.stringify({ query, variables }),
     });
-    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+    
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`);
+    }
 
     const result = await response.json();
     if (result.errors) {
@@ -73,10 +99,68 @@ const QUERIES_AND_MUTATIONS = {
       }
     }
   `,
-  // ... Suas outras queries e mutações ...
+
+  // Query para buscar todos os usuários
   GET_ALL_USERS: `
     query GetAllUsers {
-      users(order_by: {fullname: asc}) { id, fullname, email, phone, role }
+      users(order_by: {fullname: asc}) {
+        id
+        fullname
+        email
+        phone
+        role
+      }
+    }
+  `,
+
+  // Mutation para atualizar usuário
+  UPDATE_USER: `
+    mutation UpdateUser($id: uuid!, $data: users_set_input!) {
+      update_users_by_pk(pk_columns: {id: $id}, _set: $data) {
+        id
+        fullname
+        email
+        phone
+        role
+      }
+    }
+  `,
+
+  // Query para buscar configurações da empresa
+  GET_COMPANY_CONFIG: `
+    query GetCompanyConfig {
+      company_config(limit: 1) {
+        id
+        company_name
+        cnpj
+      }
+      contact_config(limit: 1) {
+        id
+        email
+        phone
+      }
+    }
+  `,
+
+  // Mutation para atualizar configurações da empresa
+  UPDATE_COMPANY_CONFIG: `
+    mutation UpdateCompanyConfig($companyData: company_config_set_input!, $contactData: contact_config_set_input!) {
+      update_company_config(where: {}, _set: $companyData) {
+        affected_rows
+      }
+      update_contact_config(where: {}, _set: $contactData) {
+        affected_rows
+      }
+    }
+  `,
+
+  // Mutation para atualizar status do resultado
+  UPDATE_RESULT_STATUS: `
+    mutation UpdateResultStatus($id: uuid!, $status: String!) {
+      update_results_by_pk(pk_columns: {id: $id}, _set: {status: $status}) {
+        id
+        status
+      }
     }
   `,
 };
@@ -99,5 +183,58 @@ export const graphqlService = {
     return data?.users || [];
   },
 
-  // ... Suas outras funções de serviço (update, get config, etc.)
+  /**
+   * (Admin) Atualiza dados de um usuário específico
+   */
+  async updateUser(userId: string, userData: UpdateUserData, token: string): Promise<User> {
+    const data = await executeGraphQL(
+      QUERIES_AND_MUTATIONS.UPDATE_USER, 
+      token, 
+      { id: userId, data: userData }
+    );
+    return data?.update_users_by_pk;
+  },
+
+  /**
+   * (Admin) Busca configurações da empresa e contato
+   */
+  async getAdminConfig(token: string): Promise<{ company: CompanyConfig | null; contact: ContactConfig | null }> {
+    const data = await executeGraphQL(QUERIES_AND_MUTATIONS.GET_COMPANY_CONFIG, token);
+    return {
+      company: data?.company_config?.[0] || null,
+      contact: data?.contact_config?.[0] || null,
+    };
+  },
+
+  /**
+   * (Admin) Atualiza configurações da empresa
+   */
+  async updateCompanyConfig(token: string, configData: UpdateCompanyConfigData): Promise<void> {
+    const companyData = {
+      company_name: configData.company_name,
+      cnpj: configData.cnpj,
+    };
+    
+    const contactData = {
+      email: configData.email,
+      phone: configData.phone,
+    };
+
+    await executeGraphQL(
+      QUERIES_AND_MUTATIONS.UPDATE_COMPANY_CONFIG, 
+      token, 
+      { companyData, contactData }
+    );
+  },
+
+  /**
+   * (Admin) Atualiza status de um resultado
+   */
+  async updateResultStatus(resultId: string, newStatus: string, token: string): Promise<void> {
+    await executeGraphQL(
+      QUERIES_AND_MUTATIONS.UPDATE_RESULT_STATUS, 
+      token, 
+      { id: resultId, status: newStatus }
+    );
+  },
 };
