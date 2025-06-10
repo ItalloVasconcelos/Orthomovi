@@ -1,11 +1,10 @@
-
-// --- INTERFACES DE DADOS ---
+// --- INTERFACES DE DADOS (ÚNICA FONTE DA VERDADE) ---
 export interface User {
   id: string;
   fullname: string;
   email: string;
   phone?: string;
-  role?: 'app_admin' | 'user';
+  role?: 'app_admin' | 'user'; // interpretado na UI
 }
 
 export interface Result {
@@ -14,10 +13,10 @@ export interface Result {
   date: string;
   status: string;
   order: {
+    id: string;
     user: {
       id: string;
       fullname: string;
-      email: string;
     };
   };
 }
@@ -29,31 +28,38 @@ export interface UpdateUserData {
 }
 
 export interface CompanyConfig {
-  id: string;
   company_name: string;
   cnpj: string;
 }
 
-export interface ContactConfig {
-  id: string;
+export interface AdminContact {
   email: string;
   phone: string;
+  fullname: string;
 }
 
 export interface UpdateCompanyConfigData {
-  company_name: string;
-  email: string;
-  phone: string;
-  cnpj: string;
+  company_name?: string;
+  cnpj?: string;
+  email?: string;
+  phone?: string;
 }
 
 // --- ENGINE DE EXECUÇÃO ---
 const API_URL = 'https://orthomovi-hasura.t2wird.easypanel.host/v1/graphql';
 
-const executeGraphQL = async (query: string, token: string, variables?: any) => {
+const executeGraphQL = async (
+    token: string,
+    query: string,
+    variables?: Record<string, any>,
+    role: 'user' | 'app_admin' = 'user'
+): Promise<any> => {
+  if (!token) throw new Error('Token de autenticação não fornecido.');
+
   const headers = {
-    'content-type': 'application/json',
+    'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
+    'X-Hasura-Role': role,
   };
 
   try {
@@ -62,101 +68,87 @@ const executeGraphQL = async (query: string, token: string, variables?: any) => 
       headers,
       body: JSON.stringify({ query, variables }),
     });
-    
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
+
+    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
     const result = await response.json();
+
     if (result.errors) {
-      console.error('Erros da API do Hasura:', result.errors);
+      console.error('Erro GraphQL:', result.errors);
       throw new Error(result.errors[0].message);
     }
+
     return result.data;
   } catch (error) {
-    console.error('Erro na execução da requisição GraphQL:', error);
+    console.error('Erro na requisição GraphQL:', error);
     throw error;
   }
 };
 
 // --- QUERIES E MUTATIONS ---
-const QUERIES_AND_MUTATIONS = {
-  // Query para buscar todos os resultados, ordenada por data mais recente
-  GET_ALL_RESULTS: `
-    query GetAllResults {
-      results(order_by: {date: desc}) {
-        id
-        calculated_result
-        date
-        status
-        order {
-          user {
-            id
-            fullname
-            email
-          }
-        }
-      }
-    }
-  `,
-
-  // Query para buscar todos os usuários
+const QUERIES = {
   GET_ALL_USERS: `
-    query GetAllUsers {
+    query {
       users(order_by: {fullname: asc}) {
         id
         fullname
         email
         phone
-        role
       }
     }
   `,
-
-  // Mutation para atualizar usuário
-  UPDATE_USER: `
-    mutation UpdateUser($id: uuid!, $data: users_set_input!) {
+  UPDATE_USER_BY_ID: `
+    mutation ($id: String!, $data: users_set_input!) {
       update_users_by_pk(pk_columns: {id: $id}, _set: $data) {
         id
         fullname
         email
         phone
-        role
       }
     }
   `,
-
-  // Query para buscar configurações da empresa
-  GET_COMPANY_CONFIG: `
-    query GetCompanyConfig {
-      company_config(limit: 1) {
+  GET_ALL_RESULTS: `
+    query {
+      results(order_by: {date: desc}) {
         id
+        calculated_result
+        date
+        status
+         order {
+        id
+        user {
+          id
+          fullname
+          }
+        }
+      }
+    }
+  `,
+  GET_ADMIN_DATA: `
+    query ($adminId: String!) {
+      company_config(limit: 1) {
         company_name
         cnpj
       }
-      contact_config(limit: 1) {
-        id
+      users(where: {id: {_eq: $adminId}}) {
         email
         phone
+        fullname
       }
     }
   `,
-
-  // Mutation para atualizar configurações da empresa
   UPDATE_COMPANY_CONFIG: `
-    mutation UpdateCompanyConfig($companyData: company_config_set_input!, $contactData: contact_config_set_input!) {
+    mutation ($companyData: company_config_set_input!, $contactData: users_set_input!, $adminId: String!) {
       update_company_config(where: {}, _set: $companyData) {
         affected_rows
       }
-      update_contact_config(where: {}, _set: $contactData) {
+      update_users(where: {id: {_eq: $adminId}}, _set: $contactData) {
         affected_rows
       }
     }
   `,
-
-  // Mutation para atualizar status do resultado
   UPDATE_RESULT_STATUS: `
-    mutation UpdateResultStatus($id: uuid!, $status: String!) {
+    mutation ($id: uuid!, $status: String!) {
       update_results_by_pk(pk_columns: {id: $id}, _set: {status: $status}) {
         id
         status
@@ -167,74 +159,68 @@ const QUERIES_AND_MUTATIONS = {
 
 // --- SERVIÇO EXPORTADO ---
 export const graphqlService = {
-  /**
-   * (Admin) Busca todos os resultados/pedidos. Requer um token de admin.
-   */
-  async getAllResults(token: string): Promise<Result[]> {
-    const data = await executeGraphQL(QUERIES_AND_MUTATIONS.GET_ALL_RESULTS, token);
-    return data?.results || [];
-  },
-
-  /**
-   * (Admin) Busca todos os usuários. Requer um token de admin.
-   */
   async getAllUsers(token: string): Promise<User[]> {
-    const data = await executeGraphQL(QUERIES_AND_MUTATIONS.GET_ALL_USERS, token);
-    return data?.users || [];
+    const data = await executeGraphQL(token, QUERIES.GET_ALL_USERS);
+    return data?.users ?? [];
   },
 
-  /**
-   * (Admin) Atualiza dados de um usuário específico
-   */
-  async updateUser(userId: string, userData: UpdateUserData, token: string): Promise<User> {
-    const data = await executeGraphQL(
-      QUERIES_AND_MUTATIONS.UPDATE_USER, 
-      token, 
-      { id: userId, data: userData }
-    );
-    return data?.update_users_by_pk;
+  async updateUser(token: string, userId: string, userData: UpdateUserData): Promise<User | null> {
+    const data = await executeGraphQL(token, QUERIES.UPDATE_USER_BY_ID, {
+      id: userId,
+      data: userData,
+    });
+    return data?.update_users_by_pk ?? null;
   },
 
-  /**
-   * (Admin) Busca configurações da empresa e contato
-   */
-  async getAdminConfig(token: string): Promise<{ company: CompanyConfig | null; contact: ContactConfig | null }> {
-    const data = await executeGraphQL(QUERIES_AND_MUTATIONS.GET_COMPANY_CONFIG, token);
+  async getAllResults(token: string): Promise<Result[]> {
+    const data = await executeGraphQL(token, QUERIES.GET_ALL_RESULTS);
+    return data?.results ?? [];
+  },
+
+  async getAdminData(token: string, adminId: string): Promise<{ config: CompanyConfig; admin: AdminContact }> {
+    const data = await executeGraphQL(token, QUERIES.GET_ADMIN_DATA, { adminId }, 'app_admin');
     return {
-      company: data?.company_config?.[0] || null,
-      contact: data?.contact_config?.[0] || null,
+      config: data?.company_config?.[0],
+      admin: data?.users?.[0],
     };
   },
 
-  /**
-   * (Admin) Atualiza configurações da empresa
-   */
-  async updateCompanyConfig(token: string, configData: UpdateCompanyConfigData): Promise<void> {
-    const companyData = {
-      company_name: configData.company_name,
-      cnpj: configData.cnpj,
-    };
-    
-    const contactData = {
-      email: configData.email,
-      phone: configData.phone,
+  async updateCompanyConfig(
+      token: string,
+      adminId: string,
+      companyData: UpdateCompanyConfigData
+  ): Promise<boolean> {
+    const { company_name, cnpj, email, phone } = companyData;
+
+    const payload = {
+      companyData: { company_name, cnpj },
+      contactData: { email, phone, fullname: companyData.company_name }, // fullname opcional aqui
+      adminId,
     };
 
-    await executeGraphQL(
-      QUERIES_AND_MUTATIONS.UPDATE_COMPANY_CONFIG, 
-      token, 
-      { companyData, contactData }
-    );
+    const data = await executeGraphQL(token, QUERIES.UPDATE_COMPANY_CONFIG, payload, 'app_admin');
+    return data?.update_company_config?.affected_rows > 0;
   },
 
-  /**
-   * (Admin) Atualiza status de um resultado
-   */
-  async updateResultStatus(resultId: string, newStatus: string, token: string): Promise<void> {
-    await executeGraphQL(
-      QUERIES_AND_MUTATIONS.UPDATE_RESULT_STATUS, 
-      token, 
-      { id: resultId, status: newStatus }
-    );
+  async updateResultStatus(token: string, resultId: string, status: string): Promise<{ id: string; status: string }> {
+    const data = await executeGraphQL(token, QUERIES.UPDATE_RESULT_STATUS, { id: resultId, status });
+    return data?.update_results_by_pk;
+  },
+
+  getAdminConfig: async (token: string, id: string) => {
+    const response = await fetch("/api/admin-config", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao buscar configurações do admin");
+    }
+
+    const result = await response.json();
+    return result;
   },
 };

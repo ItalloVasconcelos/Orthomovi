@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Users, FileText, Settings, Search, Filter, ChevronDown, Clock, CheckCircle, AlertCircle, XCircle } from "lucide-react";
@@ -20,14 +19,14 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [results, setResults] = useState<Result[]>([]);
-  const [pageLoading, setPageLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [selectedResult, setSelectedResult] = useState<Result | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && token && isAdmin) {
       const fetchResults = async () => {
-        setPageLoading(true);
+        setLoading(true);
         try {
           const data = await graphqlService.getAllResults(token);
           setResults(data);
@@ -39,42 +38,31 @@ const AdminPanel = () => {
             variant: "destructive",
           });
         } finally {
-          setPageLoading(false);
+          setLoading(false);
         }
       };
       fetchResults();
     } else if (!authLoading) {
-      setPageLoading(false);
+      setLoading(false);
     }
   }, [authLoading, token, isAdmin, toast]);
 
-  const getStatusValue = (status: any): string => {
-    return (Array.isArray(status) ? status[0] : status) || 'Análise';
-  };
+  const getStatusValue = (status: any): string => (Array.isArray(status) ? status[0] : status) || 'Análise';
 
   const getStatusBadge = (status: any): React.ReactNode => {
-    const statusValue = getStatusValue(status);
-    const statusConfig = {
-      'Análise': { icon: Clock, color: 'bg-yellow-100 text-yellow-800', label: 'Em Análise' },
-      'Aprovado': { icon: CheckCircle, color: 'bg-green-100 text-green-800', label: 'Aprovado' },
-      'Pendente': { icon: AlertCircle, color: 'bg-orange-100 text-orange-800', label: 'Pendente' },
-      'Rejeitado': { icon: XCircle, color: 'bg-red-100 text-red-800', label: 'Rejeitado' },
-    };
-    
-    const config = statusConfig[statusValue as keyof typeof statusConfig] || statusConfig['Análise'];
-    const Icon = config.icon;
-    
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
-        <Icon className="mr-1 h-3 w-3" />
-        {config.label}
-      </span>
-    );
+    const normalizedStatus = getStatusValue(status).toLowerCase();
+    if (normalizedStatus === 'análise') return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"><Clock className="w-3 h-3 mr-1" />Análise</span>;
+    if (normalizedStatus === 'aprovado') return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Aprovado</span>;
+    if (normalizedStatus === 'recusado') return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"><XCircle className="w-3 h-3 mr-1" />Recusado</span>;
+    return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"><AlertCircle className="w-3 h-3 mr-1" />{getStatusValue(status)}</span>;
   };
 
   const filteredResults = results.filter(result => {
-    const matchesSearch = (result.order?.user?.fullname || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || getStatusValue(result.status) === statusFilter;
+    const patientName = result.order?.user?.fullname || '';
+    const matchesSearch = patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        result.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const resultStatus = getStatusValue(result.status);
+    const matchesStatus = statusFilter === "all" || resultStatus.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
@@ -85,187 +73,83 @@ const AdminPanel = () => {
 
   const handleStatusChange = async (resultId: string, newStatus: string) => {
     if (!token) return;
-    
     try {
-      await graphqlService.updateResultStatus(resultId, newStatus, token);
+      await graphqlService.updateResultStatus(token, resultId, newStatus);
       setResults(prev => prev.map(r => r.id === resultId ? { ...r, status: newStatus } : r));
-      toast({
-        title: "Status atualizado",
-        description: "O status do pedido foi atualizado com sucesso.",
-      });
+      toast({ title: "Status atualizado!" });
     } catch (error) {
-      console.error('Erro ao atualizar status:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status do pedido.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao atualizar status", variant: "destructive" });
+      console.error(error);
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Carregando autenticação...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-brand-bg">
-      <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="container mx-auto">
-          <div className="flex justify-between items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
-              </div>
-              <span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span>
-            </Link>
-            <UserDropdown />
+      <div className="min-h-screen flex flex-col bg-brand-bg">
+        <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center"><Link to="/" className="flex items-center space-x-2"><div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center"><span className="text-white font-bold text-sm">O</span></div><span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span></Link><UserDropdown /></div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="container mx-auto py-4 px-4">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem><BreadcrumbPage>Painel Administrativo</BreadcrumbPage></BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-
-      <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Painel Administrativo</h1>
-          <p className="text-brand-text-light">Gerencie pedidos, usuários e configurações do sistema</p>
+        <div className="container mx-auto py-4 px-4">
+          <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>Painel Administrativo</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="md:col-span-1">
-            <Card className="shadow-md">
-              <CardHeader className="bg-brand-bg-beige pb-2">
-                <CardTitle className="text-lg">Menu</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <nav className="flex flex-col">
-                  <Link to="/admin" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent">
-                    <FileText className="mr-2 text-brand-accent" size={18} />
-                    <span>Pedidos</span>
-                  </Link>
-                  <Link to="/admin/users" className="flex items-center px-4 py-3 hover:bg-gray-50">
-                    <Users className="mr-2 text-gray-500" size={18} />
-                    <span>Usuários</span>
-                  </Link>
-                  <Link to="/admin/config" className="flex items-center px-4 py-3 hover:bg-gray-50">
-                    <Settings className="mr-2 text-gray-500" size={18} />
-                    <span>Configurações</span>
-                  </Link>
-                </nav>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Main Content */}
-          <div className="md:col-span-3">
-            <Card className="shadow-md">
-              <CardHeader className="bg-brand-bg-beige pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <CardTitle className="text-lg mb-2 sm:mb-0">Fila de Pedidos</CardTitle>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-                    <Input 
-                      placeholder="Buscar por paciente..." 
-                      className="pl-8 h-9 text-sm w-full sm:w-64" 
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+        <main className="flex-grow container mx-auto px-4 py-6">
+          <div className="mb-8"><h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Painel Administrativo</h1><p className="text-brand-text-light">Gerencie pedidos, usuários e configurações do sistema</p></div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-1">
+              <Card className="shadow-md"><CardHeader className="bg-brand-bg-beige pb-2"><CardTitle className="text-lg">Menu</CardTitle></CardHeader><CardContent className="p-0"><nav className="flex flex-col"><Link to="/admin" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent"><FileText className="mr-2 text-brand-accent" size={18} /><span>Pedidos</span></Link><Link to="/admin/users" className="flex items-center px-4 py-3 hover:bg-gray-50"><Users className="mr-2 text-gray-500" size={18} /><span>Usuários</span></Link><Link to="/admin/config" className="flex items-center px-4 py-3 hover:bg-gray-50"><Settings className="mr-2 text-gray-500" size={18} /><span>Configurações</span></Link></nav></CardContent></Card>
+            </div>
+            <div className="md:col-span-3">
+              <Card className="shadow-md">
+                <CardHeader className="bg-brand-bg-beige pb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                  <CardTitle className="text-lg mb-2 sm:mb-0">Fila de Pedidos</CardTitle>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <div className="relative"><Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} /><Input placeholder="Buscar pedidos..." className="pl-8 h-9 text-sm w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+                    <div className="relative"><select className="h-9 px-3 rounded-md border border-input bg-background text-sm w-full" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="all">Todos</option><option value="análise">Análise</option><option value="aprovado">Aprovado</option><option value="recusado">Recusado</option></select></div>
                   </div>
-                  <select 
-                    value={statusFilter} 
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="h-9 px-3 text-sm border border-gray-300 rounded-md bg-white"
-                  >
-                    <option value="all">Todos os Status</option>
-                    <option value="Análise">Em Análise</option>
-                    <option value="Aprovado">Aprovado</option>
-                    <option value="Pendente">Pendente</option>
-                    <option value="Rejeitado">Rejeitado</option>
-                  </select>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {pageLoading ? (
-                  <div className="text-center py-16">
-                    <p className="text-gray-500">Carregando pedidos...</p>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredResults.length > 0 ? (
-                          filteredResults.map((result) => (
-                            <tr key={result.id} className="hover:bg-gray-50">
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {result.order?.user?.fullname || 'N/A'}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-brand-accent">
-                                {result.calculated_result || 'N/A'}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {formatDate(result.date)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                {getStatusBadge(result.status)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  onClick={() => handleViewDetails(result)}
-                                >
-                                  Ver detalhes
-                                </Button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                      <div className="text-center py-16"><p className="text-gray-500">Carregando pedidos...</p></div>
+                  ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
                           <tr>
-                            <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
-                              Nenhum pedido encontrado.
-                            </td>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                          {filteredResults.length > 0 ? (
+                              filteredResults.map((result) => (
+                                  <tr key={result.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{result.order?.user?.fullname || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-brand-accent">{result.calculated_result || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(result.date)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(result.status)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><Button variant="outline" size="sm" onClick={() => handleViewDetails(result)}>Ver detalhes</Button></td>
+                                  </tr>
+                              ))
+                          ) : (
+                              <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">Nenhum pedido encontrado.</td></tr>
+                          )}
+                          </tbody>
+                        </table>
+                      </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
-      </main>
-
-      <ClientDetailsModal 
-        isOpen={isModalOpen} 
-        onOpenChange={setIsModalOpen} 
-        result={selectedResult} 
-        onStatusChange={handleStatusChange} 
-      />
-    </div>
+        </main>
+        <ClientDetailsModal isOpen={isModalOpen} onOpenChange={setIsModalOpen} result={selectedResult} onStatusChange={handleStatusChange} />
+      </div>
   );
 };
-
 export default AdminPanel;

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Users, Settings, Save, FileText } from "lucide-react"; // Adicionado FileText
+import { Users, Settings, Save, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { UserDropdown } from "@/components/UserDropdown";
 import { graphqlService, UpdateCompanyConfigData } from "@/services/graphqlService";
@@ -15,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const AdminConfigPage = () => {
   const { toast } = useToast();
-  const { token, loading: authLoading } = useAuth();
+  const { token, user, loading: authLoading, isAdmin } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -27,12 +26,11 @@ const AdminConfigPage = () => {
   });
 
   useEffect(() => {
-    if (!authLoading && token) {
+    if (!authLoading && token && isAdmin && user) {
       const fetchConfigData = async () => {
         setIsLoadingData(true);
         try {
-          const { company, contact } = await graphqlService.getAdminConfig(token);
-
+          const { company, contact } = await graphqlService.getAdminConfig(token, user.id);
           setFormData({
             company_name: company?.company_name || "",
             email: contact?.email || "",
@@ -50,22 +48,20 @@ const AdminConfigPage = () => {
           setIsLoadingData(false);
         }
       };
-
       fetchConfigData();
     } else if (!authLoading) {
       setIsLoadingData(false);
     }
-  }, [authLoading, token, toast]);
+  }, [authLoading, token, isAdmin, user, toast]);
 
   const handleSaveSettings = async () => {
-    if (!token) {
+    if (!token || !user) {
       toast({ title: "Erro de autenticação", variant: "destructive" });
       return;
     }
-
     setIsLoading(true);
     try {
-      await graphqlService.updateCompanyConfig(token, formData);
+      await graphqlService.updateCompanyConfig(token, user.id, formData);
       toast({
         title: "Configurações salvas",
         description: "As configurações do sistema foram atualizadas com sucesso.",
@@ -86,23 +82,10 @@ const AdminConfigPage = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  if (isLoadingData) {
-    return (
-        <div className="min-h-screen flex items-center justify-center">
-          <p>Carregando configurações...</p>
-        </div>
-    );
-  }
-
   return (
       <div className="min-h-screen flex flex-col bg-brand-bg">
         <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-          <div className="container mx-auto">
-            <div className="flex justify-between items-center">
-              <Link to="/" className="flex items-center space-x-2"><div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center"><span className="text-white font-bold text-sm">O</span></div><span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span></Link>
-              <UserDropdown />
-            </div>
-          </div>
+          <div className="container mx-auto"><div className="flex justify-between items-center"><Link to="/" className="flex items-center space-x-2"><div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center"><span className="text-white font-bold text-sm">O</span></div><span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span></Link><UserDropdown /></div></div>
         </header>
         <div className="container mx-auto py-4 px-4">
           <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>Configurações</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb>
@@ -117,28 +100,28 @@ const AdminConfigPage = () => {
               <Card className="shadow-md">
                 <CardHeader className="bg-brand-bg-beige pb-2"><CardTitle className="text-lg">Configurações Gerais</CardTitle></CardHeader>
                 <CardContent className="pt-6 space-y-6">
-                  <div>
-                    <h3 className="text-base font-medium mb-3">Informações da Empresa</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2"><Label htmlFor="company-name">Nome da Empresa</Label><Input id="company-name" value={formData.company_name} onChange={(e) => handleInputChange('company_name', e.target.value)} className="h-12" /></div>
-                      <div className="space-y-2"><Label htmlFor="company-email">Email de Contato</Label><Input id="company-email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} className="h-12" /></div>
-                      <div className="space-y-2"><Label htmlFor="company-phone">Telefone de Contato</Label><Input id="company-phone" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} className="h-12" /></div>
-                      <div className="space-y-2"><Label htmlFor="company-cnpj">CNPJ</Label><Input id="company-cnpj" value={formData.cnpj} onChange={(e) => handleInputChange('cnpj', e.target.value)} className="h-12" /></div>
-                    </div>
-                  </div>
-                  <Separator />
-                  <div>
-                    <h3 className="text-base font-medium mb-3">Configurações de Plataforma</h3>
-                    <div className="grid grid-cols-1 gap-4">
-                      <div className="flex items-center justify-between"><div><Label htmlFor="enable-registrations" className="block mb-1">Cadastros Abertos</Label><span className="text-sm text-gray-500">Permite que novos usuários se cadastrem na plataforma</span></div><Switch id="enable-registrations" defaultChecked /></div>
-                      <div className="flex items-center justify-between"><div><Label htmlFor="enable-notifications" className="block mb-1">Notificações por Email</Label><span className="text-sm text-gray-500">Envia emails de notificação sobre novos pedidos e atualizações</span></div><Switch id="enable-notifications" defaultChecked /></div>
-                    </div>
-                  </div>
+                  {isLoadingData ? <div className="text-center py-16"><p>Carregando...</p></div> :
+                      (
+                          <>
+                            <div>
+                              <h3 className="text-base font-medium mb-3">Informações da Empresa</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2"><Label htmlFor="company-name">Nome da Empresa</Label><Input id="company-name" value={formData.company_name} onChange={(e) => handleInputChange('company_name', e.target.value)} /></div>
+                                <div className="space-y-2"><Label htmlFor="company-cnpj">CNPJ</Label><Input id="company-cnpj" value={formData.cnpj} onChange={(e) => handleInputChange('cnpj', e.target.value)} /></div>
+                              </div>
+                            </div>
+                            <Separator />
+                            <div>
+                              <h3 className="text-base font-medium mb-3">Contato Administrativo</h3>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2"><Label htmlFor="contact-email">Email de Contato</Label><Input id="contact-email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} /></div>
+                                <div className="space-y-2"><Label htmlFor="contact-phone">Telefone</Label><Input id="contact-phone" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} /></div>
+                              </div>
+                            </div>
+                          </>
+                      )}
                 </CardContent>
-                <CardFooter className="flex justify-end space-x-4 pt-4 border-t">
-                  <Button variant="outline">Cancelar</Button>
-                  <Button className="btn-primary h-12 px-6" onClick={handleSaveSettings} disabled={isLoading}>{isLoading ? (<><span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>Salvando...</>) : (<><Save className="mr-2 h-4 w-4" />Salvar Configurações</>)}</Button>
-                </CardFooter>
+                <CardFooter className="flex justify-end pt-4 border-t"><Button onClick={handleSaveSettings} disabled={isLoading}>{isLoading ? 'Salvando...' : 'Salvar Alterações'}</Button></CardFooter>
               </Card>
             </div>
           </div>
@@ -146,5 +129,4 @@ const AdminConfigPage = () => {
       </div>
   );
 };
-
 export default AdminConfigPage;

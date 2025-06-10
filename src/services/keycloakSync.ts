@@ -55,6 +55,8 @@ const executeSyncMutationWithUserToken = async (token: string, variables: any) =
     'Authorization': `Bearer ${token}`, // A autenticação segura continua aqui
   };
 
+  console.log(keycloak.token)
+
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -116,14 +118,3 @@ export const keycloakSyncService = {
     }
   },
 };
-
-// --- COMO USAR ---
-// A forma de usar continua exatamente a mesma. Chame esta função após o login.
-//
-// Exemplo:
-// keycloak.init({ onLoad: 'login-required' }).then(authenticated => {
-//   if (authenticated) {
-//     console.log('Usuário autenticado. Sincronizando com o banco de dados...');
-//     keycloakSyncService.syncUserWithDatabase();
-//   }
-// });

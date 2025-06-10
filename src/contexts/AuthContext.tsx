@@ -1,5 +1,3 @@
-
-// src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { User } from '@/services/graphqlService';
 import { useKeycloakContext } from './KeycloakProvider';
@@ -14,20 +12,13 @@ interface AuthContextType {
   login: () => void;
   logout: () => void;
 }
-
-interface KeycloakTokenParsed { 
-  sub: string; 
-  name?: string; 
-  email?: string; 
-}
+interface KeycloakTokenParsed { sub: string; name?: string; email?: string; }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) { 
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider'); 
-  }
+  if (!context) { throw new Error('useAuth deve ser usado dentro de um AuthProvider'); }
   return context;
 };
 
@@ -38,73 +29,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!initialized) {
-      setLoading(true);
-      return;
-    }
+    if (!initialized) return;
 
     const handleAuth = async () => {
-      setLoading(true);
-      
       const authenticated = keycloak.authenticated ?? false;
       setIsAuthenticated(authenticated);
 
       if (authenticated && keycloak.tokenParsed) {
-        console.log("AuthProvider: Usuário autenticado. Criando perfil e sincronizando...");
         const tokenParsed = keycloak.tokenParsed as KeycloakTokenParsed;
         const isAdmin = keycloak.hasResourceRole('app_admin', 'orthomovi');
-        
+
         const userProfile: User = {
           id: tokenParsed.sub,
           fullname: tokenParsed.name || 'Usuário',
           email: tokenParsed.email || '',
           role: isAdmin ? 'app_admin' : 'user',
         };
-        
         setUser(userProfile);
-        
-        // Sincronização em segundo plano
+
+        console.log("AuthProvider: Usuário autenticado. Sincronizando com Hasura...");
         keycloakSyncService.syncUserWithDatabase().catch(err => {
           console.error("AuthProvider: Sincronização em segundo plano falhou.", err);
         });
       } else {
-        console.log("AuthProvider: Usuário não autenticado.");
         setUser(null);
       }
-      
       setLoading(false);
     };
 
-    keycloak.onAuthSuccess = handleAuth;
-    keycloak.onAuthRefreshSuccess = handleAuth;
-    keycloak.onAuthLogout = () => {
-      setIsAuthenticated(false);
-      setUser(null);
-      setLoading(false);
-    };
-    
-    keycloak.onTokenExpired = () => {
-      keycloak.updateToken(30).catch(() => {
-        keycloak.logout();
-      });
-    };
+    keycloak.onAuthSuccess = () => { setLoading(true); handleAuth(); };
+    keycloak.onAuthLogout = () => { setLoading(true); handleAuth(); };
+    keycloak.onTokenExpired = () => keycloak.updateToken(30).catch(() => keycloak.logout());
 
-    handleAuth(); // Executa uma vez na inicialização
+    handleAuth();
 
     return () => {
       keycloak.onAuthSuccess = undefined;
       keycloak.onAuthLogout = undefined;
-      keycloak.onAuthRefreshSuccess = undefined;
       keycloak.onTokenExpired = undefined;
     };
   }, [initialized, keycloak]);
 
-  const login = useCallback(() => { 
-    keycloak.login(); 
-  }, [keycloak]);
-  
-  const logout = useCallback(() => { 
-    keycloak.logout(); 
+  const login = useCallback(() => { keycloak.login(); }, [keycloak]);
+  const logout = useCallback(() => {
+    if(keycloak.authenticated) {
+      keycloak.logout({ redirectUri: window.location.origin });
+    }
   }, [keycloak]);
 
   const value = useMemo(() => ({
@@ -117,5 +87,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     logout,
   }), [isAuthenticated, user, keycloak.token, loading, login, logout]);
 
+  // Os filhos são renderizados pelo KeycloakProvider, aqui só passamos o contexto
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
