@@ -103,7 +103,7 @@ export const keycloakSyncService = {
 
       const result = await executeSyncMutationWithUserToken(keycloak.token, variables);
 
-      const syncedUser = result?.insert_users;
+      const syncedUser = result?.insert_users_one;
       if (syncedUser) {
         console.log('✅ Usuário sincronizado com o banco de dados com sucesso!');
         return syncedUser as SyncUserData;
