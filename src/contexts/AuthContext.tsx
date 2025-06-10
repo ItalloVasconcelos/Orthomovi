@@ -78,8 +78,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const logout = useCallback(() => {
-    // Ao fazer logout, limpamos o estado local e redirecionamos via Keycloak
-    keycloak.logout({ redirectUri: window.location.origin });
+    if (keycloak.authenticated) {
+      // Limpa os tokens do objeto keycloak na memória do navegador
+      keycloak.clearToken();
+      // SÓ DEPOIS, inicia o processo de redirecionamento de logout
+      keycloak.logout({ redirectUri: window.location.origin });
+    }
   }, []);
 
   // O valor que será compartilhado com toda a aplicação
