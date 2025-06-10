@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import { User } from '@/services/graphqlService';
 import { useKeycloakContext } from './KeycloakProvider';
@@ -11,6 +12,7 @@ interface AuthContextType {
   loading: boolean;
   login: () => void;
   logout: () => void;
+  updateUserData: (userData: Partial<User>) => void;
 }
 interface KeycloakTokenParsed { sub: string; name?: string; email?: string; }
 
@@ -77,6 +79,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [keycloak]);
 
+  const updateUserData = useCallback((userData: Partial<User>) => {
+    setUser(prevUser => prevUser ? { ...prevUser, ...userData } : null);
+  }, []);
+
   const value = useMemo(() => ({
     isAuthenticated,
     user,
@@ -85,7 +91,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loading,
     login,
     logout,
-  }), [isAuthenticated, user, keycloak.token, loading, login, logout]);
+    updateUserData,
+  }), [isAuthenticated, user, keycloak.token, loading, login, logout, updateUserData]);
 
   // Os filhos são renderizados pelo KeycloakProvider, aqui só passamos o contexto
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

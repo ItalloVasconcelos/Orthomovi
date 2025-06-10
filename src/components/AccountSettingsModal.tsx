@@ -24,7 +24,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
   onOpenChange,
 }) => {
   const { toast } = useToast();
-  const { user, login, token } = useAuth();
+  const { user, updateUserData, token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -56,7 +56,11 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
 
       if (updatedUser) {
         // Atualizar o contexto de autenticação com os novos dados
-        login({ ...updatedUser, role: user.role });
+        updateUserData({
+          fullname: updatedUser.fullname,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+        });
         
         toast({
           title: "Perfil atualizado",
