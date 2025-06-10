@@ -17,14 +17,16 @@ export const Header = () => {
     <header className="bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
+          {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <span className="text-xl font-heading font-bold">
               <img src="/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
-            </span>
+              </span>
           </Link>
 
+          {/* Navigation - apenas para usuários não autenticados na home */}
           {!isAuthenticated && location.pathname === "/" && (
-            <nav className="hidden md:flex items-center space-x-8">
+              <nav className="hidden md:flex items-center space-x-8">
               <a href="#como-funciona" className="text-brand-text-light hover:text-brand-primary transition-colors">
                 Como Funciona
               </a>
@@ -37,6 +39,7 @@ export const Header = () => {
             </nav>
           )}
 
+          {/* Auth buttons or user dropdown */}
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <UserDropdown />
