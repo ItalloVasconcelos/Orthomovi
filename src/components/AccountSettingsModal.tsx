@@ -24,7 +24,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
   onOpenChange,
 }) => {
   const { toast } = useToast();
-  const { user, login } = useAuth();
+  const { user, login, token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -43,7 +43,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
   }, [user]);
 
   const handleSaveProfile = async () => {
-    if (!user) return;
+    if (!user || !token) return;
     
     setIsLoading(true);
     
@@ -52,7 +52,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
         fullname: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-      });
+      }, token);
 
       if (updatedUser) {
         // Atualizar o contexto de autenticação com os novos dados

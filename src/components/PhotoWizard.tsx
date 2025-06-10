@@ -37,7 +37,7 @@ const WizardContent: React.FC = () => {
         
         const letter = getCurrentLetter();
         if (letter) {
-          savePhoto(letter, photoUrl);
+          savePhoto(letter, file); // Pass the File object, not the URL string
         }
       };
       reader.readAsDataURL(file);

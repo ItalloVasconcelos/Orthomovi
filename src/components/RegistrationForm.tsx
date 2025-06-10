@@ -5,7 +5,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Eye, EyeOff, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { graphqlService } from "@/services/graphqlService";
 
 interface FormData {
   fullName: string;
@@ -104,16 +103,18 @@ const RegistrationForm: React.FC = () => {
       setIsSubmitting(true);
       
       try {
-        const user = await graphqlService.registerUser({
+        // For now, we'll simulate a registration success
+        // TODO: Implement actual registration logic with your backend
+        const simulatedUser = {
+          id: Math.random().toString(36).substr(2, 9),
           fullname: formData.fullName,
           email: formData.email,
           phone: formData.phone,
-          password: formData.password,
-        });
+        };
 
         toast({
           title: "Conta criada com sucesso!",
-          description: `Bem-vindo ao nosso sistema, ${user.fullname}! Você será redirecionado para a página de login.`,
+          description: `Bem-vindo ao nosso sistema, ${simulatedUser.fullname}! Você será redirecionado para a página de login.`,
         });
         
         // Reset form after successful submission
