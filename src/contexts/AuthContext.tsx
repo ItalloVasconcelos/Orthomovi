@@ -1,18 +1,31 @@
+import React, { createContext, useContext, ReactNode, useCallback } from 'react';
+import { User } from '@/services/graphqlService'; // Sua interface de usuário
+import keycloak from '@/services/keycloak'; // Sua instância do Keycloak
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/services/graphqlService';
-import keycloak from '@/services/keycloak';
-import { keycloakSyncService } from '@/services/keycloakSync';
+// Interface para os dados que esperamos do token do Keycloak
+interface KeycloakTokenParsed {
+  sub: string;
+  email_verified: boolean;
+  name?: string;
+  preferred_username?: string;
+  given_name?: string;
+  family_name?: string;
+  email?: string;
+  resource_access?: {
+    [key: string]: {
+      roles: string[];
+    };
+  };
+}
 
+// O que o nosso contexto vai fornecer para a aplicação
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (userData: User) => void;
+  token: string | null;
+  login: () => void;
   logout: () => void;
-  loading: boolean;
-  keycloakLogin: () => void;
-  keycloakLogout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +33,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
 };
@@ -30,97 +43,56 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  // REMOVIDO: Não usamos mais useState para 'user' ou 'loading' aqui.
+  // A única fonte da verdade é o objeto 'keycloak'.
+  // O 'loading' inicial já é tratado pelo KeycloakProvider.
 
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        // Verificar se há um usuário logado no localStorage ao inicializar
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-          try {
-            const userData = JSON.parse(savedUser);
-            console.log('Usuário carregado do localStorage:', userData);
-            setUser(userData);
-          } catch (error) {
-            console.error('Erro ao carregar dados do usuário:', error);
-            localStorage.removeItem('user');
-          }
-        }
+  // --- DERIVAÇÃO DE ESTADO ---
+  // Em vez de salvar o estado, nós o derivamos diretamente do objeto keycloak a cada renderização.
+  // Isso garante que os dados estejam sempre sincronizados.
 
-        // Verificar autenticação do Keycloak e sincronizar
-        if (keycloak.authenticated) {
-          console.log('Usuário autenticado via Keycloak');
-          try {
-            const syncedUser = await keycloakSyncService.syncUserWithDatabase();
-            if (syncedUser) {
-              console.log('Usuário sincronizado:', syncedUser);
-              setUser(syncedUser);
-              localStorage.setItem('user', JSON.stringify(syncedUser));
-            }
-          } catch (error) {
-            console.error('Erro ao sincronizar usuário do Keycloak:', error);
-          }
-        }
-      } catch (error) {
-        console.error('Erro na inicialização da autenticação:', error);
-      } finally {
-        setLoading(false);
+  const isAuthenticated = keycloak.authenticated ?? false;
+  const token = keycloak.token ?? null;
+  const tokenParsed = keycloak.tokenParsed as KeycloakTokenParsed | undefined;
+
+  // Transforma os dados brutos do token na nossa interface de 'User'
+  const user: User | null = isAuthenticated && tokenParsed
+      ? {
+        id: tokenParsed.sub,
+        fullname: tokenParsed.name || 'Usuário',
+        email: tokenParsed.email || '',
+        // phone: tokenParsed.phone_number, // Supondo que você configurou 'phone_number' no Keycloak
+        role: keycloak.hasResourceRole('app_admin', 'orthomovi') ? 'app_admin' : 'user',
       }
-    };
+      : null;
 
-    initializeAuth();
+  // A maneira correta e segura de verificar a role de um cliente específico no Keycloak
+  const isAdmin = keycloak.hasResourceRole('app_admin', 'orthomovi');
+
+  // --- FUNÇÕES DE AÇÃO ---
+  // As funções de login e logout agora são apenas apelidos para as funções do Keycloak.
+  // Usamos useCallback para garantir que a referência da função não mude a cada renderização.
+
+  const login = useCallback(() => {
+    keycloak.login();
   }, []);
 
-  const login = (userData: User) => {
-    console.log('Login realizado com usuário:', userData);
-    console.log('Role do usuário:', userData.role);
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-  };
+  const logout = useCallback(() => {
+    // Ao fazer logout, limpamos o estado local e redirecionamos via Keycloak
+    keycloak.logout({ redirectUri: window.location.origin });
+  }, []);
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-  };
-
-  const keycloakLogin = () => {
-    keycloak.login({
-      redirectUri: window.location.origin + '/'
-    });
-  };
-
-  const keycloakLogout = () => {
-    keycloak.logout({
-      redirectUri: window.location.origin + '/'
-    });
-    logout(); // Também limpa o estado local
-  };
-
-  const isAuthenticated = !!user || keycloak.authenticated;
-  const isAdmin = user?.role === 'admin';
-
-  console.log('Estado atual do auth:', {
-    user: user,
+  // O valor que será compartilhado com toda a aplicação
+  const value = {
     isAuthenticated,
+    user,
     isAdmin,
-    userRole: user?.role,
-    keycloakAuthenticated: keycloak.authenticated
-  });
+    token,
+    login,
+    logout,
+  };
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
-      isAdmin, 
-      login, 
-      logout, 
-      loading,
-      keycloakLogin,
-      keycloakLogout
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  console.log('Estado atualizado do AuthContext:', value);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
