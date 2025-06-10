@@ -3,10 +3,9 @@ import keycloak from './keycloak';
 
 // A mutação GraphQL, agora sem referenciar o campo 'role' no retorno.
 const  SYNC_USER_MUTATION = `
-  mutation SyncKeycloakUser($id: String!, $email: String!, $fullname: String!, $phone: String) {
+  mutation SyncKeycloakUser($email: String!, $fullname: String!, $phone: String) {
     insert_users(
       object: {
-        id: $id,
         email: $email,
         fullname: $fullname,
         phone: $phone
@@ -97,7 +96,6 @@ export const keycloakSyncService = {
       console.log('Iniciando sincronização para o usuário:', tokenData.email);
 
       const variables = {
-        id: tokenData.sub,
         email: tokenData.email || '',
         fullname: tokenData.name || tokenData.preferred_username || 'Usuário sem nome',
         phone: tokenData.phone_number || null,
