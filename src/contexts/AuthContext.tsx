@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Usamos useCallback para garantir que a referência da função não mude a cada renderização.
 
   const login = useCallback(() => {
-    keycloak.login();
+    keycloak.login({ redirectUri: window.location.origin });
   }, []);
 
   const logout = useCallback(() => {
