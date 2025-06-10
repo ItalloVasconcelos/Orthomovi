@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import {
   Dialog,
@@ -16,9 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Result, graphqlService } from "@/services/graphqlService";
+import { Result, Image, graphqlService } from "@/services/graphqlService";
 import { formatDate } from "@/utils/dateUtils";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ClientDetailsModalProps {
   isOpen: boolean;
@@ -34,12 +35,35 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   onStatusChange,
 }) => {
   const { toast } = useToast();
+  const { token } = useAuth();
+  const [images, setImages] = useState<Image[]>([]);
+  const [loadingImages, setLoadingImages] = useState(false);
+
+  useEffect(() => {
+    if (result && token && isOpen) {
+      const fetchImages = async () => {
+        setLoadingImages(true);
+        try {
+          const orderImages = await graphqlService.getImagesByOrder(token, result.order.id);
+          setImages(orderImages);
+        } catch (error) {
+          console.error('Erro ao carregar imagens:', error);
+        } finally {
+          setLoadingImages(false);
+        }
+      };
+      
+      fetchImages();
+    }
+  }, [result, token, isOpen]);
 
   if (!result) return null;
 
   const handleStatusChange = async (newStatus: string) => {
+    if (!token) return;
+    
     try {
-      const success = await graphqlService.updateResultStatus(result.id, newStatus);
+      const success = await graphqlService.updateResultStatus(token, result.id, newStatus);
       
       if (success && onStatusChange) {
         onStatusChange(result.id, newStatus);
@@ -62,7 +86,7 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="pr-6">
             Detalhes do Pedido #{result.id.slice(0, 8)}
@@ -96,6 +120,39 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             </div>
           </div>
           
+          {/* Imagens */}
+          <div>
+            <h3 className="font-semibold text-lg mb-3">Imagens do PhotoWizard</h3>
+            {loadingImages ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Carregando imagens...</p>
+              </div>
+            ) : images.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4">
+                {images.map((image, index) => (
+                  <div key={image.id} className="aspect-square bg-gray-100 rounded-lg overflow-hidden border">
+                    <img 
+                      src={image.url} 
+                      alt={`Foto ${index + 1}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                      onClick={() => window.open(image.url, '_blank')}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {['Medida A', 'Medida B', 'Medida C', 'Medida D'].map((label, index) => (
+                  <div key={index} className="aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
+                    <div className="text-gray-400 text-sm mb-1">📷</div>
+                    <div className="text-gray-500 text-xs">{label}</div>
+                    <div className="text-gray-400 text-xs mt-1">Aguardando upload</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Medidas */}
           <div>
             <h3 className="font-semibold text-lg mb-3">Medidas</h3>
@@ -118,20 +175,6 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   Em breve
                 </div>
               </div>
-            </div>
-          </div>
-          
-          {/* Imagens (Placeholder) */}
-          <div>
-            <h3 className="font-semibold text-lg mb-3">Imagens</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {['Medida A', 'Medida H', 'Medida D', 'Adicional'].map((label, index) => (
-                <div key={index} className="aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                  <div className="text-gray-400 text-sm mb-1">📷</div>
-                  <div className="text-gray-500 text-xs">{label}</div>
-                  <div className="text-gray-400 text-xs mt-1">Em breve</div>
-                </div>
-              ))}
             </div>
           </div>
           

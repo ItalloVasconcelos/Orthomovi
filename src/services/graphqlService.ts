@@ -1,3 +1,4 @@
+
 // --- INTERFACES DE DADOS (ÚNICA FONTE DA VERDADE) ---
 export interface User {
   id: string;
@@ -17,8 +18,16 @@ export interface Result {
     user: {
       id: string;
       fullname: string;
+      email?: string;
     };
   };
+}
+
+export interface Image {
+  id: string;
+  orderID: string;
+  url: string;
+  created_at?: string;
 }
 
 export interface UpdateUserData {
@@ -114,11 +123,16 @@ const QUERIES = {
         calculated_result
         date
         status
-         order {
-        id
-        user {
+        order {
           id
-          fullname
+          user {
+            id
+            fullname
+            email
+          }
+          images {
+            id
+            url
           }
         }
       }
@@ -155,12 +169,31 @@ const QUERIES = {
       }
     }
   `,
+  INSERT_IMAGE: `
+    mutation ($orderID: uuid!, $url: String!) {
+      insert_images_one(object: {orderID: $orderID, url: $url}) {
+        id
+        orderID
+        url
+        created_at
+      }
+    }
+  `,
+  GET_IMAGES_BY_ORDER: `
+    query ($orderID: uuid!) {
+      images(where: {orderID: {_eq: $orderID}}, order_by: {created_at: asc}) {
+        id
+        url
+        created_at
+      }
+    }
+  `,
 };
 
 // --- SERVIÇO EXPORTADO ---
 export const graphqlService = {
   async getAllUsers(token: string): Promise<User[]> {
-    const data = await executeGraphQL(token, QUERIES.GET_ALL_USERS);
+    const data = await executeGraphQL(token, QUERIES.GET_ALL_USERS, {}, 'app_admin');
     return data?.users ?? [];
   },
 
@@ -168,12 +201,12 @@ export const graphqlService = {
     const data = await executeGraphQL(token, QUERIES.UPDATE_USER_BY_ID, {
       id: userId,
       data: userData,
-    });
+    }, 'app_admin');
     return data?.update_users_by_pk ?? null;
   },
 
   async getAllResults(token: string): Promise<Result[]> {
-    const data = await executeGraphQL(token, QUERIES.GET_ALL_RESULTS);
+    const data = await executeGraphQL(token, QUERIES.GET_ALL_RESULTS, {}, 'app_admin');
     return data?.results ?? [];
   },
 
@@ -194,7 +227,7 @@ export const graphqlService = {
 
     const payload = {
       companyData: { company_name, cnpj },
-      contactData: { email, phone, fullname: companyData.company_name }, // fullname opcional aqui
+      contactData: { email, phone },
       adminId,
     };
 
@@ -203,8 +236,18 @@ export const graphqlService = {
   },
 
   async updateResultStatus(token: string, resultId: string, status: string): Promise<{ id: string; status: string }> {
-    const data = await executeGraphQL(token, QUERIES.UPDATE_RESULT_STATUS, { id: resultId, status });
+    const data = await executeGraphQL(token, QUERIES.UPDATE_RESULT_STATUS, { id: resultId, status }, 'app_admin');
     return data?.update_results_by_pk;
+  },
+
+  async insertImage(token: string, orderID: string, url: string): Promise<Image | null> {
+    const data = await executeGraphQL(token, QUERIES.INSERT_IMAGE, { orderID, url }, 'user');
+    return data?.insert_images_one ?? null;
+  },
+
+  async getImagesByOrder(token: string, orderID: string): Promise<Image[]> {
+    const data = await executeGraphQL(token, QUERIES.GET_IMAGES_BY_ORDER, { orderID }, 'user');
+    return data?.images ?? [];
   },
 
   getAdminConfig: async (token: string, id: string) => {

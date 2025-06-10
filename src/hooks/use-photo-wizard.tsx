@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useImageUpload } from './useImageUpload';
 
 export type PhotoStep = {
   id: string;
@@ -42,7 +43,7 @@ const PHOTO_STEPS: PhotoStep[] = [
 
 export type WizardStep = -1 | 0 | 1 | 2 | 3 | 4 | 5;
 
-export function usePhotoWizard() {
+export function usePhotoWizard(orderId?: string) {
   const [currentStep, setCurrentStep] = React.useState<WizardStep>(0);
   const [photos, setPhotos] = React.useState<Record<string, string | null>>({
     'A': null,
@@ -52,6 +53,8 @@ export function usePhotoWizard() {
   });
   const [calculating, setCalculating] = React.useState(false);
   const [measurements, setMeasurements] = React.useState<Record<string, number | null> | null>(null);
+  
+  const { uploadImage, uploadProgress } = useImageUpload();
 
   const startWizard = () => setCurrentStep(1);
   
@@ -67,11 +70,24 @@ export function usePhotoWizard() {
     }
   };
   
-  const savePhoto = (letter: 'A' | 'B' | 'C' | 'D', photoUrl: string) => {
-    setPhotos(prev => ({
-      ...prev,
-      [letter]: photoUrl
-    }));
+  const savePhoto = async (letter: 'A' | 'B' | 'C' | 'D', file: File) => {
+    if (!orderId) {
+      console.error('OrderId não fornecido para upload');
+      return;
+    }
+
+    try {
+      const result = await uploadImage(file, orderId, `foto_${letter}`);
+      
+      if (result.success && result.url) {
+        setPhotos(prev => ({
+          ...prev,
+          [letter]: result.url!
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao fazer upload da foto:', error);
+    }
   };
   
   const retakePhoto = (letter: 'A' | 'B' | 'C' | 'D') => {
@@ -128,6 +144,7 @@ export function usePhotoWizard() {
     photoSteps: PHOTO_STEPS,
     calculating,
     measurements,
+    uploadProgress,
     startWizard,
     nextStep,
     prevStep,
