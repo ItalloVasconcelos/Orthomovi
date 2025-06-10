@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -30,7 +29,6 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validação básica
     if (!emailOrPhone || !password) {
       toast({
         title: "Campos obrigatórios",
@@ -43,35 +41,10 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const user = await graphqlService.loginUser({
-        emailOrPhone: emailOrPhone,
-        password: password,
-      });
-      
-      if (user) {
-        // Usar o contexto de autenticação
-        login(user);
-        
-        toast({
-          title: "Login bem-sucedido",
-          description: `Bem-vindo, ${user.fullname}! Redirecionando...`,
-        });
-        
-        // Redirecionar baseado no role do usuário
-        setTimeout(() => {
-          if (user.role === 'admin') {
-            navigate("/admin");
-          } else {
-            navigate("/home");
-          }
-        }, 1500);
-      } else {
-        toast({
-          title: "Erro no login",
-          description: "Email/telefone ou senha incorretos.",
-          variant: "destructive",
-        });
-      }
+      // Este bloco está mantido para compatibilidade, mas pode ser removido
+      // já que agora usamos apenas Keycloak
+      console.log("Login tradicional não implementado - redirecionando para Keycloak");
+      keycloakLogin();
       
     } catch (error) {
       console.error('Erro no login:', error);
@@ -120,7 +93,6 @@ const Login = () => {
               <p className="text-brand-text-light">Acesse sua conta para continuar</p>
             </div>
             
-            {/* Botão de Login via Keycloak */}
             <div className="mb-6">
               <Button 
                 type="button"
