@@ -52,11 +52,11 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     setIsLoading(true);
     
     try {
-      await graphqlService.updateUser(user.id, {
+      await graphqlService.updateUser(token, user.id, {
         fullname: formData.fullname,
         email: formData.email,
         phone: formData.phone,
-      }, token);
+      });
       
       toast({
         title: "Usuário atualizado",

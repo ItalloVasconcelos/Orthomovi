@@ -48,11 +48,11 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
     setIsLoading(true);
     
     try {
-      const updatedUser = await graphqlService.updateUser(user.id, {
+      const updatedUser = await graphqlService.updateUser(token, user.id, {
         fullname: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-      }, token);
+      });
 
       if (updatedUser) {
         // Atualizar o contexto de autenticação com os novos dados
