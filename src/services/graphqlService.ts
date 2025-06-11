@@ -7,6 +7,13 @@ export interface User {
   phone?: string;
 }
 
+export interface Order {
+  id: string;
+  userId: string;
+  status: string;
+  createdAt: string;
+}
+
 export interface Result {
   id: string;
   calculated_result: string;
@@ -191,6 +198,24 @@ const QUERIES = {
       }
     }
   `,
+  CREATE_TEMP_ORDER: `
+    mutation ($orderId: uuid!, $userId: String!) {
+      insert_orders_one(object: {id: $orderId, userId: $userId, status: "temp"}) {
+        id
+        userId
+        status
+        createdAt
+      }
+    }
+  `,
+  CHECK_ORDER_EXISTS: `
+    query ($orderId: uuid!) {
+      orders_by_pk(id: $orderId) {
+        id
+        status
+      }
+    }
+  `,
 };
 
 // --- SERVIÇO EXPORTADO ---
@@ -251,6 +276,26 @@ export const graphqlService = {
   async getImagesByOrder(token: string, orderId: string): Promise<Image[]> {
     const data = await executeGraphQL(token, QUERIES.GET_IMAGES_BY_ORDER, { orderId });
     return data?.images ?? [];
+  },
+
+  async checkOrderExists(token: string, orderId: string): Promise<boolean> {
+    try {
+      const data = await executeGraphQL(token, QUERIES.CHECK_ORDER_EXISTS, { orderId });
+      return !!data?.orders_by_pk;
+    } catch (error) {
+      console.error('Erro ao verificar se ordem existe:', error);
+      return false;
+    }
+  },
+
+  async createTempOrder(token: string, orderId: string, userId: string): Promise<Order | null> {
+    try {
+      const data = await executeGraphQL(token, QUERIES.CREATE_TEMP_ORDER, { orderId, userId });
+      return data?.insert_orders_one ?? null;
+    } catch (error) {
+      console.error('Erro ao criar ordem temporária:', error);
+      return null;
+    }
   },
 
   getAdminConfig: async (token: string, id: string) => {

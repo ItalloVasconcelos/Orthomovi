@@ -15,7 +15,7 @@ export interface ImageUploadProgress {
 }
 
 export const useImageUpload = () => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { toast } = useToast();
   const [uploadProgress, setUploadProgress] = useState<ImageUploadProgress>({});
 
@@ -28,6 +28,10 @@ export const useImageUpload = () => {
       return { success: false, error: 'Token de autenticação não encontrado' };
     }
 
+    if (!user?.id) {
+      return { success: false, error: 'Usuário não autenticado' };
+    }
+
     const uploadKey = `${orderId}_${imageType}`;
     
     // Atualiza o progresso
@@ -37,7 +41,26 @@ export const useImageUpload = () => {
     }));
 
     try {
-      // 1. Upload para MinIO
+      // 1. Verifica se a ordem existe, se não existir, cria uma temporária
+      const orderExists = await graphqlService.checkOrderExists(token, orderId);
+      
+      if (!orderExists) {
+        console.log('useImageUpload: Ordem não existe, criando ordem temporária:', orderId);
+        const tempOrder = await graphqlService.createTempOrder(token, orderId, user.id);
+        
+        if (!tempOrder) {
+          throw new Error('Falha ao criar ordem temporária');
+        }
+        
+        console.log('useImageUpload: Ordem temporária criada com sucesso:', tempOrder);
+      }
+
+      setUploadProgress(prev => ({
+        ...prev,
+        [uploadKey]: { ...prev[uploadKey], progress: 25 }
+      }));
+
+      // 2. Upload para MinIO
       const uploadResult = await minioService.uploadImage(file, orderId, imageType);
       
       if (!uploadResult.success || !uploadResult.url) {
@@ -46,10 +69,10 @@ export const useImageUpload = () => {
 
       setUploadProgress(prev => ({
         ...prev,
-        [uploadKey]: { ...prev[uploadKey], progress: 50 }
+        [uploadKey]: { ...prev[uploadKey], progress: 75 }
       }));
 
-      // 2. Salva URL no Hasura
+      // 3. Salva URL no Hasura
       const imageRecord = await graphqlService.insertImage(token, orderId, uploadResult.url);
       
       if (!imageRecord) {

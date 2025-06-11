@@ -2,6 +2,7 @@
 import React from 'react';
 import { useImageUpload } from './useImageUpload';
 import { v4 as uuidv4 } from 'uuid';
+import { useAuth } from '@/contexts/AuthContext';
 
 export type PhotoStep = {
   id: string;
@@ -55,17 +56,19 @@ export function usePhotoWizard(orderId?: string) {
   const [calculating, setCalculating] = React.useState(false);
   const [measurements, setMeasurements] = React.useState<Record<string, number | null> | null>(null);
   const [sessionOrderId, setSessionOrderId] = React.useState<string | null>(null);
+  const [uploadErrors, setUploadErrors] = React.useState<Record<string, string | null>>({});
   
   const { uploadImage, uploadProgress } = useImageUpload();
+  const { isAuthenticated } = useAuth();
 
   // Gera um orderId temporário se não foi fornecido
   React.useEffect(() => {
-    if (!orderId && !sessionOrderId) {
+    if (!orderId && !sessionOrderId && isAuthenticated) {
       const tempOrderId = uuidv4();
       setSessionOrderId(tempOrderId);
       console.log('PhotoWizard: Gerando orderId temporário:', tempOrderId);
     }
-  }, [orderId, sessionOrderId]);
+  }, [orderId, sessionOrderId, isAuthenticated]);
 
   const effectiveOrderId = orderId || sessionOrderId;
 
@@ -85,11 +88,23 @@ export function usePhotoWizard(orderId?: string) {
   
   const savePhoto = async (letter: 'A' | 'B' | 'C' | 'D', file: File) => {
     if (!effectiveOrderId) {
-      console.error('PhotoWizard: Não foi possível determinar o orderId para salvar a foto');
+      const error = 'Não foi possível determinar o orderId para salvar a foto';
+      console.error('PhotoWizard:', error);
+      setUploadErrors(prev => ({ ...prev, [letter]: error }));
+      return;
+    }
+
+    if (!isAuthenticated) {
+      const error = 'Usuário não autenticado';
+      console.error('PhotoWizard:', error);
+      setUploadErrors(prev => ({ ...prev, [letter]: error }));
       return;
     }
     
     console.log("PhotoWizard: Salvando foto", { letter, orderId: effectiveOrderId });
+
+    // Limpa erro anterior
+    setUploadErrors(prev => ({ ...prev, [letter]: null }));
 
     try {
       const result = await uploadImage(file, effectiveOrderId, `foto_${letter}`);
@@ -101,10 +116,14 @@ export function usePhotoWizard(orderId?: string) {
         }));
         console.log(`PhotoWizard: Foto ${letter} salva com sucesso:`, result.url);
       } else {
-        console.error('PhotoWizard: Falha no upload:', result.error);
+        const error = result.error || 'Falha no upload';
+        console.error('PhotoWizard: Falha no upload:', error);
+        setUploadErrors(prev => ({ ...prev, [letter]: error }));
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao fazer upload da foto';
       console.error('PhotoWizard: Erro ao fazer upload da foto:', error);
+      setUploadErrors(prev => ({ ...prev, [letter]: errorMessage }));
     }
   };
   
@@ -113,6 +132,7 @@ export function usePhotoWizard(orderId?: string) {
       ...prev,
       [letter]: null
     }));
+    setUploadErrors(prev => ({ ...prev, [letter]: null }));
   };
   
   const calculateMeasurements = () => {
@@ -154,6 +174,7 @@ export function usePhotoWizard(orderId?: string) {
     });
     setMeasurements(null);
     setCalculating(false);
+    setUploadErrors({});
   };
 
   return {
@@ -163,6 +184,7 @@ export function usePhotoWizard(orderId?: string) {
     calculating,
     measurements,
     uploadProgress,
+    uploadErrors,
     effectiveOrderId,
     startWizard,
     nextStep,

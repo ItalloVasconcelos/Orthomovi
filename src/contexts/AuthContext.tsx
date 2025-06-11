@@ -39,13 +39,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (authenticated && keycloak.tokenParsed) {
         const tokenParsed = keycloak.tokenParsed as KeycloakTokenParsed;
-        const isAdmin = keycloak.hasResourceRole('app_admin', 'orthomovi');
 
         const userProfile: User = {
           id: tokenParsed.sub,
           fullname: tokenParsed.name || 'Usuário',
           email: tokenParsed.email || '',
-          role: isAdmin ? 'app_admin' : 'user',
         };
         setUser(userProfile);
 
