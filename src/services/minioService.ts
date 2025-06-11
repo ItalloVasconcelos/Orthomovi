@@ -30,19 +30,24 @@ export const minioService = {
     try {
       const timestamp = Date.now();
       const fileName = `orders/${orderId}/${imageType}_${timestamp}.${file.name.split('.').pop()}`;
-      
+
+      // Converte o File para ArrayBuffer para evitar problemas de stream no browser
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+
       const command = new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: fileName,
-        Body: file,
+        Body: uint8Array, // Usa Uint8Array ao invés do File diretamente
         ContentType: file.type,
+        ContentLength: file.size,
       });
 
       await s3Client.send(command);
-      
+
       // Constrói a URL pública da imagem
       const imageUrl = `${MINIO_ENDPOINT}/${BUCKET_NAME}/${fileName}`;
-      
+
       return {
         success: true,
         url: imageUrl,

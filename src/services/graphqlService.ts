@@ -10,8 +10,7 @@ export interface User {
 export interface Order {
   id: string;
   userId: string;
-  status: string;
-  createdAt: string;
+  created_at: string;
 }
 
 export interface Result {
@@ -200,11 +199,10 @@ const QUERIES = {
   `,
   CREATE_TEMP_ORDER: `
     mutation ($orderId: uuid!, $userId: String!) {
-      insert_orders_one(object: {id: $orderId, userId: $userId, status: "temp"}) {
+      insert_orders_one(object: {id: $orderId, userId: $userId}) {
         id
         userId
-        status
-        createdAt
+        created_at
       }
     }
   `,
@@ -212,7 +210,6 @@ const QUERIES = {
     query ($orderId: uuid!) {
       orders_by_pk(id: $orderId) {
         id
-        status
       }
     }
   `,
