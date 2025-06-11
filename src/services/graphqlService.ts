@@ -5,7 +5,6 @@ export interface User {
   fullname: string;
   email: string;
   phone?: string;
-  role?: 'app_admin' | 'user'; // interpretado na UI
 }
 
 export interface Result {
@@ -16,18 +15,22 @@ export interface Result {
   order: {
     id: string;
     user: {
+      email: string;
       id: string;
       fullname: string;
-      email?: string;
     };
+    images: {
+      id: string;
+      url: string;
+    }[];
   };
 }
 
 export interface Image {
   id: string;
-  orderID: string;
+  orderId: string;
   url: string;
-  created_at?: string;
+
 }
 
 export interface UpdateUserData {
@@ -61,14 +64,15 @@ const executeGraphQL = async (
     token: string,
     query: string,
     variables?: Record<string, any>,
-    role: 'user' | 'app_admin' = 'user'
+
 ): Promise<any> => {
   if (!token) throw new Error('Token de autenticação não fornecido.');
 
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
-    'X-Hasura-Role': role,
+    'X-Hasura-Role': 'app_admin'
+
   };
 
   try {
@@ -128,7 +132,6 @@ const QUERIES = {
           user {
             id
             fullname
-            email
           }
           images {
             id
@@ -170,21 +173,21 @@ const QUERIES = {
     }
   `,
   INSERT_IMAGE: `
-    mutation ($orderID: uuid!, $url: String!) {
-      insert_images_one(object: {orderID: $orderID, url: $url}) {
+    mutation ($orderId: uuid!, $url: String!) {
+      insert_images_one(object: {orderId: $orderId, url: $url}) {
         id
-        orderID
+        orderId
         url
-        created_at
+        
       }
     }
   `,
   GET_IMAGES_BY_ORDER: `
-    query ($orderID: uuid!) {
-      images(where: {orderID: {_eq: $orderID}}, order_by: {created_at: asc}) {
+    query ($orderId: uuid!) {
+      images(where: {orderId: {_eq: $orderId}}) {
         id
         url
-        created_at
+        
       }
     }
   `,
@@ -193,7 +196,7 @@ const QUERIES = {
 // --- SERVIÇO EXPORTADO ---
 export const graphqlService = {
   async getAllUsers(token: string): Promise<User[]> {
-    const data = await executeGraphQL(token, QUERIES.GET_ALL_USERS, {}, 'app_admin');
+    const data = await executeGraphQL(token, QUERIES.GET_ALL_USERS, {});
     return data?.users ?? [];
   },
 
@@ -201,17 +204,17 @@ export const graphqlService = {
     const data = await executeGraphQL(token, QUERIES.UPDATE_USER_BY_ID, {
       id: userId,
       data: userData,
-    }, 'app_admin');
+    });
     return data?.update_users_by_pk ?? null;
   },
 
   async getAllResults(token: string): Promise<Result[]> {
-    const data = await executeGraphQL(token, QUERIES.GET_ALL_RESULTS, {}, 'app_admin');
+    const data = await executeGraphQL(token, QUERIES.GET_ALL_RESULTS, {});
     return data?.results ?? [];
   },
 
   async getAdminData(token: string, adminId: string): Promise<{ config: CompanyConfig; admin: AdminContact }> {
-    const data = await executeGraphQL(token, QUERIES.GET_ADMIN_DATA, { adminId }, 'app_admin');
+    const data = await executeGraphQL(token, QUERIES.GET_ADMIN_DATA, { adminId });
     return {
       config: data?.company_config?.[0],
       admin: data?.users?.[0],
@@ -231,22 +234,22 @@ export const graphqlService = {
       adminId,
     };
 
-    const data = await executeGraphQL(token, QUERIES.UPDATE_COMPANY_CONFIG, payload, 'app_admin');
+    const data = await executeGraphQL(token, QUERIES.UPDATE_COMPANY_CONFIG, payload);
     return data?.update_company_config?.affected_rows > 0;
   },
 
   async updateResultStatus(token: string, resultId: string, status: string): Promise<{ id: string; status: string }> {
-    const data = await executeGraphQL(token, QUERIES.UPDATE_RESULT_STATUS, { id: resultId, status }, 'app_admin');
+    const data = await executeGraphQL(token, QUERIES.UPDATE_RESULT_STATUS, { id: resultId, status });
     return data?.update_results_by_pk;
   },
 
-  async insertImage(token: string, orderID: string, url: string): Promise<Image | null> {
-    const data = await executeGraphQL(token, QUERIES.INSERT_IMAGE, { orderID, url }, 'user');
+  async insertImage(token: string, orderId: string, url: string): Promise<Image | null> {
+    const data = await executeGraphQL(token, QUERIES.INSERT_IMAGE, { orderId, url });
     return data?.insert_images_one ?? null;
   },
 
-  async getImagesByOrder(token: string, orderID: string): Promise<Image[]> {
-    const data = await executeGraphQL(token, QUERIES.GET_IMAGES_BY_ORDER, { orderID }, 'user');
+  async getImagesByOrder(token: string, orderId: string): Promise<Image[]> {
+    const data = await executeGraphQL(token, QUERIES.GET_IMAGES_BY_ORDER, { orderId });
     return data?.images ?? [];
   },
 
@@ -254,7 +257,7 @@ export const graphqlService = {
     const response = await fetch("/api/admin-config", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });

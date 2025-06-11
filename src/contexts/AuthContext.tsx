@@ -86,8 +86,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const value = useMemo(() => ({
     isAuthenticated,
     user,
-    isAdmin: user?.role === 'app_admin',
-    token: keycloak.token,
+    isAdmin: keycloak.hasResourceRole('app_admin', 'orthomovi'),
+    token: keycloak.token ?? null,
     loading,
     login,
     logout,

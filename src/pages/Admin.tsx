@@ -48,8 +48,22 @@ const AdminPanel = () => {
     } else if (!authLoading) {
       setLoading(false);
     }
+    console.log('Token do admin', token)
+    console.log('isAdmin é:', isAdmin)
   }, [authLoading, token, isAdmin, toast]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log('Iniciando fetch dos resultados...');
+      const response = await graphqlService.getAllResults(token);
+      console.log('Response completa:', response);
+      setResults(response);
+    };
+
+    if (token && isAdmin && !loading) {
+      fetchData();
+    }
+  }, [token, isAdmin, loading]);
   const getStatusValue = (status: any): string => (Array.isArray(status) ? status[0] : status) || 'Análise';
 
   const getStatusBadge = (status: any): React.ReactNode => {

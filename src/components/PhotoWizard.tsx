@@ -7,7 +7,7 @@ import { CheckCircle, Camera, RefreshCw, ArrowRight } from 'lucide-react';
 import { usePhotoWizard, WizardStep } from '@/hooks/use-photo-wizard';
 
 // Definição de quais etapas mostrar com base no passo atual
-const WizardContent: React.FC = () => {
+const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
   const {
     currentStep,
     photoSteps,
@@ -21,7 +21,7 @@ const WizardContent: React.FC = () => {
     getCurrentPhotoStep,
     measurements,
     calculating
-  } = usePhotoWizard();
+  } = usePhotoWizard(orderId);
   
   // Refs para input de arquivo e preview
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +37,7 @@ const WizardContent: React.FC = () => {
         
         const letter = getCurrentLetter();
         if (letter) {
-          savePhoto(letter, file); // Pass the File object, not the URL string
+          savePhoto(letter, file,); // Pass the File object, not the URL string
         }
       };
       reader.readAsDataURL(file);
@@ -274,13 +274,14 @@ const WizardContent: React.FC = () => {
   }
 };
 
-export const PhotoWizard: React.FC = () => {
-  const { resetWizard } = usePhotoWizard();
+export const PhotoWizard: React.FC<{ orderId: string }> = ({ orderId }) => {
+  console.log('DEBUG 2 (PhotoWizard): Valor de "orderId" recebido como prop:', orderId);
+  const { resetWizard } = usePhotoWizard(orderId);
   const isMobile = useIsMobile();
   
   return (
     <div className={`w-full ${isMobile ? 'px-2' : 'container'} mx-auto`}>
-      <WizardContent />
+      <WizardContent orderId={orderId}/>
     </div>
   );
 };

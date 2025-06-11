@@ -72,9 +72,10 @@ export function usePhotoWizard(orderId?: string) {
   
   const savePhoto = async (letter: 'A' | 'B' | 'C' | 'D', file: File) => {
     if (!orderId) {
-      console.error('OrderId não fornecido para upload');
+      console.warn('Tentou salvar foto sem orderId');
       return;
     }
+    console.log("orderId no componente:", orderId);
 
     try {
       const result = await uploadImage(file, orderId, `foto_${letter}`);
