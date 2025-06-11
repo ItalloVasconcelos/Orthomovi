@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Phone, Save } from "lucide-react";
 import { graphqlService, User as UserType } from "@/services/graphqlService";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EditUserModalProps {
   user: UserType | null;
@@ -29,6 +30,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
 }) => {
   const { toast } = useToast();
   const { token } = useAuth();
+  const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullname: "",
@@ -83,7 +85,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-white">
+      <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh]' : 'max-w-md'} bg-white overflow-y-auto`}>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800">
             Editar Usuário
@@ -133,14 +135,18 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'justify-end space-x-4'}`}>
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className={isMobile ? 'w-full' : ''}
+            >
               Cancelar
             </Button>
             <Button 
               onClick={handleSave}
               disabled={isLoading}
-              className="bg-gradient-to-r from-brand-button-start to-brand-button-end hover:from-brand-button-start-dark hover:to-brand-button-end-dark h-12 px-6 text-white"
+              className={`${isMobile ? 'w-full' : ''} bg-gradient-to-r from-brand-button-start to-brand-button-end hover:from-brand-button-start-dark hover:to-brand-button-end-dark h-12 px-6 text-white`}
             >
               {isLoading ? (
                 <>

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Phone, Save } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { graphqlService } from "@/services/graphqlService";
 
 interface AccountSettingsModalProps {
@@ -25,6 +26,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
 }) => {
   const { toast } = useToast();
   const { user, updateUserData, token } = useAuth();
+  const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -87,7 +89,7 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-white">
+      <DialogContent className={`${isMobile ? 'max-w-[95vw] max-h-[90vh]' : 'max-w-md'} overflow-y-auto bg-white`}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-gray-800">
             Configurações da Conta
@@ -143,14 +145,18 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'justify-end space-x-4'}`}>
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              className={isMobile ? 'w-full' : ''}
+            >
               Cancelar
             </Button>
             <Button 
               onClick={handleSaveProfile}
               disabled={isLoading}
-              className="bg-brand-primary hover:bg-brand-primary-dark h-12 px-8"
+              className={`${isMobile ? 'w-full' : ''} bg-brand-primary hover:bg-brand-primary-dark h-12 px-8`}
             >
               {isLoading ? (
                 <>

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, MapPin, Phone, Mail, Heart, Users, Brain } from "lucide-react";
@@ -91,14 +92,16 @@ const Index = () => {
                 <p className="text-xl mb-8 leading-relaxed opacity-90">
                   Design exclusivo, com mais altura e largura, proporcionando um calce mais justo, favorecendo a marcha e o equilíbrio.
                 </p>
-                <Button 
-                  onClick={handleSolicitarTenis}
-                  className="h-2/4  text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                  style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
-                >
-                  Solicitar tênis sob medida
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
+                <div className="flex justify-center md:justify-start">
+                  <Button 
+                    onClick={handleSolicitarTenis}
+                    className="w-full sm:w-auto h-12 md:h-14 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                    style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
+                  >
+                    Solicitar tênis sob medida
+                    <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+                  </Button>
+                </div>
               </div>
               <div className="flex justify-center">
                 <div className="w-full max-w-md aspect-square  rounded-lg flex items-center justify-center">
@@ -208,11 +211,11 @@ const Index = () => {
             <div className="text-center mt-12">
               <Button 
                 onClick={handleSolicitarTenis}
-                className="h-2/4  text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto h-12 md:h-14 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
               >
                 Solicitar tênis sob medida
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
               </Button>
             </div>
           </div>
@@ -256,14 +259,14 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="text-left mt-8">
+            <div className="text-center md:text-left mt-8">
               <Button 
                 onClick={handleSolicitarTenis}
-                className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto h-12 md:h-14 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
               >
                 Solicitar tênis sob medida
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
               </Button>
             </div>
           </div>
@@ -310,11 +313,11 @@ const Index = () => {
             <div className="text-center mt-12">
               <Button
                   onClick={handleSolicitarTenis}
-                  className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="w-full sm:w-auto h-12 md:h-14 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                 style={{ background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)' }}
               >
                 Solicitar tênis sob medida
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
               </Button>
             </div>
           </div>
@@ -374,14 +377,14 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="mt-12">
+            <div className="mt-12 text-center md:text-left">
               <Button
                   onClick={handleSolicitarTenis}
-                  className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="w-full sm:w-auto h-12 md:h-14 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                   style={{background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)'}}
               >
                 Solicitar tênis sob medida
-                <ArrowRight className="ml-2 w-5 h-5"/>
+                <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5"/>
               </Button>
             </div>
           </div>
@@ -403,31 +406,31 @@ const Index = () => {
         <section className="py-20 px-4 bg-white">
           <div className="container mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-text mb-6">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-heading font-bold text-brand-text mb-6">
                 Localização da nossa Fábrica
               </h2>
               <div className="max-w-2xl mx-auto">
-                <div className="bg-gradient-to-r from-orange-100 to-orange-50 p-8 rounded-xl shadow-sm">
-                  <MapPin className="w-12 h-12 text-orange-600 mx-auto mb-4" />
-                  <p className="text-xl text-brand-text mb-6 font-medium">
+                <div className="bg-gradient-to-r from-orange-100 to-orange-50 p-4 md:p-8 rounded-xl shadow-sm">
+                  <MapPin className="w-8 h-8 md:w-12 md:h-12 text-orange-600 mx-auto mb-4" />
+                  <p className="text-lg md:text-xl text-brand-text mb-6 font-medium leading-relaxed">
                     Estamos localizados na Rua João Freire de Araújo 245, na cidade de Juazeiro do Norte, no Ceará.
                   </p>
-                  <div className="flex items-center justify-center space-x-6 text-brand-text-light mb-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 text-brand-text-light mb-6">
                     <div className="flex items-center">
-                      <Phone className="w-5 h-5 mr-2" />
-                      <span>(88) 9.9646-18819</span>
+                      <Phone className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                      <span className="text-sm md:text-base">(88) 9.9646-18819</span>
                     </div>
                     <div className="flex items-center">
-                      <Mail className="w-5 h-5 mr-2" />
-                      <span>contato@orthomovi.com</span>
+                      <Mail className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                      <span className="text-sm md:text-base">contato@orthomovi.com</span>
                     </div>
                   </div>
                   <Button 
                     onClick={handleVerLocalizacao}
-                    className="h-2/4 text-lg px-8 py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="w-full sm:w-auto h-12 md:h-14 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                     style={{background: 'linear-gradient(135deg, #0469D7 0%, #022180 100%)'}}
                   >
-                    <MapPin className="mr-2 w-5 h-5" />
+                    <MapPin className="mr-2 w-4 h-4 md:w-5 md:h-5" />
                     Ver localização no mapa
                   </Button>
                 </div>
