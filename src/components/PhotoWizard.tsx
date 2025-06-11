@@ -12,6 +12,7 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
     currentStep,
     photoSteps,
     photos,
+    effectiveOrderId,
     startWizard,
     nextStep,
     savePhoto,
@@ -30,6 +31,12 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      console.log('PhotoWizard: Arquivo selecionado:', { 
+        fileName: file.name, 
+        fileSize: file.size, 
+        orderId: effectiveOrderId 
+      });
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         const photoUrl = reader.result as string;
@@ -37,7 +44,10 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
         
         const letter = getCurrentLetter();
         if (letter) {
-          savePhoto(letter, file,); // Pass the File object, not the URL string
+          console.log('PhotoWizard: Iniciando upload da foto', { letter, orderId: effectiveOrderId });
+          savePhoto(letter, file);
+        } else {
+          console.error('PhotoWizard: Não foi possível determinar a letra da foto atual');
         }
       };
       reader.readAsDataURL(file);
@@ -61,6 +71,15 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
       setPreviewImage(null);
     }
   };
+
+  // Debug log para verificar se o orderId está sendo passado
+  React.useEffect(() => {
+    console.log('PhotoWizard: Props e estado atual:', { 
+      propOrderId: orderId, 
+      effectiveOrderId,
+      currentStep 
+    });
+  }, [orderId, effectiveOrderId, currentStep]);
   
   switch (currentStep) {
     // Tela inicial - Instruções
@@ -95,6 +114,12 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
                 </div>
               ))}
             </div>
+            
+            {effectiveOrderId && (
+              <div className="text-xs text-center text-gray-500 mt-4">
+                ID da sessão: {effectiveOrderId.slice(0, 8)}...
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex justify-center pt-4">
             <Button 
@@ -274,8 +299,8 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
   }
 };
 
-export const PhotoWizard: React.FC<{ orderId: string }> = ({ orderId }) => {
-  console.log('DEBUG 2 (PhotoWizard): Valor de "orderId" recebido como prop:', orderId);
+export const PhotoWizard: React.FC<{ orderId?: string }> = ({ orderId }) => {
+  console.log('PhotoWizard: Componente renderizado com orderId:', orderId);
   const { resetWizard } = usePhotoWizard(orderId);
   const isMobile = useIsMobile();
   

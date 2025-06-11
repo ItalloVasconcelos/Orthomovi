@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useImageUpload } from './useImageUpload';
+import { v4 as uuidv4 } from 'uuid';
 
 export type PhotoStep = {
   id: string;
@@ -53,8 +54,20 @@ export function usePhotoWizard(orderId?: string) {
   });
   const [calculating, setCalculating] = React.useState(false);
   const [measurements, setMeasurements] = React.useState<Record<string, number | null> | null>(null);
+  const [sessionOrderId, setSessionOrderId] = React.useState<string | null>(null);
   
   const { uploadImage, uploadProgress } = useImageUpload();
+
+  // Gera um orderId temporário se não foi fornecido
+  React.useEffect(() => {
+    if (!orderId && !sessionOrderId) {
+      const tempOrderId = uuidv4();
+      setSessionOrderId(tempOrderId);
+      console.log('PhotoWizard: Gerando orderId temporário:', tempOrderId);
+    }
+  }, [orderId, sessionOrderId]);
+
+  const effectiveOrderId = orderId || sessionOrderId;
 
   const startWizard = () => setCurrentStep(1);
   
@@ -71,23 +84,27 @@ export function usePhotoWizard(orderId?: string) {
   };
   
   const savePhoto = async (letter: 'A' | 'B' | 'C' | 'D', file: File) => {
-    if (!orderId) {
-      console.warn('Tentou salvar foto sem orderId');
+    if (!effectiveOrderId) {
+      console.error('PhotoWizard: Não foi possível determinar o orderId para salvar a foto');
       return;
     }
-    console.log("orderId no componente:", orderId);
+    
+    console.log("PhotoWizard: Salvando foto", { letter, orderId: effectiveOrderId });
 
     try {
-      const result = await uploadImage(file, orderId, `foto_${letter}`);
+      const result = await uploadImage(file, effectiveOrderId, `foto_${letter}`);
       
       if (result.success && result.url) {
         setPhotos(prev => ({
           ...prev,
           [letter]: result.url!
         }));
+        console.log(`PhotoWizard: Foto ${letter} salva com sucesso:`, result.url);
+      } else {
+        console.error('PhotoWizard: Falha no upload:', result.error);
       }
     } catch (error) {
-      console.error('Erro ao fazer upload da foto:', error);
+      console.error('PhotoWizard: Erro ao fazer upload da foto:', error);
     }
   };
   
@@ -146,6 +163,7 @@ export function usePhotoWizard(orderId?: string) {
     calculating,
     measurements,
     uploadProgress,
+    effectiveOrderId,
     startWizard,
     nextStep,
     prevStep,
