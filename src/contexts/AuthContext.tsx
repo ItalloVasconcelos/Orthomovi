@@ -51,6 +51,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         keycloakSyncService.syncUserWithDatabase().catch(err => {
           console.error("AuthProvider: Sincronização em segundo plano falhou.", err);
         });
+
+        // Redirecionar usuários comuns para /home após login bem-sucedido
+        const isAdmin = keycloak.hasResourceRole('app_admin', 'orthomovi');
+        if (!isAdmin && window.location.pathname === '/') {
+          window.location.href = '/home';
+        }
       } else {
         setUser(null);
       }
@@ -92,6 +98,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     updateUserData,
   }), [isAuthenticated, user, keycloak.token, loading, login, logout, updateUserData]);
 
-  // Os filhos são renderizados pelo KeycloakProvider, aqui só passamos o contexto
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

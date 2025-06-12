@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle, MapPin, Phone, Mail, Heart, Users, Brain } from "lucide-react";
@@ -13,6 +12,7 @@ import {
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
+import keycloak from "@/services/keycloak";
 
 const Index = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -25,12 +25,8 @@ const Index = () => {
     if (isAuthenticated) {
       navigate('/home');
     } else {
-      navigate('/https://orthomovi-keycloak.t2wird.easypanel.host/realms/master/protocol/openid-connect/auth\n'+
-          '?client_id=orthomovi\n'+
-          '&redirect_uri=https://orthomovi-frontend.t2wird.easypanel.host/\n'+
-          '&response_type=code\n'+
-          '&scope=openid\n'+
-          '&state=random123');
+      // Usar a função login do keycloak
+      keycloak.login();
     }
   };
 

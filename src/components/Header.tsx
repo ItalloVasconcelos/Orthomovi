@@ -1,16 +1,22 @@
-// src/components/Header.tsx
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { UserDropdown } from "@/components/UserDropdown";
 import { useAuth } from "@/contexts/AuthContext";
+import keycloak from "@/services/keycloak";
 
 export const Header = () => {
-  // Pegamos a função 'login' correta do nosso novo contexto.
-  // O 'loading' não é mais necessário aqui, pois o KeycloakProvider já cuida disso.
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated } = useAuth();
   const location = useLocation();
+
+  const handleLogin = () => {
+    keycloak.login();
+  };
+
+  const handleRegister = () => {
+    keycloak.register();
+  };
 
   return (
       <header className="bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
@@ -38,13 +44,13 @@ export const Header = () => {
                     <Button
                         variant="ghost"
                         className="text-brand-text hover:text-brand-primary"
-                        onClick={login} // <<< CORRIGIDO
+                        onClick={handleLogin}
                     >
                       Login
                     </Button>
                     <Button
                         className="btn-primary"
-                        onClick={login} // <<< CORRIGIDO
+                        onClick={handleRegister}
                     >
                       Cadastre-se
                     </Button>

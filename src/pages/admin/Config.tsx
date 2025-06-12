@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Users, Settings, Save, FileText } from "lucide-react";
@@ -30,12 +31,12 @@ const AdminConfigPage = () => {
       const fetchConfigData = async () => {
         setIsLoadingData(true);
         try {
-          const { company, contact } = await graphqlService.getAdminConfig(token, user.id);
+          const data = await graphqlService.getAdminConfig(token, user.id);
           setFormData({
-            company_name: company?.company_name || "",
-            email: contact?.email || "",
-            phone: contact?.phone || "",
-            cnpj: company?.cnpj || ""
+            company_name: data.config?.company_name || "",
+            email: data.admin?.email || "",
+            phone: data.admin?.phone || "",
+            cnpj: data.config?.cnpj || ""
           });
         } catch (error) {
           console.error('Erro ao carregar configurações:', error);
@@ -106,22 +107,22 @@ const AdminConfigPage = () => {
                             <div>
                               <h3 className="text-base font-medium mb-3">Informações da Empresa</h3>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label htmlFor="company-name">Nome da Empresa</Label><Input id="company-name" value={formData.company_name} onChange={(e) => handleInputChange('company_name', e.target.value)} /></div>
-                                <div className="space-y-2"><Label htmlFor="company-cnpj">CNPJ</Label><Input id="company-cnpj" value={formData.cnpj} onChange={(e) => handleInputChange('cnpj', e.target.value)} /></div>
+                                <div className="space-y-2"><Label htmlFor="company-name">Nome da Empresa</Label><Input id="company-name" value={formData.company_name || ""} onChange={(e) => handleInputChange('company_name', e.target.value)} /></div>
+                                <div className="space-y-2"><Label htmlFor="company-cnpj">CNPJ</Label><Input id="company-cnpj" value={formData.cnpj || ""} onChange={(e) => handleInputChange('cnpj', e.target.value)} /></div>
                               </div>
                             </div>
                             <Separator />
                             <div>
                               <h3 className="text-base font-medium mb-3">Contato Administrativo</h3>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label htmlFor="contact-email">Email de Contato</Label><Input id="contact-email" value={formData.email} onChange={(e) => handleInputChange('email', e.target.value)} /></div>
-                                <div className="space-y-2"><Label htmlFor="contact-phone">Telefone</Label><Input id="contact-phone" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} /></div>
+                                <div className="space-y-2"><Label htmlFor="contact-email">Email de Contato</Label><Input id="contact-email" value={formData.email || ""} onChange={(e) => handleInputChange('email', e.target.value)} /></div>
+                                <div className="space-y-2"><Label htmlFor="contact-phone">Telefone</Label><Input id="contact-phone" value={formData.phone || ""} onChange={(e) => handleInputChange('phone', e.target.value)} /></div>
                               </div>
                             </div>
                           </>
                       )}
                 </CardContent>
-                <CardFooter className="flex justify-end pt-4 border-t"><Button onClick={handleSaveSettings} disabled={isLoading}>{isLoading ? 'Salvando...' : 'Salvar Alterações'}</Button></CardFooter>
+                <CardFooter className="flex justify-end pt-4 border-t"><Button onClick={handleSaveSettings} disabled={isLoading || isLoadingData}>{isLoading ? 'Salvando...' : 'Salvar Alterações'}</Button></CardFooter>
               </Card>
             </div>
           </div>
