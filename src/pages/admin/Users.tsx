@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { UserDropdown } from "@/components/UserDropdown";
 import { InactivateUserModal } from "@/components/admin/InactivateUserModal";
 import { EditUserModal } from "@/components/admin/EditUserModal";
+import { AdminMobileMenu } from "@/components/admin/AdminMobileMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { graphqlService, User, UpdateUserData } from "@/services/graphqlService";
 import { useAuth } from "@/contexts/AuthContext";
@@ -103,15 +104,18 @@ const AdminUsersPage = () => {
        <Header />
 
         <div className="container mx-auto py-4 px-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem><BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink></BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem><BreadcrumbPage>Usuários</BreadcrumbPage></BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <div className="flex items-center justify-between">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbPage>Usuários</BreadcrumbPage></BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            {isMobile && <AdminMobileMenu />}
+          </div>
         </div>
 
         <main className="flex-grow container mx-auto px-4 py-6">

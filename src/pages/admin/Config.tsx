@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Users, Settings, Save, FileText } from "lucide-react";
@@ -10,6 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { UserDropdown } from "@/components/UserDropdown";
+import { AdminMobileMenu } from "@/components/admin/AdminMobileMenu";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { graphqlService, UpdateCompanyConfigData } from "@/services/graphqlService";
 import { useAuth } from "@/contexts/AuthContext";
 import {Header} from "@/components/Header.tsx";
@@ -18,6 +19,7 @@ import {Footer} from "@/components/Footer.tsx";
 const AdminConfigPage = () => {
   const { toast } = useToast();
   const { token, user, loading: authLoading, isAdmin } = useAuth();
+  const isMobile = useIsMobile();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -89,15 +91,28 @@ const AdminConfigPage = () => {
       <div className="min-h-screen flex flex-col bg-brand-bg">
         <Header />
         <div className="container mx-auto py-4 px-4">
-          <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>Configurações</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb>
+          <div className="flex items-center justify-between">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbPage>Configurações</BreadcrumbPage></BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            {isMobile && <AdminMobileMenu />}
+          </div>
         </div>
         <main className="flex-grow container mx-auto px-4 py-6">
           <div className="mb-8"><h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Configurações do Sistema</h1><p className="text-brand-text-light">Configure os parâmetros gerais da plataforma</p></div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="md:col-span-1">
-              <Card className="shadow-md"><CardHeader className="bg-brand-bg-beige pb-2"><CardTitle className="text-lg">Menu</CardTitle></CardHeader><CardContent className="p-0"><nav className="flex flex-col"><Link to="/admin" className="flex items-center px-4 py-3 hover:bg-gray-50"><FileText className="mr-2 text-gray-500" size={18} /><span>Pedidos</span></Link><Link to="/admin/users" className="flex items-center px-4 py-3 hover:bg-gray-50"><Users className="mr-2 text-gray-500" size={18} /><span>Usuários</span></Link><Link to="/admin/config" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent"><Settings className="mr-2 text-brand-accent" size={18} /><span>Configurações</span></Link></nav></CardContent></Card>
-            </div>
-            <div className="md:col-span-3">
+          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-4'} gap-6`}>
+            {!isMobile && (
+              <div className="md:col-span-1">
+                <Card className="shadow-md"><CardHeader className="bg-brand-bg-beige pb-2"><CardTitle className="text-lg">Menu</CardTitle></CardHeader><CardContent className="p-0"><nav className="flex flex-col"><Link to="/admin" className="flex items-center px-4 py-3 hover:bg-gray-50"><FileText className="mr-2 text-gray-500" size={18} /><span>Pedidos</span></Link><Link to="/admin/users" className="flex items-center px-4 py-3 hover:bg-gray-50"><Users className="mr-2 text-gray-500" size={18} /><span>Usuários</span></Link><Link to="/admin/config" className="flex items-center px-4 py-3 bg-brand-accent/10 border-l-4 border-brand-accent"><Settings className="mr-2 text-brand-accent" size={18} /><span>Configurações</span></Link></nav></CardContent></Card>
+              </div>
+            )}
+            <div className={isMobile ? 'col-span-1' : 'md:col-span-3'}>
               <Card className="shadow-md">
                 <CardHeader className="bg-brand-bg-beige pb-2"><CardTitle className="text-lg">Configurações Gerais</CardTitle></CardHeader>
                 <CardContent className="pt-6 space-y-6">

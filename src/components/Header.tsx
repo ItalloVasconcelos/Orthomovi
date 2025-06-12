@@ -19,40 +19,43 @@ export const Header = () => {
   };
 
   return (
-      <header className="bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2">
+    <header className="bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-12 md:h-16">
+          <Link to="/" className="flex items-center space-x-2">
             <span className="text-xl font-heading font-bold">
-              <img src="/img/logo.svg" alt="Logomarca Orthomovi" width="100%"/>
+              <img 
+                src="/img/logo.svg" 
+                alt="Logomarca Orthomovi" 
+                className="h-8 md:h-10 w-auto max-w-[120px] md:max-w-none"
+              />
             </span>
-            </Link>
+          </Link>
 
-
-
-            <div className="flex items-center space-x-4">
-              {isAuthenticated ? (
-                  <UserDropdown />
-              ) : (
-                  <div className="flex items-center space-x-3">
-                    <Button
-                        variant="ghost"
-                        className="text-brand-text hover:text-brand-primary"
-                        onClick={handleLogin}
-                    >
-                      Login
-                    </Button>
-                    <Button
-                        className="btn-primary"
-                        onClick={handleRegister}
-                    >
-                      Cadastre-se
-                    </Button>
-                  </div>
-              )}
-            </div>
+          <div className="flex items-center space-x-2 md:space-x-4">
+            {isAuthenticated ? (
+              <UserDropdown />
+            ) : (
+              <div className="flex items-center space-x-2 md:space-x-3">
+                <Button
+                  variant="ghost"
+                  className="text-brand-text hover:text-brand-primary text-sm md:text-base px-2 md:px-4"
+                  onClick={handleLogin}
+                >
+                  Login
+                </Button>
+                <Button
+                  className="btn-primary text-sm md:text-base px-3 md:px-4 py-1 md:py-2"
+                  onClick={handleRegister}
+                >
+                  <span className="hidden sm:inline">Cadastre-se</span>
+                  <span className="sm:hidden">Cadastro</span>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
-      </header>
+      </div>
+    </header>
   );
 };

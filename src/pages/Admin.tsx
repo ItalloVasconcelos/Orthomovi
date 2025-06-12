@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { UserDropdown } from "@/components/UserDropdown";
 import { ClientDetailsModal } from "@/components/admin/ClientDetailsModal";
+import { AdminMobileMenu } from "@/components/admin/AdminMobileMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { graphqlService, Result } from "@/services/graphqlService";
 import { formatDate } from "@/utils/dateUtils";
@@ -130,13 +131,16 @@ const AdminPanel = () => {
        <Header />
 
         <div className="container mx-auto py-4 px-4">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem><BreadcrumbPage>Painel Administrativo</BreadcrumbPage></BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <div className="flex items-center justify-between">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbPage>Painel Administrativo</BreadcrumbPage></BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+            {isMobile && <AdminMobileMenu />}
+          </div>
         </div>
 
         <main className="flex-grow container mx-auto px-4 py-6">
