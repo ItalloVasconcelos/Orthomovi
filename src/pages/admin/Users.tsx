@@ -80,11 +80,6 @@ const AdminUsersPage = () => {
             <p className="text-sm text-gray-600">{user.email}</p>
             <p className="text-sm text-gray-600">{user.phone || '-'}</p>
           </div>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            user.role === 'app_admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-          }`}>
-            {user.role === 'app_admin' ? 'Admin' : 'Usuário'}
-          </span>
         </div>
         <div className="flex justify-end space-x-2 mt-3">
           <Button variant="outline" size="sm" onClick={() => setEditingUser(user)} title="Editar no App">
@@ -208,13 +203,6 @@ const AdminUsersPage = () => {
                                     <TableCell className="font-medium">{user.fullname}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.phone || '-'}</TableCell>
-                                    <TableCell>
-                                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        user.role === 'app_admin' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                                      }`}>
-                                        {user.role === 'app_admin' ? 'Admin' : 'Usuário'}
-                                      </span>
-                                    </TableCell>
                                     <TableCell className="text-right">
                                       <div className="flex justify-end space-x-2">
                                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setEditingUser(user)} title="Editar no App">

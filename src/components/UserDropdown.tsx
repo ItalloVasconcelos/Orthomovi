@@ -34,7 +34,7 @@ export const UserDropdown = () => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="flex items-center space-x-2">
             <User size={20} />
-            <span className="hidden md:block">{user?.fullname || 'Usuário'}</span>
+            <span className="hidden md:block">{user.fullname || 'Usuário'}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">

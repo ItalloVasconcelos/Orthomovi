@@ -28,13 +28,7 @@ export const Header = () => {
             </span>
             </Link>
 
-            {!isAuthenticated && location.pathname === "/" && (
-                <nav className="hidden md:flex items-center space-x-8">
-                  <a href="#como-funciona" className="text-brand-text-light hover:text-brand-primary transition-colors">Como Funciona</a>
-                  <a href="#beneficios" className="text-brand-text-light hover:text-brand-primary transition-colors">Benefícios</a>
-                  <a href="#contato" className="text-brand-text-light hover:text-brand-primary transition-colors">Contato</a>
-                </nav>
-            )}
+
 
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
