@@ -161,7 +161,7 @@ const QUERIES = {
   `,
   GET_ADMIN_DATA: `
     query ($adminId: String!) {
-      company_config(limit: 1) {
+      admin(limit: 1) {
         company_name
         cnpj
       }
@@ -172,9 +172,9 @@ const QUERIES = {
       }
     }
   `,
-  UPDATE_COMPANY_CONFIG: `
-    mutation ($companyData: company_config_set_input!, $contactData: users_set_input!, $adminId: String!) {
-      update_company_config(where: {}, _set: $companyData) {
+  UPDATE_ADMIN: `
+    mutation ($companyData: admin_set_input!, $contactData: users_set_input!, $adminId: String!) {
+      update_admin(where: {}, _set: $companyData) {
         affected_rows
       }
       update_users(where: {id: {_eq: $adminId}}, _set: $contactData) {
@@ -284,7 +284,7 @@ export const graphqlService = {
   async getAdminData(token: string, adminId: string): Promise<{ config: CompanyConfig; admin: AdminContact }> {
     const data = await executeGraphQL(token, QUERIES.GET_ADMIN_DATA, { adminId });
     return {
-      config: data?.company_config?.[0],
+      config: data?.admin?.[0],
       admin: data?.users?.[0],
     };
   },
@@ -302,7 +302,7 @@ export const graphqlService = {
       adminId,
     };
 
-    const data = await executeGraphQL(token, QUERIES.UPDATE_COMPANY_CONFIG, payload);
+    const data = await executeGraphQL(token, QUERIES.UPDATE_ADMIN, payload);
     return data?.update_company_config?.affected_rows > 0;
   },
 
