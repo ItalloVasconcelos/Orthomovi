@@ -147,7 +147,7 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   const openImageInNewTab = (imageUrl: string) => {
     // Remove o endpoint do MinIO da URL e reconstrói uma URL pública
     const cleanUrl = imageUrl.replace('https://orthomovi-minio.t2wird.easypanel.host/', '');
-    const publicUrl = `https://orthomovi-minio.t2wird.easypanel.host/orthomovi/${cleanUrl}`;
+    const publicUrl = `https://orthomovi-minio.t2wird.easypanel.host/${cleanUrl}`;
     window.open(publicUrl, '_blank');
   };
 

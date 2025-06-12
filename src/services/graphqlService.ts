@@ -165,7 +165,7 @@ const QUERIES = {
         company_name
         cnpj
       }
-      users(where: {id: {_eq: $adminId}}) {
+      user(where: {id: {_eq: $adminId}}) {
         email
         phone
         fullname
@@ -177,7 +177,7 @@ const QUERIES = {
       update_company_config(where: {}, _set: $companyData) {
         affected_rows
       }
-      update_users(where: {id: {_eq: $adminId}}, _set: $contactData) {
+      update_user(where: {id: {_eq: $adminId}}, _set: $contactData) {
         affected_rows
       }
     }
@@ -194,10 +194,7 @@ const QUERIES = {
     mutation ($id: uuid!, $data: results_set_input!) {
       update_results_by_pk(pk_columns: {id: $id}, _set: $data) {
         id
-        medida_a
-        medida_b
-        medida_c
-        medida_d
+       
       }
     }
   `,
@@ -378,6 +375,7 @@ export const graphqlService = {
       headers: {
         'Authorization': `Bearer ${token}`,
         "Content-Type": "application/json",
+        'x-hasura-role': 'app_admin'
       },
     });
 
