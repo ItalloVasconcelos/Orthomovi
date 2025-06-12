@@ -18,6 +18,10 @@ export interface Result {
   calculated_result: string;
   date: string;
   status: string;
+  medida_a?: number;
+  medida_b?: number;
+  medida_c?: number;
+  medida_d?: number;
   order: {
     id: string;
     user: {
@@ -36,7 +40,6 @@ export interface Image {
   id: string;
   orderId: string;
   url: string;
-
 }
 
 export interface UpdateUserData {
@@ -63,6 +66,13 @@ export interface UpdateCompanyConfigData {
   phone?: string;
 }
 
+export interface UpdateResultMeasurementsData {
+  medida_a?: number;
+  medida_b?: number;
+  medida_c?: number;
+  medida_d?: number;
+}
+
 // --- ENGINE DE EXECUÇÃO ---
 const API_URL = 'https://orthomovi-hasura.t2wird.easypanel.host/v1/graphql';
 
@@ -70,7 +80,6 @@ const executeGraphQL = async (
     token: string,
     query: string,
     variables?: Record<string, any>,
-
 ): Promise<any> => {
   if (!token) throw new Error('Token de autenticação não fornecido.');
 
@@ -78,7 +87,6 @@ const executeGraphQL = async (
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
     'X-Hasura-Role': 'app_admin'
-
   };
 
   try {
@@ -133,6 +141,10 @@ const QUERIES = {
         calculated_result
         date
         status
+        medida_a
+        medida_b
+        medida_c
+        medida_d
         order {
           id
           user {
@@ -178,13 +190,23 @@ const QUERIES = {
       }
     }
   `,
+  UPDATE_RESULT_MEASUREMENTS: `
+    mutation ($id: uuid!, $data: results_set_input!) {
+      update_results_by_pk(pk_columns: {id: $id}, _set: $data) {
+        id
+        medida_a
+        medida_b
+        medida_c
+        medida_d
+      }
+    }
+  `,
   INSERT_IMAGE: `
     mutation ($orderId: uuid!, $url: String!) {
       insert_images_one(object: {orderId: $orderId, url: $url}) {
         id
         orderId
         url
-        
       }
     }
   `,
@@ -193,7 +215,6 @@ const QUERIES = {
       images(where: {orderId: {_eq: $orderId}}) {
         id
         url
-        
       }
     }
   `,
@@ -213,6 +234,31 @@ const QUERIES = {
       }
     }
   `,
+  CREATE_RESULT_FOR_ORDER: `
+    mutation ($orderId: uuid!, $calculatedResult: String!) {
+      insert_results_one(object: {
+        order_id: $orderId,
+        calculated_result: $calculatedResult,
+        date: "now()",
+        status: "Análise"
+      }) {
+        id
+        calculated_result
+        date
+        status
+      }
+    }
+  `,
+  GET_RESULT_BY_ORDER: `
+    query ($orderId: uuid!) {
+      results(where: {order_id: {_eq: $orderId}}, limit: 1) {
+        id
+        calculated_result
+        date
+        status
+      }
+    }
+  `
 };
 
 // --- SERVIÇO EXPORTADO ---
@@ -265,6 +311,14 @@ export const graphqlService = {
     return data?.update_results_by_pk;
   },
 
+  async updateResultMeasurements(token: string, resultId: string, measurements: UpdateResultMeasurementsData): Promise<Result | null> {
+    const data = await executeGraphQL(token, QUERIES.UPDATE_RESULT_MEASUREMENTS, { 
+      id: resultId, 
+      data: measurements 
+    });
+    return data?.update_results_by_pk;
+  },
+
   async insertImage(token: string, orderId: string, url: string): Promise<Image | null> {
     const data = await executeGraphQL(token, QUERIES.INSERT_IMAGE, { orderId, url });
     return data?.insert_images_one ?? null;
@@ -291,6 +345,29 @@ export const graphqlService = {
       return data?.insert_orders_one ?? null;
     } catch (error) {
       console.error('Erro ao criar ordem temporária:', error);
+      return null;
+    }
+  },
+
+  async createResultForOrder(token: string, orderId: string, calculatedResult: string): Promise<Result | null> {
+    try {
+      const data = await executeGraphQL(token, QUERIES.CREATE_RESULT_FOR_ORDER, { 
+        orderId, 
+        calculatedResult 
+      });
+      return data?.insert_results_one ?? null;
+    } catch (error) {
+      console.error('Erro ao criar result para ordem:', error);
+      return null;
+    }
+  },
+
+  async getResultByOrder(token: string, orderId: string): Promise<Result | null> {
+    try {
+      const data = await executeGraphQL(token, QUERIES.GET_RESULT_BY_ORDER, { orderId });
+      return data?.results?.[0] ?? null;
+    } catch (error) {
+      console.error('Erro ao buscar result por ordem:', error);
       return null;
     }
   },

@@ -69,7 +69,7 @@ export const useImageUpload = () => {
 
       setUploadProgress(prev => ({
         ...prev,
-        [uploadKey]: { ...prev[uploadKey], progress: 75 }
+        [uploadKey]: { ...prev[uploadKey], progress: 50 }
       }));
 
       // 3. Salva URL no Hasura
@@ -77,6 +77,32 @@ export const useImageUpload = () => {
       
       if (!imageRecord) {
         throw new Error('Falha ao salvar imagem no banco de dados');
+      }
+
+      setUploadProgress(prev => ({
+        ...prev,
+        [uploadKey]: { ...prev[uploadKey], progress: 75 }
+      }));
+
+      // 4. Verifica se já existe um result para esta ordem, se não existir, cria um
+      let existingResult = await graphqlService.getResultByOrder(token, orderId);
+      
+      if (!existingResult) {
+        console.log('useImageUpload: Criando result para ordem:', orderId);
+        // Gera um número calculado temporário
+        const calculatedResult = Math.floor(Math.random() * 100) + 1;
+        
+        const newResult = await graphqlService.createResultForOrder(
+          token, 
+          orderId, 
+          calculatedResult.toString()
+        );
+        
+        if (newResult) {
+          console.log('useImageUpload: Result criado com sucesso:', newResult);
+        } else {
+          console.warn('useImageUpload: Falha ao criar result, mas continuando...');
+        }
       }
 
       setUploadProgress(prev => ({

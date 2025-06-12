@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Save, Edit3 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -16,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Result, Image, graphqlService } from "@/services/graphqlService";
+import { Result, Image, graphqlService, UpdateResultMeasurementsData } from "@/services/graphqlService";
 import { formatDate } from "@/utils/dateUtils";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,6 +39,13 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   const { token } = useAuth();
   const [images, setImages] = useState<Image[]>([]);
   const [loadingImages, setLoadingImages] = useState(false);
+  const [editingMeasurements, setEditingMeasurements] = useState(false);
+  const [measurements, setMeasurements] = useState({
+    medida_a: 0,
+    medida_b: 0,
+    medida_c: 0,
+    medida_d: 0,
+  });
 
   useEffect(() => {
     if (result && token && isOpen) {
@@ -54,6 +62,14 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
       };
       
       fetchImages();
+
+      // Inicializa as medidas com os valores do result
+      setMeasurements({
+        medida_a: result.medida_a || 0,
+        medida_b: result.medida_b || 0,
+        medida_c: result.medida_c || 0,
+        medida_d: result.medida_d || 0,
+      });
     }
   }, [result, token, isOpen]);
 
@@ -83,6 +99,69 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
       });
     }
   };
+
+  const handleSaveMeasurements = async () => {
+    if (!token) return;
+
+    try {
+      const measurementsData: UpdateResultMeasurementsData = {
+        medida_a: measurements.medida_a,
+        medida_b: measurements.medida_b,
+        medida_c: measurements.medida_c,
+        medida_d: measurements.medida_d,
+      };
+
+      const updatedResult = await graphqlService.updateResultMeasurements(
+        token, 
+        result.id, 
+        measurementsData
+      );
+
+      if (updatedResult) {
+        setEditingMeasurements(false);
+        toast({
+          title: "Medidas salvas",
+          description: "As medidas foram atualizadas com sucesso!",
+        });
+      } else {
+        throw new Error("Falha ao salvar medidas");
+      }
+    } catch (error) {
+      console.error('Erro ao salvar medidas:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar as medidas. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleMeasurementChange = (field: keyof typeof measurements, value: string) => {
+    const numericValue = parseFloat(value) || 0;
+    setMeasurements(prev => ({
+      ...prev,
+      [field]: numericValue
+    }));
+  };
+
+  const openImageInNewTab = (imageUrl: string) => {
+    // Remove o endpoint do MinIO da URL e reconstrói uma URL pública
+    const cleanUrl = imageUrl.replace('https://orthomovi-minio.t2wird.easypanel.host/', '');
+    const publicUrl = `https://orthomovi-minio.t2wird.easypanel.host/orthomovi/${cleanUrl}`;
+    window.open(publicUrl, '_blank');
+  };
+
+  const getImagesByType = () => {
+    const imagesByType: { [key: string]: Image | undefined } = {
+      'A': images.find(img => img.url.includes('foto_A')),
+      'B': images.find(img => img.url.includes('foto_B')),
+      'C': images.find(img => img.url.includes('foto_C')),
+      'D': images.find(img => img.url.includes('foto_D')),
+    };
+    return imagesByType;
+  };
+
+  const imagesByType = getImagesByType();
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -127,54 +206,96 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               <div className="text-center py-8">
                 <p className="text-gray-500">Carregando imagens...</p>
               </div>
-            ) : images.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {images.map((image, index) => (
-                  <div key={image.id} className="aspect-square bg-gray-100 rounded-lg overflow-hidden border">
-                    <img 
-                      src={image.url} 
-                      alt={`Foto ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
-                      onClick={() => window.open(image.url, '_blank')}
-                    />
-                  </div>
-                ))}
-              </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
-                {['Medida A', 'Medida B', 'Medida C', 'Medida D'].map((label, index) => (
-                  <div key={index} className="aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
-                    <div className="text-gray-400 text-sm mb-1">📷</div>
-                    <div className="text-gray-500 text-xs">{label}</div>
-                    <div className="text-gray-400 text-xs mt-1">Aguardando upload</div>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { letter: 'A', label: 'Calcanhar' },
+                  { letter: 'B', label: 'Largura' },
+                  { letter: 'C', label: 'Comprimento' },
+                  { letter: 'D', label: 'Circunferência' }
+                ].map(({ letter, label }) => {
+                  const image = imagesByType[letter];
+                  return (
+                    <div key={letter} className="aspect-square bg-gray-100 rounded-lg overflow-hidden border">
+                      {image ? (
+                        <img 
+                          src={image.url} 
+                          alt={`Foto ${letter} - ${label}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                          onClick={() => openImageInNewTab(image.url)}
+                          onError={(e) => {
+                            console.error('Erro ao carregar imagem:', image.url);
+                            e.currentTarget.src = '/placeholder.svg';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300">
+                          <div className="text-gray-400 text-sm mb-1">📷</div>
+                          <div className="text-gray-500 text-xs">Foto {letter}</div>
+                          <div className="text-gray-500 text-xs">{label}</div>
+                          <div className="text-gray-400 text-xs mt-1">Aguardando upload</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
 
           {/* Medidas */}
           <div>
-            <h3 className="font-semibold text-lg mb-3">Medidas</h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="border rounded-md p-3 text-center">
-                <div className="text-sm text-gray-500 mb-1">Medida A</div>
-                <div className="font-bold text-lg">
-                  Em breve
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold text-lg">Medidas</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (editingMeasurements) {
+                    handleSaveMeasurements();
+                  } else {
+                    setEditingMeasurements(true);
+                  }
+                }}
+              >
+                {editingMeasurements ? (
+                  <>
+                    <Save className="w-4 h-4 mr-1" />
+                    Salvar
+                  </>
+                ) : (
+                  <>
+                    <Edit3 className="w-4 h-4 mr-1" />
+                    Editar
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { key: 'medida_a' as keyof typeof measurements, label: 'Medida A: Calcanhar', unit: 'cm' },
+                { key: 'medida_b' as keyof typeof measurements, label: 'Medida B: Largura', unit: 'cm' },
+                { key: 'medida_c' as keyof typeof measurements, label: 'Medida C: Comprimento', unit: 'cm' },
+                { key: 'medida_d' as keyof typeof measurements, label: 'Medida D: Circunferência', unit: 'cm' }
+              ].map(({ key, label, unit }) => (
+                <div key={key} className="border rounded-md p-3">
+                  <div className="text-sm text-gray-500 mb-2">{label}</div>
+                  {editingMeasurements ? (
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={measurements[key]}
+                      onChange={(e) => handleMeasurementChange(key, e.target.value)}
+                      className="text-center font-bold"
+                      placeholder="0.0"
+                    />
+                  ) : (
+                    <div className="font-bold text-lg text-center">
+                      {measurements[key] > 0 ? `${measurements[key]} ${unit}` : 'Não medido'}
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div className="border rounded-md p-3 text-center">
-                <div className="text-sm text-gray-500 mb-1">Medida H</div>
-                <div className="font-bold text-lg">
-                  Em breve
-                </div>
-              </div>
-              <div className="border rounded-md p-3 text-center">
-                <div className="text-sm text-gray-500 mb-1">Medida D</div>
-                <div className="font-bold text-lg">
-                  Em breve
-                </div>
-              </div>
+              ))}
             </div>
           </div>
           
