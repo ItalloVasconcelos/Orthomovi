@@ -53,6 +53,7 @@ const executeSyncMutationWithUserToken = async (token: string, variables: any) =
   const headers = {
     'content-type': 'application/json',
     'Authorization': `Bearer ${token}`, // A autenticação segura continua aqui
+    'x-hasura-hole': 'app_admin'
   };
 
   console.log(keycloak.token)
