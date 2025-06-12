@@ -13,6 +13,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { graphqlService, Result } from "@/services/graphqlService";
 import { formatDate } from "@/utils/dateUtils";
 import { useAuth } from "@/contexts/AuthContext";
+import {Header} from "@/components/Header.tsx";
+import {Footer} from "@/components/Footer.tsx";
 
 const AdminPanel = () => {
   const { toast } = useToast();
@@ -125,17 +127,7 @@ const AdminPanel = () => {
 
   return (
       <div className="min-h-screen flex flex-col bg-brand-bg">
-        <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-          <div className="container mx-auto">
-            <div className="flex justify-between items-center">
-              <Link to="/" className="flex items-center space-x-2">
-                <img src="/img/logo.svg" alt="Orthomovi" className="w-8 h-8" />
-                <span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span>
-              </Link>
-              <UserDropdown />
-            </div>
-          </div>
-        </header>
+       <Header />
 
         <div className="container mx-auto py-4 px-4">
           <Breadcrumb>
@@ -264,7 +256,8 @@ const AdminPanel = () => {
             </div>
           </div>
         </main>
-        <ClientDetailsModal 
+        <Footer />
+        <ClientDetailsModal
           isOpen={isModalOpen} 
           onOpenChange={setIsModalOpen} 
           result={selectedResult} 

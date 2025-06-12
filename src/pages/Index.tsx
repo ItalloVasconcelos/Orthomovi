@@ -59,7 +59,7 @@ const Index = () => {
                 Tire fotos das órteses e receba medições precisas instantaneamente.
               </p>
               
-              <div className="w-full max-w-md mx-auto">
+              <div className="w-full max-w-full mx-auto">
                 <PhotoWizard />
               </div>
             </div>

@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { UserDropdown } from "@/components/UserDropdown";
 import { graphqlService, UpdateCompanyConfigData } from "@/services/graphqlService";
 import { useAuth } from "@/contexts/AuthContext";
+import {Header} from "@/components/Header.tsx";
+import {Footer} from "@/components/Footer.tsx";
 
 const AdminConfigPage = () => {
   const { toast } = useToast();
@@ -85,9 +87,7 @@ const AdminConfigPage = () => {
 
   return (
       <div className="min-h-screen flex flex-col bg-brand-bg">
-        <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-          <div className="container mx-auto"><div className="flex justify-between items-center"><Link to="/" className="flex items-center space-x-2"><div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center"><span className="text-white font-bold text-sm">O</span></div><span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span></Link><UserDropdown /></div></div>
-        </header>
+        <Header />
         <div className="container mx-auto py-4 px-4">
           <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="/">Início</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbLink href="/admin">Painel Administrativo</BreadcrumbLink></BreadcrumbItem><BreadcrumbSeparator /><BreadcrumbItem><BreadcrumbPage>Configurações</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb>
         </div>
@@ -127,6 +127,7 @@ const AdminConfigPage = () => {
             </div>
           </div>
         </main>
+        <Footer />
       </div>
   );
 };

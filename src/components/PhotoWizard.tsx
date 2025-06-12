@@ -85,7 +85,7 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
     // Tela inicial - Instruções
     case 0:
       return (
-        <Card className="w-full max-w-md mx-auto">
+        <Card className="w-full max-w-lg mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-ortho-orange">Vamos tirar as fotos da órtese?</CardTitle>
           </CardHeader>
@@ -97,12 +97,12 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
             <div className="grid grid-cols-2 gap-4">
               {photoSteps.map((step) => (
                 <div key={step.id} className="bg-ortho-blue/30 p-3 rounded-lg">
-                  <div className="relative aspect-square bg-ortho-blue mb-2 rounded-md overflow-hidden flex items-center justify-center">
+                  <div className="relative aspect-square bg-ortho-blue mb-2 rounded-md overflow-hidden flex items-center justify-center ">
                     <img 
-                      src={step.letter === 'A' ? 'public/lovable-uploads/76b39874-aa23-4c6a-a410-ace0f77e9a1f.png' : 
-                           step.letter === 'B' ? 'public/lovable-uploads/b0405de4-5bac-478d-93ee-f7f8460ea44e.png' :
-                           step.letter === 'C' ? 'public/lovable-uploads/6af0c023-c3b5-495c-9298-d6a1a53c8a86.png' :
-                           'public/lovable-uploads/6ea46f45-5818-4aee-972c-b4a1ddfc69c9.png'}
+                      src={step.letter === 'A' ? 'img/medida_a.jpeg' :
+                           step.letter === 'B' ? 'img/medida_b.jpeg' :
+                           step.letter === 'C' ? 'img/medida_c.jpeg' :
+                           'img/medida_d.jpeg'}
                       alt={`Exemplo de foto ${step.letter}`}
                       className="object-cover w-full h-full"
                     />
@@ -161,11 +161,11 @@ const WizardContent: React.FC<{ orderId?: string }> = ({ orderId }) => {
               ) : (
                 // Mostra a imagem de referência
                 <div className="relative w-full h-full">
-                  <img 
-                    src={letter === 'A' ? 'public/lovable-uploads/76b39874-aa23-4c6a-a410-ace0f77e9a1f.png' : 
-                         letter === 'B' ? 'public/lovable-uploads/b0405de4-5bac-478d-93ee-f7f8460ea44e.png' :
-                         letter === 'C' ? 'public/lovable-uploads/6af0c023-c3b5-495c-9298-d6a1a53c8a86.png' :
-                         'public/lovable-uploads/6ea46f45-5818-4aee-972c-b4a1ddfc69c9.png'}
+                  <img
+                      src={letter === 'A' ? 'img/medida_a.jpeg' :
+                          letter === 'B' ? 'img/medida_b.jpeg' :
+                              letter === 'C' ? 'img/medida_c.jpeg' :
+                                  'img/medida_d.jpeg'}
                     alt={`Exemplo de foto ${letter}`}
                     className="w-full h-full object-contain"
                   />

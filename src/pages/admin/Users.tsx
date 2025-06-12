@@ -15,6 +15,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { graphqlService, User, UpdateUserData } from "@/services/graphqlService";
 import { useAuth } from "@/contexts/AuthContext";
 import keycloak from "@/services/keycloak";
+import {Header} from "@/components/Header.tsx";
+import {Footer} from "@/components/Footer.tsx";
 
 const AdminUsersPage = () => {
   const { toast } = useToast();
@@ -98,17 +100,7 @@ const AdminUsersPage = () => {
 
   return (
       <div className="min-h-screen flex flex-col bg-brand-bg">
-        <header className="py-4 px-4 bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
-          <div className="container mx-auto">
-            <div className="flex justify-between items-center">
-              <Link to="/" className="flex items-center space-x-2">
-                <img src="/img/logo.svg" alt="Orthomovi" className="w-8 h-8" />
-                <span className="text-xl font-heading font-bold text-brand-text">Orthomovi</span>
-              </Link>
-              <UserDropdown />
-            </div>
-          </div>
-        </header>
+       <Header />
 
         <div className="container mx-auto py-4 px-4">
           <Breadcrumb>
@@ -232,6 +224,7 @@ const AdminUsersPage = () => {
             </div>
           </div>
         </main>
+        <Footer />
         <InactivateUserModal 
           user={inactivatingUser} 
           open={!!inactivatingUser} 
@@ -245,5 +238,6 @@ const AdminUsersPage = () => {
         />
       </div>
   );
+
 };
 export default AdminUsersPage;
