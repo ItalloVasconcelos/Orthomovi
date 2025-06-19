@@ -13,6 +13,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import keycloak from "@/services/keycloak";
+import { GoogleReviewsCarousel } from "@/components/GoogleReviewsCarousel";
 
 const Index = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -204,7 +205,7 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="text-center mt-12">
+            <div className="text-center mt-12 ">
               <Button 
                 onClick={handleSolicitarTenis}
                 className="w-full sm:w-auto h-12 md:h-14 text-base md:text-lg px-6 md:px-8 py-3 md:py-4 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -393,7 +394,7 @@ const Index = () => {
               O que dizem nossos Clientes
             </h2>
             <div className="max-w-4xl mx-auto">
-              <p className="text-brand-text-light text-lg">Espaço reservado para depoimentos de clientes satisfeitos.</p>
+              <GoogleReviewsCarousel />
             </div>
           </div>
         </section>
