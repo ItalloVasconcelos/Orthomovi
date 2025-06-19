@@ -1,17 +1,16 @@
-
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const MINIO_ENDPOINT = 'https://orthomovi-minio.t2wird.easypanel.host';
-const BUCKET_NAME = 'orthomovi';
+const MINIO_ENDPOINT = import.meta.env.VITE_MINIO_ENDPOINT;
+const BUCKET_NAME = import.meta.env.VITE_MINIO_BUCKET;
 
 // Configuração do cliente S3 para MinIO
 const s3Client = new S3Client({
   endpoint: MINIO_ENDPOINT,
   region: 'us-east-1', // MinIO aceita qualquer região
   credentials: {
-    accessKeyId: 'admin',
-    secretAccessKey: 'password',
+    accessKeyId: import.meta.env.VITE_MINIO_ACCESS_KEY,
+    secretAccessKey: import.meta.env.VITE_MINIO_SECRET_KEY,
   },
   forcePathStyle: true, // Necessário para MinIO
 });

@@ -1,4 +1,3 @@
-
 // --- INTERFACES DE DADOS (ÚNICA FONTE DA VERDADE) ---
 export interface User {
   id: string;
@@ -74,7 +73,7 @@ export interface UpdateResultMeasurementsData {
 }
 
 // --- ENGINE DE EXECUÇÃO ---
-const API_URL = 'https://orthomovi-hasura.t2wird.easypanel.host/v1/graphql';
+const API_URL = import.meta.env.VITE_HASURA_GRAPHQL_URL;
 
 const executeGraphQL = async (
     token: string,
