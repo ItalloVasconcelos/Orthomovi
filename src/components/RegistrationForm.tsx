@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -155,13 +154,13 @@ const RegistrationForm: React.FC = () => {
   };
   
   return (
-    <div className="bg-brand-white rounded-xl shadow-lg p-8 animate-fade-in">
+    <div className="bg-brand-white rounded-xl shadow-lg p-4 md:p-8 animate-fade-in w-full max-w-md mx-auto">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-heading font-bold text-brand-text mb-2">Cadastro</h1>
         <p className="text-brand-text-light">Crie sua conta para acessar nosso sistema</p>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
         <div className="relative">
           <User className="input-icon text-brand-text-light" size={18} />
           <Input
@@ -170,12 +169,10 @@ const RegistrationForm: React.FC = () => {
             value={formData.fullName}
             onChange={handleChange}
             placeholder="Nome completo"
-            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
-              errors.fullName ? "border-red-500" : ""
-            }`}
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200 rounded-lg text-base md:text-lg ${errors.fullName ? "border-red-500 animate-shake" : ""}`}
             autoComplete="name"
           />
-          {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>}
+          {errors.fullName && <p className="text-red-500 text-sm mt-1 animate-fade-in">{errors.fullName}</p>}
         </div>
         
         <div className="relative">
@@ -186,12 +183,10 @@ const RegistrationForm: React.FC = () => {
             value={formData.email}
             onChange={handleChange}
             placeholder="E-mail"
-            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
-              errors.email ? "border-red-500" : ""
-            }`}
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200 rounded-lg text-base md:text-lg ${errors.email ? "border-red-500 animate-shake" : ""}`}
             autoComplete="email"
           />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+          {errors.email && <p className="text-red-500 text-sm mt-1 animate-fade-in">{errors.email}</p>}
         </div>
 
         <div className="relative">
@@ -201,13 +196,11 @@ const RegistrationForm: React.FC = () => {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="Telefone (11) 99999-9999"
-            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
-              errors.phone ? "border-red-500" : ""
-            }`}
+            placeholder="Telefone (com DDD)"
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200 rounded-lg text-base md:text-lg ${errors.phone ? "border-red-500 animate-shake" : ""}`}
             autoComplete="tel"
           />
-          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+          {errors.phone && <p className="text-red-500 text-sm mt-1 animate-fade-in">{errors.phone}</p>}
         </div>
         
         <div className="relative">
@@ -217,20 +210,14 @@ const RegistrationForm: React.FC = () => {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Senha (mínimo 6 caracteres)"
-            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
-              errors.password ? "border-red-500" : ""
-            }`}
+            placeholder="Senha"
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200 rounded-lg text-base md:text-lg pr-10 ${errors.password ? "border-red-500 animate-shake" : ""}`}
             autoComplete="new-password"
           />
-          <button
-            type="button"
-            onClick={togglePasswordVisibility}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-light hover:text-brand-text"
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-primary focus:outline-none">
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
-          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+          {errors.password && <p className="text-red-500 text-sm mt-1 animate-fade-in">{errors.password}</p>}
         </div>
         
         <div className="relative">
@@ -241,65 +228,42 @@ const RegistrationForm: React.FC = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="Confirmar senha"
-            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-brand-primary/20 ${
-              errors.confirmPassword ? "border-red-500" : ""
-            }`}
+            className={`pl-10 h-12 border-gray-200 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 transition-all duration-200 rounded-lg text-base md:text-lg pr-10 ${errors.confirmPassword ? "border-red-500 animate-shake" : ""}`}
             autoComplete="new-password"
           />
-          <button
-            type="button"
-            onClick={toggleConfirmPasswordVisibility}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-text-light hover:text-brand-text"
-          >
-            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          <button type="button" onClick={toggleConfirmPasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-primary focus:outline-none">
+            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-          )}
+          {errors.confirmPassword && <p className="text-red-500 text-sm mt-1 animate-fade-in">{errors.confirmPassword}</p>}
         </div>
         
-        <div className="flex items-start space-x-2">
-          <div className="flex h-5 items-center">
-            <input
-              type="checkbox"
-              name="termsAccepted"
-              checked={formData.termsAccepted}
-              onChange={handleChange}
-              className="h-4 w-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary/20"
-            />
-          </div>
-          <div className="text-sm">
-            <label htmlFor="termsAccepted" className="text-brand-text-light">
-              Li e aceito os{" "}
-              <Link to="/terms" className="text-brand-primary hover:underline">
-                termos de uso
-              </Link>
-            </label>
-            {errors.termsAccepted && (
-              <p className="text-red-500 text-sm">{errors.termsAccepted}</p>
-            )}
-          </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            name="termsAccepted"
+            checked={formData.termsAccepted}
+            onChange={handleChange}
+            className="rounded border-gray-300 focus:ring-2 focus:ring-brand-primary/40 focus:outline-none transition-all duration-200"
+            id="termsAccepted"
+          />
+          <label htmlFor="termsAccepted" className="text-sm text-brand-text-light cursor-pointer select-none">
+            Aceito os <Link to="/termos" className="underline hover:text-brand-primary">termos de uso</Link>
+          </label>
         </div>
+        {errors.termsAccepted && <p className="text-red-500 text-sm mt-1 animate-fade-in">{errors.termsAccepted}</p>}
         
         <Button
           type="submit"
+          className="btn-primary w-full h-12 text-base md:text-lg mt-2"
           disabled={isSubmitting}
-          className="btn-primary w-full h-12 text-base"
         >
-          {isSubmitting ? (
-            <span className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em]"></span>
-          ) : (
-            "Criar Conta"
-          )}
+          {isSubmitting ? "Criando conta..." : "Criar conta"}
         </Button>
+        <div className="text-center mt-4">
+          <span className="text-sm text-brand-text-light">Já tem uma conta?</span>{' '}
+          <Link to="/login" className="text-brand-primary font-semibold hover:underline">Entrar</Link>
+        </div>
       </form>
-      
-      <p className="mt-8 text-center text-brand-text-light">
-        Já tem conta?{" "}
-        <Link to="/login" className="text-brand-primary hover:underline font-medium">
-          Faça login
-        </Link>
-      </p>
     </div>
   );
 };

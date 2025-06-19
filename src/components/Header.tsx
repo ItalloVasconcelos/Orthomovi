@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,15 +18,15 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <header className="bg-brand-white shadow-sm border-b border-gray-100 sticky top-0 z-50 transition-all duration-200">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-12 md:h-16">
-          <Link to="/" className="flex items-center space-x-2">
+        <div className="flex justify-between items-center h-14 md:h-16">
+          <Link to="/" className="flex items-center space-x-2 group">
             <span className="text-xl font-heading font-bold">
               <img 
                 src="/img/logo.svg" 
                 alt="Logomarca Orthomovi" 
-                className="h-8 md:h-10 w-auto max-w-[120px] md:max-w-none"
+                className="h-8 md:h-10 w-auto max-w-[120px] md:max-w-none transition-all duration-200 group-hover:scale-105"
               />
             </span>
           </Link>

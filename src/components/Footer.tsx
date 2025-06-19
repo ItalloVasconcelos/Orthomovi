@@ -1,13 +1,12 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, Phone, Mail } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="bg-brand-text text-white py-8 md:py-12 mt-auto">
+    <footer className="bg-brand-text text-white py-10 md:py-16 mt-auto shadow-inner transition-all duration-200">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-28">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-28">
           {/* Logo e descrição */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center space-x-2 mb-4 md:mb-6">
