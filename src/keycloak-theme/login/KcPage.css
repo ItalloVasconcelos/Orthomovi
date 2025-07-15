@@ -1,0 +1,70 @@
+/* Importa o Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS customizado para o tema Keycloak */
+.bg-brand-bg {
+    background-color: #f8fafc;
+}
+
+.bg-brand-white {
+    background-color: #ffffff;
+}
+
+.text-brand-text {
+    color: #1f2937;
+}
+
+.text-brand-text-light {
+    color: #6b7280;
+}
+
+.font-heading {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Override Keycloak default styles */
+#kc-container {
+    background: transparent !important;
+}
+
+#kc-container-wrapper {
+    background: transparent !important;
+}
+
+.card-pf {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.login-pf body {
+    background: #f8fafc !important;
+}
+
+/* Ensure proper spacing and layout */
+.kc-content {
+    padding: 2rem 1rem;
+}
+
+@media (min-width: 640px) {
+    .kc-content {
+        padding: 3rem 1.5rem;
+    }
+} 
